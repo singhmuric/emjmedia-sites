@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- GitHub repo cover / social preview. 1280x640. Pure-type wordmark matching
+     the site, with a lighter-touch geogrid decoration so the mark can breathe. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#F0FDF4"/>
+    </linearGradient>
+    <radialGradient id="ringGrad" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#16A34A" stop-opacity="0.08"/>
+      <stop offset="60%" stop-color="#16A34A" stop-opacity="0.03"/>
+      <stop offset="100%" stop-color="#16A34A" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="640" fill="url(#bgGrad)"/>
+
+  <!-- Decorative geogrid rings, pushed right enough to clear the pills while
+       staying visually present. Stroke opacities bumped back up so the rings
+       actually read. -->
+  <g transform="translate(1340, 320)">
+    <circle cx="0" cy="0" r="520" fill="url(#ringGrad)"/>
+    <circle cx="0" cy="0" r="360" fill="none" stroke="#16A34A" stroke-width="1.2" stroke-opacity="0.3"/>
+    <circle cx="0" cy="0" r="250" fill="none" stroke="#16A34A" stroke-width="1.2" stroke-opacity="0.36"/>
+    <circle cx="0" cy="0" r="150" fill="none" stroke="#16A34A" stroke-width="1.2" stroke-opacity="0.44"/>
+    <circle cx="0" cy="0" r="70" fill="none" stroke="#16A34A" stroke-width="1.2" stroke-opacity="0.55"/>
+    <g fill="#16A34A">
+      <circle cx="0" cy="0" r="6"/>
+      <circle cx="250" cy="0" r="4" opacity="0.7"/>
+      <circle cx="-250" cy="0" r="4" opacity="0.7"/>
+      <circle cx="0" cy="250" r="4" opacity="0.7"/>
+      <circle cx="0" cy="-250" r="4" opacity="0.7"/>
+      <circle cx="177" cy="177" r="3" opacity="0.5"/>
+      <circle cx="-177" cy="177" r="3" opacity="0.5"/>
+      <circle cx="177" cy="-177" r="3" opacity="0.5"/>
+      <circle cx="-177" cy="-177" r="3" opacity="0.5"/>
+    </g>
+  </g>
+
+  <!-- Wordmark: three-word brand form "Local SEO Skills", "SEO" in green -->
+  <text x="80" y="310"
+        font-family="Plus Jakarta Sans"
+        font-weight="800"
+        font-size="112"
+        letter-spacing="-3.4"
+        fill="#0F172A">Local <tspan fill="#16A34A">SEO</tspan> Skills</text>
+
+  <!-- Tagline -->
+  <text x="80" y="378"
+        font-family="Plus Jakarta Sans"
+        font-weight="500"
+        font-size="32"
+        fill="#334155">Turn Claude into a local SEO specialist.</text>
+
+  <!-- Three stat pills. Green-200 border, JetBrains Mono 600. Widths set to
+       fit each string with consistent inner padding. -->
+  <g font-family="JetBrains Mono" font-weight="600" font-size="22">
+    <rect x="80" y="470" width="168" height="46" rx="23" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+    <text x="164" y="501" text-anchor="middle" fill="#15803D">38 skills</text>
+
+    <rect x="264" y="470" width="320" height="46" rx="23" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+    <text x="424" y="501" text-anchor="middle" fill="#15803D">12 tool integrations</text>
+
+    <rect x="600" y="470" width="200" height="46" rx="23" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="1.5"/>
+    <text x="700" y="501" text-anchor="middle" fill="#15803D">Open source</text>
+  </g>
+</svg>

@@ -1,0 +1,31 @@
+{
+  "name": "garrettjsmith-localseo",
+  "owner": {
+    "name": "Garrett Smith",
+    "email": "help@localseoskills.com"
+  },
+  "metadata": {
+    "description": "Local SEO skills and automation for Claude Code.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "local-seo-skills",
+      "version": "1.0.0",
+      "source": "./",
+      "description": "38 skills for local SEO in Claude Code. GBP optimization, map pack visibility, audits, citations, reviews, keywords, geogrid, AI visibility, multi-location SEO, and reporting. Includes a persistent brief system and 15 scheduled task templates.",
+      "category": "seo",
+      "tags": [
+        "local-seo",
+        "seo",
+        "mcp",
+        "google-business-profile",
+        "map-pack",
+        "geogrid",
+        "ai-visibility",
+        "agency",
+        "smb"
+      ]
+    }
+  ]
+}

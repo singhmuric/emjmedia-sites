@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Square logo for favicon / avatar / GitHub social. Since the LSS brand is
+     a pure text wordmark, the square mark is an "LSS" monogram with the
+     middle S in brand green, matching how "SEO" is green in the wordmark.
+     Rounded-square green-50 background for contrast on white or dark avatars. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" ry="96" fill="#F0FDF4"/>
+  <text x="256" y="256"
+        text-anchor="middle"
+        dominant-baseline="central"
+        font-family="Plus Jakarta Sans"
+        font-weight="800"
+        font-size="230"
+        letter-spacing="-4"
+        fill="#0F172A">L<tspan fill="#16A34A">S</tspan>S</text>
+</svg>

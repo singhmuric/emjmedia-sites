@@ -1,0 +1,20 @@
+# Code Owners
+#
+# Every PR gets a review from at least one listed owner.
+# Specific paths can pin more reviewers if needed.
+
+* @garrettjsmith @noahowsh
+
+# Install / uninstall scripts are security-sensitive.
+# Both owners must review changes here.
+/install.sh    @garrettjsmith @noahowsh
+/install.ps1   @garrettjsmith @noahowsh
+/uninstall.sh  @garrettjsmith @noahowsh
+/uninstall.ps1 @garrettjsmith @noahowsh
+
+# Security policy changes always ping both.
+/SECURITY.md @garrettjsmith @noahowsh
+/PRIVACY.md  @garrettjsmith @noahowsh
+
+# CI is how we keep the guard honest — owners review both.
+/.github/ @garrettjsmith @noahowsh

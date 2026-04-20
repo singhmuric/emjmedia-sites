@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Private work files — never commit client data
+briefs/*/
+!briefs/_templates/
+!briefs/README.md
+
+# Environment / secrets
+.env
+.env.*
+
+# Per-contributor tooling — not part of the distributed package
+.claude/*
+!.claude/settings.json
+
+# Private lessons
+meta/lessons-private.md

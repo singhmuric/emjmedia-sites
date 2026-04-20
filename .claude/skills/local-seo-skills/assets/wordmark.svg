@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Local SEO Skills wordmark. Three-word brand form with "SEO" in brand
+     green (#16A34A), everything else in slate-900 (#0F172A).
+     Plus Jakarta Sans ExtraBold, letter-spacing -0.03em. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 260" width="1200" height="260">
+  <text x="600" y="165"
+        text-anchor="middle"
+        font-family="Plus Jakarta Sans"
+        font-weight="800"
+        font-size="140"
+        letter-spacing="-4.2"
+        fill="#0F172A">Local <tspan fill="#16A34A">SEO</tspan> Skills</text>
+</svg>

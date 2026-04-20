@@ -1,0 +1,238 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shellcheck:
+    name: Shellcheck install / uninstall
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run shellcheck
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y shellcheck
+          shellcheck install.sh uninstall.sh
+
+  guard-regression:
+    name: Uninstall guard regression
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dangerous inputs must be refused
+        shell: bash
+        run: |
+          set -u
+          fail_count=0
+          inputs=(
+            "/"
+            "$HOME"
+            "/Users"
+            "/etc"
+            "/usr"
+            "/var"
+            "/bin"
+            "$HOME/../../usr"
+            "$HOME/../../Users"
+            "/opt"
+            "/tmp"
+          )
+
+          for input in "${inputs[@]}"; do
+            echo "=== LSS_INSTALL_DIR=$input ==="
+            # Pipe "no" so if the guard ever fails to refuse, the interactive
+            # prompt aborts the run instead of proceeding to rm -rf.
+            output="$(LSS_INSTALL_DIR="$input" bash uninstall.sh 2>&1 <<< "no" || true)"
+            echo "$output"
+
+            if echo "$output" | grep -qE "Refusing to (operate|back up)"; then
+              echo "OK: refused"
+            else
+              echo "FAIL: guard did not refuse $input"
+              fail_count=$((fail_count + 1))
+            fi
+            echo ""
+          done
+
+          if [ "$fail_count" -gt 0 ]; then
+            echo "Guard regression: $fail_count dangerous inputs were NOT refused."
+            exit 1
+          fi
+          echo "All dangerous inputs refused."
+
+      - name: Short-path refusal
+        shell: bash
+        run: |
+          output="$(LSS_INSTALL_DIR="/x" bash uninstall.sh 2>&1 <<< "no" || true)"
+          echo "$output"
+          echo "$output" | grep -q "suspiciously short path" || {
+            echo "FAIL: guard did not refuse short path /x"
+            exit 1
+          }
+
+  happy-path:
+    name: Install / uninstall happy path
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install into disposable prefix
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LSS_INSTALL_DIR="$RUNNER_TEMP/lss-happy/install"
+          bash install.sh
+          test -f "$LSS_INSTALL_DIR/AGENTS.md" || {
+            echo "FAIL: install did not produce AGENTS.md"
+            exit 1
+          }
+          echo "Install OK at $LSS_INSTALL_DIR"
+
+      - name: Uninstall and confirm briefs backup
+        shell: bash
+        run: |
+          set -euo pipefail
+          export LSS_INSTALL_DIR="$RUNNER_TEMP/lss-happy/install"
+
+          # Seed a fake brief so the backup path is exercised.
+          mkdir -p "$LSS_INSTALL_DIR/briefs/_ci-test"
+          echo "ci placeholder" > "$LSS_INSTALL_DIR/briefs/_ci-test/brief.md"
+
+          echo "yes" | bash uninstall.sh
+
+          if [ -e "$LSS_INSTALL_DIR" ]; then
+            echo "FAIL: install dir still exists after uninstall"
+            exit 1
+          fi
+
+          # Backup dir lives at $HOME/.claude/lss-briefs-backup-*
+          if ! ls "$HOME/.claude/lss-briefs-backup-"* >/dev/null 2>&1; then
+            echo "FAIL: uninstall did not back up briefs"
+            exit 1
+          fi
+          echo "Uninstall OK; briefs backed up."
+
+  powershell-checks:
+    name: PowerShell install / uninstall
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser -SkipPublisherCheck
+          Import-Module PSScriptAnalyzer
+
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $failed = $false
+          foreach ($script in @('install.ps1', 'uninstall.ps1')) {
+            Write-Host "=== Analyzing $script ==="
+            $results = Invoke-ScriptAnalyzer -Path $script -Severity Error,Warning
+            if ($results) {
+              $results | Format-Table -AutoSize | Out-String | Write-Host
+              $errors = $results | Where-Object { $_.Severity -eq 'Error' }
+              if ($errors) {
+                Write-Host "FAIL: $script has $($errors.Count) error-severity findings"
+                $failed = $true
+              } else {
+                Write-Host "WARN: $script has warning-severity findings (not failing)"
+              }
+            } else {
+              Write-Host "OK: $script clean"
+            }
+          }
+          if ($failed) { exit 1 }
+
+      - name: Dangerous inputs must be refused
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $failCount = 0
+          $inputs = @(
+            'C:\',
+            $env:USERPROFILE,
+            'C:\Windows',
+            'C:\Users'
+          )
+
+          foreach ($inputPath in $inputs) {
+            Write-Host "=== LSS_INSTALL_DIR=$inputPath ==="
+            $env:LSS_INSTALL_DIR = $inputPath
+            $refused = $false
+            try {
+              $output = & pwsh -NoProfile -Command "`$env:LSS_INSTALL_DIR = '$inputPath'; 'no' | ./uninstall.ps1 2>&1" 2>&1 | Out-String
+              Write-Host $output
+              if ($output -match 'Refusing to operate|dangerous path|home directory|suspiciously short') {
+                $refused = $true
+              }
+            } catch {
+              Write-Host "Exception (not treated as a refusal): $_"
+            }
+
+            if ($refused) {
+              Write-Host "OK: refused"
+            } else {
+              Write-Host "FAIL: guard did not refuse $inputPath"
+              $failCount++
+            }
+            Write-Host ""
+          }
+
+          Remove-Item Env:\LSS_INSTALL_DIR -ErrorAction SilentlyContinue
+
+          if ($failCount -gt 0) {
+            Write-Host "Guard regression: $failCount dangerous inputs were NOT refused."
+            exit 1
+          }
+          Write-Host "All dangerous inputs refused."
+          # The inner pwsh invocation exits 1 on each expected refusal, leaving
+          # $LASTEXITCODE = 1 in the outer shell. GitHub's pwsh step wrapper
+          # uses $LASTEXITCODE as the step's exit code, so without this the
+          # step fails despite every assertion passing.
+          exit 0
+
+      - name: Install into disposable prefix
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:LSS_INSTALL_DIR = "$env:USERPROFILE\lss-happy\install"
+          ./install.ps1
+          if (-not (Test-Path "$env:LSS_INSTALL_DIR\AGENTS.md")) {
+            Write-Host "FAIL: install did not produce AGENTS.md"
+            exit 1
+          }
+          Write-Host "Install OK at $env:LSS_INSTALL_DIR"
+
+      - name: Uninstall and confirm briefs backup
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:LSS_INSTALL_DIR = "$env:USERPROFILE\lss-happy\install"
+
+          # Seed a fake brief so the backup path is exercised.
+          $briefDir = Join-Path $env:LSS_INSTALL_DIR 'briefs\_ci-test'
+          New-Item -ItemType Directory -Force -Path $briefDir | Out-Null
+          Set-Content -Path (Join-Path $briefDir 'brief.md') -Value 'ci placeholder'
+
+          ./uninstall.ps1 -Force
+
+          if (Test-Path $env:LSS_INSTALL_DIR) {
+            Write-Host "FAIL: install dir still exists after uninstall"
+            exit 1
+          }
+
+          $backupGlob = Join-Path $env:USERPROFILE '.claude\lss-briefs-backup-*'
+          if (-not (Get-Item $backupGlob -ErrorAction SilentlyContinue)) {
+            Write-Host "FAIL: uninstall did not back up briefs"
+            exit 1
+          }
+          Write-Host "Uninstall OK; briefs backed up."

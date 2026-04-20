@@ -1,0 +1,19 @@
+# Keeps GitHub Actions versions current so pinned majors (actions/checkout@v4, etc.)
+# don't stale silently. Runtime dependencies are pinned per-skill in SKILL.md
+# frontmatter and aren't tracked here.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: America/New_York
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
+      - github-actions
