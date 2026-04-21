@@ -1,6 +1,47 @@
-<section class="section" id="oeffnungszeiten" data-stub>
-  <div class="container">
-    <p class="section-eyebrow">oeffnungszeiten</p>
-    <p>Stub — wird in Phase VII ersetzt.</p>
+<section class="section oeffnungszeiten" id="oeffnungszeiten">
+  <div class="container oeffnungszeiten__inner">
+    <header class="section-head">
+      <p class="section-eyebrow">Öffnungszeiten & Anfahrt</p>
+      <h2 class="section-title">Wann und wo Sie uns finden</h2>
+    </header>
+
+    <div class="oeffnungszeiten__grid">
+      <div class="oeffnungszeiten__hours">
+        <h3 class="oeffnungszeiten__sub">Öffnungszeiten</h3>
+        <div class="hours-table" role="table" aria-label="Öffnungszeiten der Woche">
+          <% for (const row of it.oeffnungszeiten) { %>
+          <div class="hours-row" role="row">
+            <span class="hours-day" role="rowheader"><%= row.label %></span>
+            <span class="<%= row.offen ? 'hours-time' : 'hours-closed' %>" role="cell"><%= row.anzeige %></span>
+          </div>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="oeffnungszeiten__contact">
+        <h3 class="oeffnungszeiten__sub">Anfahrt & Kontakt</h3>
+        <address class="oeffnungszeiten__address">
+          <strong><%= it.lead.firmenname %></strong><br>
+          <%= it.lead.strasse %><br>
+          <%= it.lead.plz %> <%= it.lead.ort %>
+        </address>
+
+        <ul class="oeffnungszeiten__links" role="list">
+          <li>
+            <a href="<%= telHref(it.lead.telefon_e164) %>">Telefon: <%= formatTel(it.lead.telefon_e164, it.lead.telefon_anzeige) %></a>
+          </li>
+          <% if (it.lead.email) { %>
+          <li>
+            <a href="mailto:<%= it.lead.email %>">E-Mail: <%= it.lead.email %></a>
+          </li>
+          <% } %>
+          <li>
+            <a href="<%= mapsHref(it.lead.strasse, it.lead.plz, it.lead.ort) %>" rel="noopener" target="_blank">In Google Maps öffnen</a>
+          </li>
+        </ul>
+
+        <p class="oeffnungszeiten__hint">Werkstatt liegt zentral, Parkplätze direkt vor der Tür.</p>
+      </div>
+    </div>
   </div>
 </section>
