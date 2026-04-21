@@ -7,6 +7,78 @@
  * that would otherwise drift between partials.
  */
 
+/* --- Site footer ----------------------------------------------- */
+
+.site-footer {
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
+  padding-block: clamp(2rem, 4vw, 3rem);
+  color: var(--color-fg);
+}
+
+.site-footer__inner {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  font-size: 0.95rem;
+}
+
+@media (min-width: 768px) {
+  .site-footer__inner {
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.site-footer__name {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.site-footer__address {
+  font-style: normal;
+  color: var(--color-muted);
+  margin-bottom: 0.5rem;
+}
+
+.site-footer__contact,
+.site-footer__hours ul,
+.site-footer__nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.site-footer__contact a,
+.site-footer__nav a {
+  font-weight: 500;
+  text-decoration-color: color-mix(in oklab, var(--color-accent) 50%, transparent);
+}
+
+.site-footer__hours-label {
+  font-family: var(--font-heading);
+  font-size: 0.875rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin: 0 0 0.25rem;
+}
+
+.site-footer__copyright {
+  margin: 0;
+  grid-column: 1 / -1;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
 /* --- Site header ------------------------------------------------ */
 
 .site-header {

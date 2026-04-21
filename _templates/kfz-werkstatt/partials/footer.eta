@@ -1,6 +1,35 @@
-<section class="section" id="footer" data-stub>
-  <div class="container">
-    <p class="section-eyebrow">footer</p>
-    <p>Stub — wird in Phase VII ersetzt.</p>
+<footer class="site-footer" id="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__nap">
+      <strong class="site-footer__name"><%= it.lead.firmenname %></strong>
+      <address class="site-footer__address">
+        <%= it.lead.strasse %>, <%= it.lead.plz %> <%= it.lead.ort %>
+      </address>
+      <ul class="site-footer__contact" role="list">
+        <li><a href="<%= telHref(it.lead.telefon_e164) %>"><%= formatTel(it.lead.telefon_e164, it.lead.telefon_anzeige) %></a></li>
+        <% if (it.lead.email) { %><li><a href="mailto:<%= it.lead.email %>"><%= it.lead.email %></a></li><% } %>
+      </ul>
+    </div>
+
+    <% const heuteOffen = it.oeffnungszeiten.filter((d) => d.offen); %>
+    <% if (heuteOffen.length > 0) { %>
+    <div class="site-footer__hours">
+      <p class="site-footer__hours-label">Geöffnet</p>
+      <ul role="list">
+        <% for (const row of heuteOffen) { %>
+        <li><%= row.label.slice(0, 2) %>.: <%= row.anzeige %></li>
+        <% } %>
+      </ul>
+    </div>
+    <% } %>
+
+    <nav class="site-footer__nav" aria-label="Rechtliche Hinweise">
+      <ul role="list">
+        <li><a href="impressum.html">Impressum</a></li>
+        <li><a href="datenschutz.html">Datenschutz</a></li>
+      </ul>
+    </nav>
+
+    <p class="site-footer__copyright">© <%= copyrightYear() %> <%= it.lead.firmenname %></p>
   </div>
-</section>
+</footer>
