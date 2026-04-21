@@ -1,8 +1,8 @@
 # Dependencies
 node_modules/
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
+# package-lock.json is committed per plan §2.1 (reproducible builds)
 
 # Secrets & Environment
 .env
@@ -22,11 +22,16 @@ build/
 .cache/
 out/
 
-# Logs (runtime, nicht _logs/ die Teil des Repos sind)
+# Logs (runtime). _logs/ ist Teil des Repos (Ordner-Skelett mit .gitkeep),
+# aber Build-/Lighthouse-Reports sind ephemer und werden NICHT committed.
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+_logs/builds/*
+!_logs/builds/.gitkeep
+_logs/lighthouse/*
+!_logs/lighthouse/.gitkeep
 
 # OS
 .DS_Store
