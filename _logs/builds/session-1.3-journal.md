@@ -25,12 +25,37 @@
 - T-016 ✓ `feat(render): image conversion pipeline with sharp` (`2799d44`)
 - T-017 ✓ `feat(dev): local subdomain emulator` (`680dcc9`)
 
-### Phase III — Bild-Pool (teilweise)
+### Phase III — Bild-Pool (Übergang Option 3)
 - T-030 ✓ `docs(images): briefing for kfz image pool` (`4a0f2f6`)
-- T-031 ⏸ Blocker — siehe unten.
-- T-032 ⏸ Blocker — siehe unten.
-- T-033 ⏸ wartet auf T-031/T-032
-- T-034 ⏸ wartet auf T-031/T-032
+- T-031+T-032 ✓ `feat(images): 35 placeholder originals + manifest` (`fc085ad`)
+- T-033 ✓ kombiniert in `fc085ad`
+- T-034 ✓ `chore(images): generate responsive derivates` (`1a258be`)
+
+### Phase IV — CSS + Tokens (✓)
+- T-040 ✓ `feat(css): tailwind config for kfz template` (`9498543`) + CONFLICTS.md C-01
+- T-041 ✓ `feat(css): variant tokens for a/b/c` (`576c53a`)
+- T-042 ✓ `feat(css): base reset + typography` (`a17d0e3`) — postcss tooling added
+- T-043 ✓ `feat(css): shared component styles` (`94b1435`)
+- T-044 ✓ `feat(fonts): self-host fraunces/inter/jetbrains-mono` (`adf68cc`)
+
+### Phase V — Icons (✓)
+- T-050 ✓ `feat(icons): 12 lucide-based service icons` (`522850c`)
+
+### Phase VI — Copy + FAQ + Legal (✓)
+- T-060 ✓ `feat(content): base faq for kfz template` (`163605c`)
+- T-061 ✓ `feat(content): copy pool for kfz template` (`deb1282`)
+- T-062 ✓ `feat(legal): impressum + datenschutz base templates` (`be96c27`)
+
+### Phase VII — Partials (✓)
+- T-070 ✓ `feat(template): layout shell + 14 partial stubs` (`dd53269`)
+- T-071..T-082 ✓ je ein Commit pro Section
+- T-083 ✓ `feat(template): jsonld blocks` (`cab8740`) — Eta `<%-` vs `<%~` fix
+- T-084 ✓ `style(template): micro-interactions polish` (`3ba1d61`)
+
+### Phase VIII — Erste Demo (in progress)
+- T-090 ✓ `feat(demo): first render of kfz archetype` (`345a862`) — slug=kfz-demo, variant=c by hash
+- T-091 ✓ structural smoke via dev-preview server: all routes 200, single H1, noindex meta present, title/meta/OG/Twitter populated, H1 contains Branche + Ort. **Visual viewport sweep (375/768/1440)** deferred to T-110 lighthouse runs in headless Chrome.
+- T-092 — pending (next)
 
 ---
 
