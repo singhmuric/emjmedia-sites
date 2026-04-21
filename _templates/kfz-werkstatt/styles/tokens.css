@@ -1,0 +1,108 @@
+/* Design Tokens — KFZ-Branchen-Template v1
+ * Plan §4.1. Tokens drive every variant; HTML never references colors directly.
+ * OKLCH per impeccable best-practice (perceptually uniform). Hex notes in
+ * comments map to plan §4.1 source values for cross-reference.
+ */
+
+:root {
+  /* Neutral fallback — variant a (warm/classical) is the default */
+  --color-bg: oklch(0.978 0.005 80);          /* ≈ #FAF8F3 warm off-white */
+  --color-fg: oklch(0.193 0.005 80);          /* ≈ #1A1A1A tinted toward brand hue */
+  --color-muted: oklch(0.45 0.01 80);
+  --color-surface: oklch(0.965 0.005 80);
+  --color-border: oklch(0.88 0.005 80);
+  --color-accent: oklch(0.34 0.06 250);       /* ≈ #1E3A5F deep blue */
+  --color-accent-fg: oklch(0.99 0 0);
+  --color-accent-soft: oklch(0.95 0.025 250);
+  --color-focus: oklch(0.55 0.18 250);
+
+  --font-heading: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --radius-card: 0.5rem;
+  --radius-btn: 0.5rem;
+
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.06), 0 1px 1px oklch(0 0 0 / 0.04);
+  --shadow-btn: 0 1px 2px oklch(0 0 0 / 0.08);
+
+  --section-rule: 1px solid var(--color-border);
+  --hero-tint: linear-gradient(180deg, oklch(0.985 0.005 80) 0%, transparent 60%);
+}
+
+/* Variant A — „Meister klassisch" — warm/blau, Serif-Heading */
+[data-variant='a'] {
+  --color-bg: oklch(0.978 0.005 80);
+  --color-fg: oklch(0.193 0.005 80);
+  --color-muted: oklch(0.45 0.01 80);
+  --color-surface: oklch(0.965 0.005 80);
+  --color-border: oklch(0.88 0.008 80);
+  --color-accent: oklch(0.34 0.06 250);
+  --color-accent-fg: oklch(0.99 0 0);
+  --color-accent-soft: oklch(0.95 0.025 250);
+  --color-focus: oklch(0.55 0.18 250);
+
+  --font-heading: 'Fraunces', Georgia, 'Times New Roman', serif;
+  --font-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --radius-card: 0.5rem;
+  --radius-btn: 0.5rem;
+  --shadow-card: 0 1px 1px oklch(0 0 0 / 0.05);
+  --shadow-btn: 0 1px 1px oklch(0 0 0 / 0.06);
+
+  --section-rule: 1px solid var(--color-border);
+  --hero-tint: linear-gradient(180deg, oklch(0.985 0.005 80) 0%, transparent 60%);
+}
+
+/* Variant B — „Moderne Werkstatt" — neutral/rot, Sans durchgehend */
+[data-variant='b'] {
+  --color-bg: oklch(1 0 0);                   /* #FFFFFF */
+  --color-fg: oklch(0.205 0.005 250);         /* tinted cool */
+  --color-muted: oklch(0.5 0.01 250);
+  --color-surface: oklch(0.975 0.005 250);
+  --color-border: oklch(0.9 0.008 250);
+  --color-accent: oklch(0.582 0.221 27);      /* ≈ #DC2626 signal red */
+  --color-accent-fg: oklch(0.99 0 0);
+  --color-accent-soft: oklch(0.95 0.04 27);
+  --color-focus: oklch(0.65 0.2 27);
+
+  --font-heading: 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --radius-card: 0.75rem;
+  --radius-btn: 0.625rem;
+  --shadow-card: 0 4px 12px oklch(0 0 0 / 0.06), 0 1px 2px oklch(0 0 0 / 0.04);
+  --shadow-btn: 0 2px 4px oklch(0 0 0 / 0.08);
+
+  --section-rule: none;
+  --hero-tint: linear-gradient(180deg, oklch(0.985 0.005 250) 0%, transparent 60%);
+}
+
+/* Variant C — „Handwerk pur" — dark/yellow, Mono-Heading */
+[data-variant='c'] {
+  --color-bg: oklch(0.193 0.005 80);          /* tinted warm */
+  --color-fg: oklch(0.961 0.005 80);          /* ≈ #F5F5F4 */
+  --color-muted: oklch(0.72 0.01 80);
+  --color-surface: oklch(0.245 0.008 80);
+  --color-border: oklch(0.32 0.008 80);
+  --color-accent: oklch(0.853 0.169 86);      /* ≈ #FACC15 yellow */
+  --color-accent-fg: oklch(0.193 0.04 86);
+  --color-accent-soft: oklch(0.32 0.04 86);
+  --color-focus: oklch(0.853 0.169 86);
+
+  --font-heading: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-body: 'Inter', system-ui, sans-serif;
+
+  --radius-card: 0;
+  --radius-btn: 0;
+  --shadow-card: none;
+  --shadow-btn: none;
+
+  --section-rule: 1px solid var(--color-border);
+  --hero-tint: linear-gradient(180deg, oklch(0.22 0.008 80) 0%, transparent 60%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration: 0ms;
+  }
+}
