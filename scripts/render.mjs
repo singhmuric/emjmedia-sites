@@ -9,6 +9,11 @@ import { resolve, dirname, join, basename, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { argv, exit } from 'node:process';
 
+import postcss from 'postcss';
+import postcssImport from 'postcss-import';
+import tailwindcss from 'tailwindcss';
+import { marked } from 'marked';
+
 import { validateLead } from './lib/validate-lead.mjs';
 import { resolveVariant } from './lib/variant.mjs';
 import { selectImages, loadManifest } from './lib/image-pool.mjs';
@@ -18,9 +23,12 @@ import { createEta, formatOeffnungszeiten, jahre, copyrightYear, telHref, format
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const TEMPLATE_ROOT = resolve(ROOT, '_templates/kfz-werkstatt');
+const LEGAL_ROOT = resolve(ROOT, '_templates/legal');
 const IMAGE_POOL_ROOT = resolve(ROOT, '_templates/images/kfz');
 const OUTPUT_ROOT = resolve(ROOT, 'sites/onepages');
 const BUILD_LOG_DIR = resolve(ROOT, '_logs/builds');
+const TW_CONFIG = resolve(TEMPLATE_ROOT, 'tailwind.config.cjs');
+const CSS_ENTRY = resolve(TEMPLATE_ROOT, 'styles/entry.css');
 
 function parseArgs(args) {
   const opts = { lead: null, slug: null, fixture: null, validateOnly: false, variantOverride: null };
@@ -94,6 +102,30 @@ async function loadFaqBase() {
   const p = join(TEMPLATE_ROOT, 'faq-base.json');
   if (!existsSync(p)) return [];
   return JSON.parse(await readFile(p, 'utf8'));
+}
+
+async function renderLegalMarkdown(filename, vars = {}) {
+  const p = join(LEGAL_ROOT, filename);
+  if (!existsSync(p)) return '';
+  let md = await readFile(p, 'utf8');
+  for (const [k, v] of Object.entries(vars)) {
+    md = md.replaceAll(`{${k}}`, v);
+  }
+  // Strip H1 from MD body — layout already prints its own <h1>
+  md = md.replace(/^# .*$/m, '').trimStart();
+  // Strip the leading "blockquote intro" notes that aren't user-facing
+  md = md.replace(/^> .*\n(?:>.*\n)*\n?/, '');
+  return marked.parse(md, { gfm: true, breaks: false, headerIds: false });
+}
+
+async function buildCss(outputPath) {
+  const css = await readFile(CSS_ENTRY, 'utf8');
+  const result = await postcss([
+    postcssImport(),
+    tailwindcss({ config: TW_CONFIG }),
+  ]).process(css, { from: CSS_ENTRY, to: outputPath });
+  await writeFile(outputPath, result.css);
+  return result.css.length;
 }
 
 async function loadCopyPool() {
@@ -210,6 +242,9 @@ function kernleistungLabel(v) {
   return map[v] ?? 'KFZ-Werkstatt';
 }
 
+const IMAGE_WIDTHS = [320, 768, 1200, 1920];
+const IMAGE_FORMATS = ['webp', 'avif'];
+
 async function copyImages(images, outDir) {
   const assetsDir = join(outDir, 'assets');
   await ensureDir(assetsDir);
@@ -219,24 +254,33 @@ async function copyImages(images, outDir) {
     if (Array.isArray(img)) {
       copied[key] = [];
       for (const i of img) {
-        const dest = await copyOne(i, assetsDir);
-        if (dest) copied[key].push(dest);
+        const out = await copyAllSizes(i, assetsDir);
+        if (out) copied[key].push(out);
       }
       continue;
     }
-    const dest = await copyOne(img, assetsDir);
-    if (dest) copied[key] = dest;
+    const out = await copyAllSizes(img, assetsDir);
+    if (out) copied[key] = out;
   }
   return copied;
 }
 
-async function copyOne(img, assetsDir) {
+// Copies every {base}-{w}.{ext} that exists in the pool. Returns the base
+// name (e.g. "04-aussen-reihengebaeude") so partials can build srcset.
+async function copyAllSizes(img, assetsDir) {
   if (!img?.filename) return null;
-  const src = join(IMAGE_POOL_ROOT, img.filename);
-  if (!existsSync(src)) return null; // pool not yet populated; render will warn
-  const dest = join(assetsDir, basename(img.filename));
-  await copyFile(src, dest);
-  return basename(img.filename);
+  const base = basename(img.filename, extname(img.filename));
+  let copiedAny = false;
+  for (const w of IMAGE_WIDTHS) {
+    for (const ext of IMAGE_FORMATS) {
+      const src = join(IMAGE_POOL_ROOT, `${base}-${w}.${ext}`);
+      if (!existsSync(src)) continue;
+      await copyFile(src, join(assetsDir, `${base}-${w}.${ext}`));
+      copiedAny = true;
+    }
+  }
+  if (!copiedAny) return null;
+  return { base, alt: img.alt ?? '', motiv: img.motiv ?? null };
 }
 
 async function copyDir(src, dest) {
@@ -302,6 +346,25 @@ async function renderInstance(lead, opts) {
   const autorepair = buildAutoRepairJsonLd(lead);
   const faqpage = buildFaqPageJsonLd(faqItems);
 
+  const today = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+  const impressumHtml = await renderLegalMarkdown('impressum-emjmedia.md');
+  const datenschutzHtml = await renderLegalMarkdown('datenschutz-basis.md', {
+    verantwortlicher_name: 'Singh / Muric GbR (EMJmedia)',
+    verantwortlicher_adresse: 'Bahnhofstr. 1, 24568 Kaltenkirchen',
+    verantwortlicher_telefon: '04191 88 76 543',
+    verantwortlicher_email: 'info@emj-media.de',
+    stand_datum: today,
+  });
+
+  const eta = createEta();
+  const layoutPath = join(TEMPLATE_ROOT, 'layout.eta');
+  if (!existsSync(layoutPath)) {
+    throw new Error('layout.eta not found — Phase VII tasks T-070+ not yet completed.');
+  }
+
+  await ensureDir(outDir);
+  const copiedImages = images ? await copyImages(images, outDir) : null;
+
   const data = {
     lead,
     slug,
@@ -316,20 +379,16 @@ async function renderInstance(lead, opts) {
     ablauf: ablaufView(copyPool),
     faqItems,
     oeffnungszeiten: formatOeffnungszeiten(lead.oeffnungszeiten),
-    images,
+    images: copiedImages,
+    imageWidths: IMAGE_WIDTHS,
     autorepairJsonLd: jsonLdScript(autorepair),
     faqpageJsonLd: faqpage ? jsonLdScript(faqpage) : '',
     canonicalUrl: `https://${slug}.emj-media.de/`,
     siteUrl: `https://${slug}.emj-media.de`,
+    impressumHtml,
+    datenschutzHtml,
   };
 
-  const eta = createEta();
-  const layoutPath = join(TEMPLATE_ROOT, 'layout.eta');
-  if (!existsSync(layoutPath)) {
-    throw new Error('layout.eta not found — Phase VII tasks T-070+ not yet completed.');
-  }
-
-  await ensureDir(outDir);
   const html = await eta.renderAsync('./layout', data);
   await writeFile(join(outDir, 'index.html'), html);
 
@@ -344,21 +403,16 @@ async function renderInstance(lead, opts) {
     await writeFile(join(outDir, 'datenschutz.html'), datenschutzHtml);
   }
 
-  if (images) {
-    await copyImages(images, outDir);
-  }
-
   // Copy fonts + icons
   await copyDir(join(TEMPLATE_ROOT, 'fonts'), join(outDir, 'fonts'));
   await copyDir(join(TEMPLATE_ROOT, 'icons'), join(outDir, 'icons'));
 
-  // Tailwind build
-  // (run separately via npm script; render.mjs only emits a placeholder if no styles.css exists)
+  const cssBytes = await buildCss(join(outDir, 'styles.css'));
 
   await writeFile(join(outDir, 'sitemap.xml'), buildSitemap(slug, published));
   await writeFile(join(outDir, 'robots.txt'), buildRobots(slug, published));
 
-  return { outDir, variant, images, imagePoolWarning };
+  return { outDir, variant, images, imagePoolWarning, cssBytes };
 }
 
 async function main() {
@@ -399,7 +453,7 @@ async function main() {
     console.warn(`⚠ image-pool: ${result.imagePoolWarning}`);
   }
 
-  console.log(`✓ Rendered to ${result.outDir}`);
+  console.log(`✓ Rendered to ${result.outDir} (css ${result.cssBytes} bytes)`);
   const logFile = await writeBuildLog({
     slug: lead.slug,
     variant: result.variant,
@@ -407,6 +461,7 @@ async function main() {
     outDir: result.outDir,
     images: result.images,
     imagePoolWarning: result.imagePoolWarning,
+    cssBytes: result.cssBytes,
     missingOpt,
     timestamp: new Date().toISOString(),
   });

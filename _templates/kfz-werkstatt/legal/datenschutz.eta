@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="de" data-variant="<%= it.variant %>">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<% if (!it.published) { %><meta name="robots" content="noindex,nofollow">
+<% } %><title>Datenschutz | <%= it.lead.firmenname %></title>
+<meta name="description" content="Datenschutzerklärung für <%= it.lead.firmenname %>.">
+<link rel="canonical" href="<%= it.siteUrl %>/datenschutz.html">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a href="#main" class="skip-link">Direkt zum Inhalt</a>
+<%~ include('../partials/header', it) %>
+<main id="main" class="container section">
+<%~ it.datenschutzHtml %>
+</main>
+<%~ include('../partials/footer', it) %>
+</body>
+</html>

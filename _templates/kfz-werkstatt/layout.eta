@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="de" data-variant="<%= it.variant %>">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<% if (!it.published) { %><meta name="robots" content="noindex,nofollow">
+<% } %><title><%= it.title %></title>
+<meta name="description" content="<%= it.metaDescription %>">
+<link rel="canonical" href="<%= it.canonicalUrl %>">
+
+<meta property="og:type" content="website">
+<meta property="og:locale" content="de_DE">
+<meta property="og:url" content="<%= it.canonicalUrl %>">
+<meta property="og:title" content="<%= it.title %>">
+<meta property="og:description" content="<%= it.metaDescription %>">
+<meta property="og:image" content="<%= it.siteUrl %>/assets/<%= it.images && it.images.hero ? it.images.hero.base : 'hero' %>-1200.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= it.title %>">
+<meta name="twitter:description" content="<%= it.metaDescription %>">
+
+<% /* Preload primary font for the chosen variant */ %>
+<% const heroFont = it.variant === 'a' ? 'fraunces-latin' : it.variant === 'c' ? 'jetbrains-mono-latin' : 'inter-latin'; %>
+<link rel="preload" href="fonts/<%= heroFont %>.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="styles.css">
+<%- it.autorepairJsonLd %>
+<% if (it.faqpageJsonLd) { %><%- it.faqpageJsonLd %><% } %>
+</head>
+<body>
+<a href="#main" class="skip-link">Direkt zum Inhalt</a>
+<%~ include('./partials/header', it) %>
+<main id="main">
+<%~ include('./partials/hero', it) %>
+<%~ include('./partials/leistungen', it) %>
+<%~ include('./partials/trust-block', it) %>
+<%~ include('./partials/cta-band', it) %>
+<%~ include('./partials/ueber-uns', it) %>
+<%~ include('./partials/ablauf', it) %>
+<%~ include('./partials/kundenstimmen', it) %>
+<%~ include('./partials/oeffnungszeiten', it) %>
+<%~ include('./partials/kontakt', it) %>
+<%~ include('./partials/faq', it) %>
+</main>
+<%~ include('./partials/footer', it) %>
+</body>
+</html>

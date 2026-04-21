@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de" data-variant="<%= it.variant %>">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<% if (!it.published) { %><meta name="robots" content="noindex,nofollow">
+<% } %><title>Impressum | <%= it.lead.firmenname %></title>
+<meta name="description" content="Impressum für <%= it.lead.firmenname %> in <%= it.lead.ort %>.">
+<link rel="canonical" href="<%= it.siteUrl %>/impressum.html">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a href="#main" class="skip-link">Direkt zum Inhalt</a>
+<%~ include('../partials/header', it) %>
+<main id="main" class="container section">
+<h1>Impressum</h1>
+<%~ it.impressumHtml %>
+</main>
+<%~ include('../partials/footer', it) %>
+</body>
+</html>
