@@ -1,6 +1,63 @@
-<section class="section" id="trust-block" data-stub>
-  <div class="container">
-    <p class="section-eyebrow">trust-block</p>
-    <p>Stub — wird in Phase VII ersetzt.</p>
+<%
+  const ts = it.lead.trust_signale || {};
+  const badges = [];
+  if (ts.meisterbetrieb) badges.push({ icon: 'meister-wappen', label: 'Meisterbetrieb' });
+  if (ts.innung)         badges.push({ icon: 'meister-wappen', label: 'Mitglied der Kfz-Innung' });
+  if (ts.tuev_partner)   badges.push({ icon: 'tuev',           label: 'TÜV-Partner / AU-Stelle' });
+
+  const yearsLabel = it.lead.gruendungsjahr
+    ? (jahre(it.lead.gruendungsjahr) >= 10 ? `Über ${jahre(it.lead.gruendungsjahr)} Jahre Erfahrung` : `Seit ${it.lead.gruendungsjahr}`)
+    : null;
+
+  const gRating = (typeof it.lead.google_rating === 'number' && typeof it.lead.google_reviews_count === 'number' && it.lead.google_reviews_count > 0)
+    ? { value: it.lead.google_rating.toString().replace('.', ','), count: it.lead.google_reviews_count }
+    : null;
+
+  const teaser = (Array.isArray(it.lead.google_review_zitate) ? it.lead.google_review_zitate.slice(0, 1) : []);
+
+  const visible = badges.length + (yearsLabel ? 1 : 0) + (gRating ? 1 : 0);
+%>
+<% if (visible >= 3 || (visible >= 1 && teaser.length > 0)) { %>
+<section class="section trust-block" id="trust-block" aria-labelledby="trust-block-title">
+  <div class="container trust-block__inner">
+    <header class="section-head">
+      <p class="section-eyebrow">Vertrauen</p>
+      <h2 class="section-title" id="trust-block-title">Was uns auszeichnet</h2>
+    </header>
+
+    <ul class="trust-grid" role="list">
+      <% for (const b of badges) { %>
+      <li class="trust-cell">
+        <span class="trust-cell__icon"><%~ inlineSvg(b.icon, 'trust-cell__icon-svg') %></span>
+        <span class="trust-cell__label"><%= b.label %></span>
+      </li>
+      <% } %>
+
+      <% if (yearsLabel) { %>
+      <li class="trust-cell trust-cell--years">
+        <strong class="trust-cell__big"><%= it.lead.gruendungsjahr %></strong>
+        <span class="trust-cell__label"><%= yearsLabel %></span>
+      </li>
+      <% } %>
+
+      <% if (gRating) { %>
+      <li class="trust-cell trust-cell--rating">
+        <strong class="trust-cell__big"><%= gRating.value %></strong>
+        <span class="trust-cell__label"><%= gRating.count %> Google-Bewertungen</span>
+      </li>
+      <% } %>
+    </ul>
+
+    <% if (teaser.length > 0) { %>
+    <figure class="trust-teaser">
+      <blockquote>
+        <p>„<%= teaser[0].text %>"</p>
+      </blockquote>
+      <figcaption>
+        — <%= teaser[0].vorname %><% if (teaser[0].nachname_initial) { %> <%= teaser[0].nachname_initial %>.<% } %>, <%= teaser[0].monat_jahr %>
+      </figcaption>
+    </figure>
+    <% } %>
   </div>
 </section>
+<% } %>
