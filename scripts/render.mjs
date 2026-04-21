@@ -18,7 +18,13 @@ import { validateLead } from './lib/validate-lead.mjs';
 import { resolveVariant } from './lib/variant.mjs';
 import { selectImages, loadManifest } from './lib/image-pool.mjs';
 import { buildAutoRepairJsonLd, buildFaqPageJsonLd, jsonLdScript } from './lib/schema.mjs';
-import { createEta, formatOeffnungszeiten, jahre, copyrightYear, telHref, formatTel, whatsappHref, mapsHref, present, escapeHtml } from './lib/eta.mjs';
+import { createEta, formatOeffnungszeiten, jahre, copyrightYear, telHref, formatTel, whatsappHref, mapsHref, present, escapeHtml, pictureTag, inlineSvg } from './lib/eta.mjs';
+
+const TEMPLATE_HELPERS = {
+  formatTel, telHref, escapeHtml, formatOeffnungszeiten,
+  whatsappHref, mapsHref, jahre, copyrightYear, present,
+  pictureTag, inlineSvg,
+};
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
@@ -387,6 +393,7 @@ async function renderInstance(lead, opts) {
     siteUrl: `https://${slug}.emj-media.de`,
     impressumHtml,
     datenschutzHtml,
+    ...TEMPLATE_HELPERS,
   };
 
   const html = await eta.renderAsync('./layout', data);

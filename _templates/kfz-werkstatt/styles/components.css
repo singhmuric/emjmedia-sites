@@ -7,6 +7,134 @@
  * that would otherwise drift between partials.
  */
 
+/* --- Site header ------------------------------------------------ */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  /* Constitution §1.8 — explicit max heights */
+}
+
+.site-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 56px;
+}
+
+@media (min-width: 640px) {
+  .site-header__inner { height: 64px; }
+}
+
+.site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--color-fg);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  min-height: 44px;
+  padding-block: 0.5rem;
+}
+
+.site-header__logo-mark {
+  display: inline-flex;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-accent);
+}
+
+.site-header__logo-icon {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 559px) {
+  .site-header__logo-text {
+    max-width: 9.5rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.site-header__phone {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .site-header__phone {
+    display: inline-flex;
+  }
+  .site-header__menu { display: none; }
+}
+
+/* Hamburger menu (mobile) — pure-CSS via <details>/<summary> */
+
+.site-header__menu summary {
+  list-style: none;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.site-header__menu summary::-webkit-details-marker { display: none; }
+
+.site-header__menu-bars {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.site-header__menu-bars > span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--color-fg);
+  border-radius: 2px;
+}
+
+.site-header__nav {
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  padding: 0.5rem 0;
+}
+
+.site-header__nav ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.site-header__nav li + li {
+  border-top: 1px solid var(--color-border);
+}
+
+.site-header__nav a {
+  display: block;
+  padding: 1rem clamp(1rem, 4vw, 2rem);
+  text-decoration: none;
+  color: var(--color-fg);
+  font-weight: 500;
+  min-height: 44px;
+}
+
+.site-header__nav a:hover { background: var(--color-surface); }
+
 /* --- Layout ----------------------------------------------------- */
 
 .container {
