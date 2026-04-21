@@ -12,6 +12,7 @@
   --color-surface: oklch(0.965 0.005 80);
   --color-border: oklch(0.88 0.005 80);
   --color-accent: oklch(0.34 0.06 250);       /* ≈ #1E3A5F deep blue */
+  --color-accent-strong: oklch(0.34 0.06 250); /* a: accent already dark, reuse */
   --color-accent-fg: oklch(0.99 0 0);
   --color-accent-soft: oklch(0.95 0.025 250);
   --color-focus: oklch(0.55 0.18 250);
@@ -38,6 +39,7 @@
   --color-surface: oklch(0.965 0.005 80);
   --color-border: oklch(0.88 0.008 80);
   --color-accent: oklch(0.34 0.06 250);
+  --color-accent-strong: oklch(0.34 0.06 250);
   --color-accent-fg: oklch(0.99 0 0);
   --color-accent-soft: oklch(0.95 0.025 250);
   --color-focus: oklch(0.55 0.18 250);
@@ -63,6 +65,7 @@
   --color-surface: oklch(0.975 0.005 250);
   --color-border: oklch(0.9 0.008 250);
   --color-accent: oklch(0.582 0.221 27);      /* ≈ #DC2626 signal red */
+  --color-accent-strong: oklch(0.48 0.2 27);  /* darker shade for small text — WCAG AA */
   --color-accent-fg: oklch(0.99 0 0);
   --color-accent-soft: oklch(0.95 0.04 27);
   --color-focus: oklch(0.65 0.2 27);
@@ -88,6 +91,7 @@
   --color-surface: oklch(0.245 0.008 80);
   --color-border: oklch(0.32 0.008 80);
   --color-accent: oklch(0.853 0.169 86);      /* ≈ #FACC15 yellow */
+  --color-accent-strong: oklch(0.853 0.169 86); /* c: yellow on dark already AA */
   --color-accent-fg: oklch(0.193 0.04 86);
   --color-accent-soft: oklch(0.32 0.04 86);
   --color-focus: oklch(0.853 0.169 86);
@@ -959,10 +963,10 @@ input, button, textarea, select {
   margin-bottom: 0.75rem;
   font-family: var(--font-body);
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--color-accent-strong);
 }
 
 /* --- Buttons ---------------------------------------------------- */
@@ -1958,6 +1962,18 @@ video {
   .container {
     max-width: 1440px;
   }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 .visible {

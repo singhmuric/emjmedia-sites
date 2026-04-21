@@ -14,8 +14,9 @@
       <li class="stimme">
         <span class="stimme__avatar" aria-hidden="true"><%= (z.vorname || '?').charAt(0).toUpperCase() %></span>
         <% if (typeof z.sterne === 'number') { %>
-        <p class="stimme__sterne" aria-label="<%= z.sterne %> von 5 Sternen">
-          <% for (let i = 0; i < 5; i++) { %><span class="stimme__star <%= i < z.sterne ? 'is-filled' : '' %>" aria-hidden="true">★</span><% } %>
+        <p class="stimme__sterne">
+          <span class="sr-only"><%= z.sterne %> von 5 Sternen</span>
+          <span aria-hidden="true"><% for (let i = 0; i < 5; i++) { %><span class="stimme__star <%= i < z.sterne ? 'is-filled' : '' %>">★</span><% } %></span>
         </p>
         <% } %>
         <blockquote class="stimme__quote">
