@@ -1,0 +1,102 @@
+{
+  "$meta": {
+    "stand": "2026-04-21",
+    "session": "1.3 / T-061",
+    "ton": "Mittelstand-Deutsch, Sie-Form, ohne Anglizismen, kurze Sätze, keine Halbwahrheiten",
+    "platzhalter": [
+      "{firmenname}", "{ort}", "{gruendungsjahr}",
+      "{kernleistung}", "{telefon_anzeige}"
+    ]
+  },
+
+  "hero_h1_patterns": [
+    "{kernleistung} in {ort} — {firmenname}",
+    "{firmenname} — Ihre {kernleistung} in {ort}",
+    "{firmenname}: {kernleistung} in {ort} seit {gruendungsjahr}"
+  ],
+
+  "hero_promise": [
+    "Ihre freie Werkstatt in {ort}. Ehrliche Beratung, faire Preise, schnelle Termine.",
+    "Inspektion, TÜV, Reparatur — alles aus Meisterhand in {ort}.",
+    "Seit {gruendungsjahr} kümmern wir uns in {ort} um alle Marken — fair, gründlich, pünktlich.",
+    "Wir machen Autos in {ort} fertig. Ohne Drumherum, ohne Überraschungen.",
+    "Verlässliche {kernleistung} in {ort} — wir nennen Ihnen den Preis vorher."
+  ],
+
+  "cta_primary_label_patterns": [
+    "Jetzt anrufen",
+    "Termin anfragen",
+    "Direkt anrufen"
+  ],
+
+  "cta_secondary_label_patterns": [
+    "Termin anfragen",
+    "Schreiben Sie uns",
+    "Anfrage senden"
+  ],
+
+  "cta_band_primary": {
+    "a": [
+      "Warnleuchte an? Rufen Sie uns an — meist bekommen Sie noch diese Woche einen Termin.",
+      "TÜV fällig oder ein komisches Geräusch? Sagen Sie uns kurz Bescheid, wir kümmern uns.",
+      "Wir nehmen uns Zeit für Ihr Auto — und für eine Erklärung, was zu tun ist."
+    ],
+    "b": [
+      "Auto streikt? Rufen Sie an — wir nehmen uns die Zeit, schauen es uns an, sagen Ihnen den Preis.",
+      "Termin in dieser Woche? Häufig möglich. Ein Anruf reicht.",
+      "Klare Diagnose, fairer Preis, pünktlicher Termin. So einfach soll Werkstatt sein."
+    ],
+    "c": [
+      "Anrufen. Termin holen. Erledigt.",
+      "Sie kennen das Problem nicht — wir schon. Anrufen, beschreiben, Termin haben.",
+      "Werkstatt, die liefert. Rufen Sie durch."
+    ]
+  },
+
+  "meta_descriptions": [
+    "Ihre freie KFZ-Werkstatt in {ort}: Inspektion, TÜV und Reparatur aus Meisterhand. Faire Preise, schnelle Termine — jetzt anrufen.",
+    "{firmenname} in {ort} — KFZ-Werkstatt für alle Marken. Bremsen, TÜV, Inspektion. Termin telefonisch oder online.",
+    "Werkstatt in {ort}, die ehrlich rechnet. {firmenname}: TÜV, Reparatur, Inspektion. Rufen Sie an, wir nennen den Preis vorher.",
+    "{kernleistung} in {ort} mit Meisterbetrieb-Qualität. Termin in dieser oder nächster Woche möglich — {telefon_anzeige}.",
+    "Ihre {kernleistung} in {ort}: alle Marken, klare Preise, Termine zügig. {firmenname} — seit {gruendungsjahr} für Sie da."
+  ],
+
+  "leistungs_beschreibungen": {
+    "inspektion": "Großer und kleiner Wartungs-Check nach Hersteller-Vorgabe.",
+    "tuev": "Hauptuntersuchung und AU im Haus, Termin nach Absprache.",
+    "bremsen": "Beläge und Scheiben tauschen wir zügig — mit Sicherheits-Check.",
+    "oelwechsel": "Ölwechsel mit Hersteller-freigegebenem Öl, Filter inklusive.",
+    "reifen": "Reifen wechseln, einlagern, montieren — auf Wunsch saisonal.",
+    "klima": "Klimaservice mit Lecksuche und passendem Kältemittel.",
+    "unfall": "Unfallschaden-Abwicklung — wir sprechen mit Ihrer Versicherung.",
+    "achse": "Achsvermessung, wenn das Auto zieht oder die Reifen ungleich abnutzen.",
+    "e-auto": "Service für E-Autos und Hybride — was ohne HV-Eingriff möglich ist.",
+    "hol-bring": "Wir holen Ihr Auto ab und bringen es zurück — im Stadtgebiet.",
+    "ersatzwagen": "Ersatzwagen für die Zeit der Reparatur, sofern verfügbar."
+  },
+
+  "ablauf_standard": [
+    {
+      "titel": "Anfrage",
+      "text": "Sie rufen an oder schreiben uns — kurz das Problem schildern."
+    },
+    {
+      "titel": "Termin",
+      "text": "Wir nennen Ihnen zügig einen Termin, oft noch in dieser Woche."
+    },
+    {
+      "titel": "Reparatur",
+      "text": "Wir arbeiten zum vereinbarten Festpreis. Kommt etwas dazu, fragen wir vorher."
+    },
+    {
+      "titel": "Abholung",
+      "text": "Sie holen Ihr Auto ab. Wir erklären, was gemacht wurde und worauf Sie achten sollten."
+    }
+  ],
+
+  "ueber_uns_fallback": "Wir sind Ihre Ansprechpartner für alles rund ums Auto in {ort}. Vom Ölwechsel bis zur größeren Reparatur — bei uns wissen Sie vorher, was Sie erwartet.",
+
+  "ueber_uns_mit_meister": "Geführt von {meister_name} kümmern wir uns seit {gruendungsjahr} in {ort} um Autos aller Marken. Ein {mitarbeiter_anzahl}-köpfiges Team, das Wert auf Ehrlichkeit, faire Preise und einen Termin legt, der hält.",
+
+  "anfahrt_oepnv_fallback": "Werkstatt liegt zentral, Parkplätze direkt vor der Tür."
+}
