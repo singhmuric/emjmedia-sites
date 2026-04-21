@@ -1,6 +1,18 @@
-<section class="section" id="ablauf" data-stub>
+<section class="section ablauf" id="ablauf">
   <div class="container">
-    <p class="section-eyebrow">ablauf</p>
-    <p>Stub — wird in Phase VII ersetzt.</p>
+    <header class="section-head">
+      <p class="section-eyebrow">Ablauf</p>
+      <h2 class="section-title">In vier Schritten zum Termin</h2>
+    </header>
+
+    <ol class="ablauf-steps" role="list">
+      <% it.ablauf.forEach((step, i) => { %>
+      <li class="ablauf-step">
+        <span class="ablauf-step__num" aria-hidden="true"><%= String(i + 1).padStart(2, '0') %></span>
+        <h3 class="ablauf-step__title"><%= step.titel %></h3>
+        <p class="ablauf-step__text"><%= step.text %></p>
+      </li>
+      <% }) %>
+    </ol>
   </div>
 </section>
