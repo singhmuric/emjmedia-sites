@@ -1,0 +1,37 @@
+[
+  {
+    "id": "tuev_ablauf",
+    "frage": "Wie läuft der TÜV bei Ihnen ab?",
+    "antwort": "Sie bringen Ihr Auto zum vereinbarten Termin. Der Prüfer kommt zu uns ins Haus, wir nehmen die Hauptuntersuchung gemeinsam ab. Findet der Prüfer Mängel, besprechen wir den Reparatur-Aufwand, bevor wir loslegen — kein böses Erwachen bei der Rechnung."
+  },
+  {
+    "id": "marken_alle",
+    "frage": "Arbeiten Sie auch an meiner Marke?",
+    "antwort": "Wir warten und reparieren alle gängigen Marken — deutsche Hersteller, japanische, französische, koreanische, amerikanische. Diagnose-Geräte und Originalteile-Quellen haben wir für die meisten Modelle. Sind Sie unsicher, kurz anrufen, wir sagen Ihnen direkt, ob Ihr Modell zu uns passt."
+  },
+  {
+    "id": "kva",
+    "frage": "Bekomme ich einen Kostenvoranschlag?",
+    "antwort": "Selbstverständlich. Bei klar umrissenen Arbeiten nennen wir Ihnen den Preis am Telefon oder im Beratungsgespräch. Bei größerem Reparaturumfang fertigen wir einen schriftlichen Kostenvoranschlag — Sie entscheiden in Ruhe, ob Sie den Auftrag erteilen."
+  },
+  {
+    "id": "ersatzwagen_hol",
+    "frage": "Gibt es einen Ersatzwagen oder Hol-/Bringservice?",
+    "antwort": "Sofern verfügbar, stellen wir Ihnen einen Ersatzwagen zur Verfügung — fragen Sie bei der Terminvereinbarung danach. Innerhalb des Stadtgebietes holen und bringen wir Ihr Fahrzeug auf Wunsch ab."
+  },
+  {
+    "id": "termin_schnell",
+    "frage": "Wie schnell bekomme ich einen Termin?",
+    "antwort": "Bei akuten Problemen — Warnleuchte, ungewöhnliche Geräusche, Pannenangst — versuchen wir, Sie noch in derselben oder der nächsten Woche unterzubringen. Für planbare Arbeiten wie Inspektion oder TÜV liegt die Wartezeit meist bei ein bis zwei Wochen."
+  },
+  {
+    "id": "e_auto",
+    "frage": "Reparieren Sie auch E-Autos und Hybride?",
+    "antwort": "Wir nehmen Hochvolt-Arbeiten nur an, wenn unser Personal die nötige HV-Qualifikation hat — ansonsten beraten wir Sie offen und vermitteln gegebenenfalls. Wartungsarbeiten ohne Eingriff ins Hochvoltsystem (Bremsen, Reifen, Innenraum, Klimaservice mit zugelassenem Kältemittel) führen wir auch an E-Autos durch."
+  },
+  {
+    "id": "inspektion_kosten",
+    "frage": "Was kostet eine Inspektion ungefähr?",
+    "antwort": "Eine kleine Inspektion liegt je nach Modell und Verschleißteilen meist im niedrigen dreistelligen Bereich, eine große Inspektion deutlich darüber. Aussagekräftig wird der Preis mit den Fahrzeug-Daten — ein kurzer Anruf reicht und Sie wissen, woran Sie sind."
+  }
+]
