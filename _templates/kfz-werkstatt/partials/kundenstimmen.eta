@@ -1,6 +1,33 @@
-<section class="section" id="kundenstimmen" data-stub>
+<%
+  const zitate = Array.isArray(it.lead.google_review_zitate) ? it.lead.google_review_zitate.slice(0, 5) : [];
+%>
+<% if (zitate.length > 0) { %>
+<section class="section kundenstimmen" id="kundenstimmen" aria-labelledby="kundenstimmen-title">
   <div class="container">
-    <p class="section-eyebrow">kundenstimmen</p>
-    <p>Stub — wird in Phase VII ersetzt.</p>
+    <header class="section-head">
+      <p class="section-eyebrow">Stimmen unserer Kunden</p>
+      <h2 class="section-title" id="kundenstimmen-title">Was Kunden uns auf Google geschrieben haben</h2>
+    </header>
+
+    <ul class="stimmen-grid" role="list">
+      <% for (const z of zitate) { %>
+      <li class="stimme">
+        <span class="stimme__avatar" aria-hidden="true"><%= (z.vorname || '?').charAt(0).toUpperCase() %></span>
+        <% if (typeof z.sterne === 'number') { %>
+        <p class="stimme__sterne" aria-label="<%= z.sterne %> von 5 Sternen">
+          <% for (let i = 0; i < 5; i++) { %><span class="stimme__star <%= i < z.sterne ? 'is-filled' : '' %>" aria-hidden="true">★</span><% } %>
+        </p>
+        <% } %>
+        <blockquote class="stimme__quote">
+          <p>„<%= z.text %>"</p>
+        </blockquote>
+        <footer class="stimme__attr">
+          <%= z.vorname %><% if (z.nachname_initial) { %> <%= z.nachname_initial %>.<% } %>
+          <% if (z.monat_jahr) { %> · <%= z.monat_jahr %><% } %>
+        </footer>
+      </li>
+      <% } %>
+    </ul>
   </div>
 </section>
+<% } %>
