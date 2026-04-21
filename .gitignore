@@ -30,8 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 _logs/builds/*
 !_logs/builds/.gitkeep
+!_logs/builds/*.md
 _logs/lighthouse/*
 !_logs/lighthouse/.gitkeep
+!_logs/lighthouse/*.md
 
 # OS
 .DS_Store
