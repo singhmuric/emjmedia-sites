@@ -1,0 +1,345 @@
+/* Components — section/container/card/button/form/details primitives.
+ * Plan §4.1. Every value pulls from tokens.css so a variant switch
+ * retheme is automatic.
+ *
+ * Tailwind utilities still cover positioning/spacing/responsive grid
+ * directly in templates; this file holds the shared visual recipes
+ * that would otherwise drift between partials.
+ */
+
+/* --- Layout ----------------------------------------------------- */
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2rem);
+}
+
+.section {
+  padding-block: clamp(3rem, 6vw, 5.5rem);
+}
+
+.section + .section {
+  border-top: var(--section-rule);
+}
+
+.section-eyebrow {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+/* --- Buttons ---------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;          /* Constitution §1.8 — touch target */
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.2;
+  border-radius: var(--radius-btn);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 160ms ease, color 160ms ease,
+              border-color 160ms ease, transform 80ms ease;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  box-shadow: var(--shadow-btn);
+}
+
+.btn-primary:hover {
+  background: color-mix(in oklab, var(--color-accent) 88%, black 12%);
+  text-decoration: none;
+}
+
+.btn-primary:active { transform: translateY(1px); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-fg);
+  border-color: var(--color-fg);
+}
+
+.btn-secondary:hover {
+  background: color-mix(in oklab, var(--color-fg) 8%, transparent);
+  text-decoration: none;
+}
+
+.btn-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  stroke-width: 1.75;
+}
+
+/* --- Cards ------------------------------------------------------ */
+
+.card {
+  background: var(--color-surface);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.card-icon {
+  width: 2rem;
+  height: 2rem;
+  color: var(--color-accent);
+  stroke-width: 1.5;
+}
+
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.card-body {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* --- Trust badges ---------------------------------------------- */
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-fg);
+}
+
+.trust-badge-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-accent);
+}
+
+/* --- Forms ----------------------------------------------------- */
+
+.form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.form-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-fg);
+}
+
+.form-label-required::after {
+  content: ' *';
+  color: var(--color-accent);
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 0.625rem 0.875rem;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-btn);
+  font-size: 1rem;
+  line-height: 1.4;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.form-input:hover,
+.form-textarea:hover {
+  border-color: color-mix(in oklab, var(--color-fg) 30%, var(--color-border));
+}
+
+.form-input:focus-visible,
+.form-textarea:focus-visible {
+  border-color: var(--color-focus);
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+
+.form-textarea {
+  min-height: 9rem;
+  resize: vertical;
+}
+
+.form-help {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.form-error {
+  font-size: 0.8125rem;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.form-checkbox input {
+  margin-top: 0.2rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* --- Honeypot (hidden anti-bot field) -------------------------- */
+
+.honeypot {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+/* --- FAQ accordion (uses native <details>/<summary>) ----------- */
+
+.faq-item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 1.125rem;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1.0625rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary::after {
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  flex-shrink: 0;
+  transition: transform 180ms ease;
+}
+
+.faq-item[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  padding-block: 0 1.25rem;
+  color: var(--color-muted);
+  max-width: 75ch;
+}
+
+/* --- Hours table ----------------------------------------------- */
+
+.hours-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-feature-settings: 'tnum';
+}
+
+.hours-row {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding-block: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.hours-row:last-child { border-bottom: none; }
+
+.hours-day {
+  font-weight: 600;
+}
+
+.hours-time { color: var(--color-muted); }
+
+.hours-closed { color: var(--color-muted); font-style: italic; }
+
+/* --- CTA-Band -------------------------------------------------- */
+
+.cta-band {
+  background: var(--color-accent);
+  color: var(--color-accent-fg);
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+}
+
+.cta-band a, .cta-band .btn {
+  text-decoration: none;
+}
+
+.cta-band .btn-primary {
+  background: var(--color-accent-fg);
+  color: var(--color-accent);
+}
+
+.cta-band .btn-primary:hover {
+  background: color-mix(in oklab, var(--color-accent-fg) 92%, black 8%);
+}
+
+/* --- Variant C tweaks (dark mode adjustments) ------------------ */
+
+[data-variant='c'] .card {
+  background: var(--color-surface);
+}
+
+[data-variant='c'] .form-input,
+[data-variant='c'] .form-textarea {
+  background: var(--color-surface);
+}
+
+[data-variant='c'] .cta-band {
+  color: var(--color-accent-fg);
+}
