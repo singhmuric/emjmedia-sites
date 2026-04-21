@@ -1,6 +1,19 @@
-<section class="section" id="faq" data-stub>
-  <div class="container">
-    <p class="section-eyebrow">faq</p>
-    <p>Stub — wird in Phase VII ersetzt.</p>
+<% if (Array.isArray(it.faqItems) && it.faqItems.length > 0) { %>
+<section class="section faq" id="faq">
+  <div class="container faq__inner">
+    <header class="section-head">
+      <p class="section-eyebrow">Häufige Fragen</p>
+      <h2 class="section-title">Was Kunden uns oft fragen</h2>
+    </header>
+
+    <div class="faq-list">
+      <% for (const q of it.faqItems) { %>
+      <details class="faq-item" name="kfz-faq">
+        <summary><%= q.frage %></summary>
+        <div class="faq-answer"><%= q.antwort %></div>
+      </details>
+      <% } %>
+    </div>
   </div>
 </section>
+<% } %>
