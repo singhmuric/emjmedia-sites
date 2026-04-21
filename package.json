@@ -1,0 +1,28 @@
+{
+  "name": "emjmedia-sites",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "EMJmedia Website-Fabrik — KFZ-Branchen-Template v1 + Renderer.",
+  "scripts": {
+    "render": "node scripts/render.mjs",
+    "render:demo": "node scripts/render.mjs --fixture _templates/kfz-werkstatt/fixtures/archetyp.json",
+    "dev": "node scripts/dev-preview.mjs",
+    "tw:build": "tailwindcss -c _templates/kfz-werkstatt/tailwind.config.cjs -i _templates/kfz-werkstatt/styles/entry.css -o sites/onepages/kfz-demo/styles.css --minify",
+    "images:convert": "node scripts/convert-images.mjs",
+    "lighthouse": "node scripts/lighthouse.mjs",
+    "validate": "node scripts/render.mjs --validate-only"
+  },
+  "dependencies": {
+    "eta": "^3.4.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.0",
+    "sharp": "^0.33.0",
+    "lighthouse": "^12.0.0",
+    "puppeteer": "^23.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
