@@ -655,10 +655,14 @@
   border: 1px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  transition: background-color 160ms ease, color 160ms ease,
-              border-color 160ms ease, transform 80ms ease;
+  transition: background-color var(--motion-fast) var(--ease-out),
+              color var(--motion-fast) var(--ease-out),
+              border-color var(--motion-fast) var(--ease-out),
+              transform 80ms var(--ease-out);
   white-space: nowrap;
 }
+
+.btn:active { transform: scale(0.97); }
 
 .btn-primary {
   background: var(--color-accent);
@@ -670,8 +674,6 @@
   background: color-mix(in oklab, var(--color-accent) 88%, black 12%);
   text-decoration: none;
 }
-
-.btn-primary:active { transform: translateY(1px); }
 
 .btn-secondary {
   background: transparent;
@@ -704,6 +706,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  transition: border-color var(--motion-fast) var(--ease-out);
+}
+
+.leistung:hover {
+  border-color: color-mix(in oklab, var(--color-accent) 32%, var(--color-border));
 }
 
 .card-icon {
@@ -932,7 +939,7 @@
   background-repeat: no-repeat;
   background-position: center;
   flex-shrink: 0;
-  transition: transform 180ms ease;
+  transition: transform var(--motion-base) var(--ease-out);
 }
 
 .faq-item[open] summary::after {
