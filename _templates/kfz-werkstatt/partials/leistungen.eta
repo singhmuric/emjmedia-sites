@@ -1,6 +1,18 @@
-<section class="section" id="leistungen" data-stub>
+<section class="section" id="leistungen">
   <div class="container">
-    <p class="section-eyebrow">leistungen</p>
-    <p>Stub — wird in Phase VII ersetzt.</p>
+    <header class="section-head">
+      <p class="section-eyebrow">Leistungen</p>
+      <h2 class="section-title">Was wir für Sie machen</h2>
+    </header>
+
+    <ul class="leistungen-grid" role="list">
+      <% for (const l of it.leistungen) { %>
+      <li class="card leistung">
+        <span class="leistung__icon"><%~ inlineSvg(l.id, 'leistung__icon-svg') %></span>
+        <h3 class="card-title"><%= l.titel %></h3>
+        <% if (l.beschreibung) { %><p class="card-body"><%= l.beschreibung %></p><% } %>
+      </li>
+      <% } %>
+    </ul>
   </div>
 </section>

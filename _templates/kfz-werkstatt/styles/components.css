@@ -135,6 +135,55 @@
 
 .site-header__nav a:hover { background: var(--color-surface); }
 
+/* --- Section heading ------------------------------------------- */
+
+.section-head {
+  max-width: 42rem;
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.section-title {
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.25rem);
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+
+/* --- Leistungen grid + cards ----------------------------------- */
+
+.leistungen-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .leistungen-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .leistungen-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.leistung {
+  gap: 0.5rem;
+}
+
+.leistung__icon {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-accent);
+}
+
+.leistung__icon-svg {
+  width: 100%;
+  height: 100%;
+}
+
 /* --- Hero -------------------------------------------------------- */
 
 .hero {
