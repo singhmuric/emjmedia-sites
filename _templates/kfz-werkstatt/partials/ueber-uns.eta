@@ -1,6 +1,37 @@
-<section class="section" id="ueber-uns" data-stub>
-  <div class="container">
-    <p class="section-eyebrow">ueber-uns</p>
-    <p>Stub — wird in Phase VII ersetzt.</p>
+<%
+  // Build text from facts present in the lead — never invent.
+  const sentences = [];
+  if (it.lead.gruendungsjahr) {
+    sentences.push(`Wir kümmern uns seit ${it.lead.gruendungsjahr} in ${it.lead.ort} um Autos.`);
+  } else {
+    sentences.push(`Wir sind Ihre Werkstatt in ${it.lead.ort}.`);
+  }
+  if (it.lead.meister_name) {
+    const team = it.lead.mitarbeiter_anzahl
+      ? `Geführt von ${it.lead.meister_name}, ${it.lead.mitarbeiter_anzahl}-köpfiges Team.`
+      : `Geführt von ${it.lead.meister_name}.`;
+    sentences.push(team);
+  } else if (it.lead.mitarbeiter_anzahl) {
+    sentences.push(`${it.lead.mitarbeiter_anzahl}-köpfiges Team.`);
+  }
+  sentences.push('Bei uns wissen Sie vorher, was Sie erwartet — ehrliche Beratung, faire Preise, ein Termin, der hält.');
+  const text = sentences.join(' ');
+  const werkstattImage = it.images && (it.images.werkstattInnen || it.images.werkstattAussen);
+%>
+<section class="section ueber-uns" id="ueber-uns">
+  <div class="container ueber-uns__inner">
+    <div class="ueber-uns__copy">
+      <header class="section-head">
+        <p class="section-eyebrow">Über uns</p>
+        <h2 class="section-title">Wer Ihr Auto in die Hand nimmt</h2>
+      </header>
+      <p class="ueber-uns__text"><%= text %></p>
+    </div>
+
+    <% if (werkstattImage) { %>
+    <div class="ueber-uns__media">
+      <%~ pictureTag(werkstattImage, { sizes: '(min-width: 768px) 45vw, 100vw', width: 1200, height: 800 }) %>
+    </div>
+    <% } %>
   </div>
 </section>

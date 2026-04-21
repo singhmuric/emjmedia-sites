@@ -135,6 +135,48 @@
 
 .site-header__nav a:hover { background: var(--color-surface); }
 
+/* --- Über uns --------------------------------------------------- */
+
+.ueber-uns__inner {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  grid-template-columns: 1fr;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .ueber-uns__inner {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ueber-uns__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 36rem;
+}
+
+.ueber-uns__text {
+  font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem);
+  line-height: 1.65;
+  color: var(--color-fg);
+  margin: 0;
+}
+
+.ueber-uns__media {
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.ueber-uns__media img {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
 /* --- Trust block ------------------------------------------------ */
 
 .trust-block {
