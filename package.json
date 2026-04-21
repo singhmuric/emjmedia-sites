@@ -8,7 +8,7 @@
     "render": "node scripts/render.mjs",
     "render:demo": "node scripts/render.mjs --fixture _templates/kfz-werkstatt/fixtures/archetyp.json",
     "dev": "node scripts/dev-preview.mjs",
-    "tw:build": "tailwindcss -c _templates/kfz-werkstatt/tailwind.config.cjs -i _templates/kfz-werkstatt/styles/entry.css -o sites/onepages/kfz-demo/styles.css --minify",
+    "tw:build": "postcss _templates/kfz-werkstatt/styles/entry.css --config _templates/kfz-werkstatt/postcss.config.cjs -o sites/onepages/kfz-demo/styles.css",
     "images:convert": "node scripts/convert-images.mjs",
     "lighthouse": "node scripts/lighthouse.mjs",
     "validate": "node scripts/render.mjs --validate-only"
@@ -17,10 +17,13 @@
     "eta": "^3.4.0"
   },
   "devDependencies": {
-    "tailwindcss": "^3.4.0",
-    "sharp": "^0.33.0",
     "lighthouse": "^12.0.0",
-    "puppeteer": "^23.0.0"
+    "postcss": "^8.5.10",
+    "postcss-cli": "^11.0.1",
+    "postcss-import": "^16.1.1",
+    "puppeteer": "^23.0.0",
+    "sharp": "^0.33.0",
+    "tailwindcss": "^3.4.0"
   },
   "engines": {
     "node": ">=20"
