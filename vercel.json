@@ -1,7 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "cleanUrls": true,
-  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/",
@@ -11,11 +9,11 @@
       "destination": "/sites/onepages/:subdomain/index.html"
     },
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "has": [
         { "type": "host", "value": "(?<subdomain>[^.]+)\\.emj-media\\.de" }
       ],
-      "destination": "/sites/onepages/:subdomain/$1"
+      "destination": "/sites/onepages/:subdomain/:path*"
     }
   ],
   "headers": [
