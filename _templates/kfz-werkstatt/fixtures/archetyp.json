@@ -1,0 +1,87 @@
+{
+  "$meta": {
+    "zweck": "Generischer KFZ-Meisterbetrieb-Archetyp zum Bauen und Testen des Templates. Entspricht BIBEL §10 (System vor Kunde): freie Meisterwerkstatt, 2–8 Mann, Mittelstand, ländlich/kleinstädtisch. Kein echter Kunde. Alle PII sind fiktiv.",
+    "erstellt": "2026-04-21",
+    "session": "1.2 (Plan) — Input für 1.3 (Implement)",
+    "fallback_teste": [
+      "whatsapp_nummer: null  → WhatsApp-Button-Fallback",
+      "hero_image_id: null    → Auto-Select aus Image-Pool via Slug-Hash",
+      "designvariante: null   → FNV-Hash entscheidet A|B|C",
+      "faq_overrides: null    → Base-FAQ aus faq-base.json",
+      "trust_signale.tuev_partner: false → Badge weggelassen"
+    ],
+    "spec_kompatibilitaet": "plan.md §6.1 Schema, spec.md §11 Pflichtfelder",
+    "published": false
+  },
+
+  "slug": "kfz-archetyp-demo",
+  "firmenname": "Kfz-Meisterbetrieb Bergmann GmbH",
+  "ort": "Bad Bramstedt",
+  "strasse": "Bahnhofstr. 14",
+  "plz": "24576",
+  "telefon_e164": "+4941929876543",
+  "telefon_anzeige": "04192 98 76 543",
+  "oeffnungszeiten": {
+    "mo": { "von": "08:00", "bis": "17:30" },
+    "di": { "von": "08:00", "bis": "17:30" },
+    "mi": { "von": "08:00", "bis": "17:30" },
+    "do": { "von": "08:00", "bis": "17:30" },
+    "fr": { "von": "08:00", "bis": "15:00" },
+    "sa": null,
+    "so": null
+  },
+
+  "gruendungsjahr": 1998,
+  "meister_name": "Thorsten Bergmann",
+  "mitarbeiter_anzahl": 6,
+  "kernleistung": "meisterwerkstatt",
+  "leistungs_liste": [
+    "inspektion",
+    "tuev",
+    "bremsen",
+    "oelwechsel",
+    "reifen",
+    "klima",
+    "unfall",
+    "ersatzwagen"
+  ],
+  "email": "info@kfz-bergmann-demo.de",
+  "google_rating": 4.6,
+  "google_reviews_count": 73,
+  "google_review_zitate": [
+    {
+      "text": "Ehrliche Beratung, fairer Preis, Termin hat auf den Tag gepasst. Meister hat mir am Telefon erklärt warum der Reparaturvorschlag der anderen Werkstatt zu teuer war.",
+      "vorname": "Sandra",
+      "nachname_initial": "K",
+      "monat_jahr": "03/2026",
+      "sterne": 5
+    },
+    {
+      "text": "TÜV im selben Haus, Inspektion am Morgen, mittags fertig. Auto wurde sauber übergeben, Kostenvoranschlag stimmte auf 20 Euro genau.",
+      "vorname": "Michael",
+      "nachname_initial": "R",
+      "monat_jahr": "02/2026",
+      "sterne": 5
+    },
+    {
+      "text": "Nach dem Wildunfall schnell ein Ersatzwagen bekommen, Versicherung wurde direkt abgewickelt. Kein Papierkram-Ärger.",
+      "vorname": "Julia",
+      "nachname_initial": "S",
+      "monat_jahr": "01/2026",
+      "sterne": 4
+    }
+  ],
+  "geo_lat": 53.9118,
+  "geo_lng": 9.8875,
+  "bundesland_kuerzel": "SH",
+
+  "whatsapp_nummer": null,
+  "hero_image_id": null,
+  "designvariante": null,
+  "faq_overrides": null,
+  "trust_signale": {
+    "meisterbetrieb": true,
+    "innung": true,
+    "tuev_partner": false
+  }
+}
