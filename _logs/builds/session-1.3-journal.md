@@ -58,6 +58,12 @@
 
 - **A-01:** `puppeteer@23.x` ist von npm als deprecated markiert (Empfehlung ≥24.15). Plan §11.1 listet `^23.0.0`. Vorschlag: Bump auf `^24` in nächster Plan-Iteration.
 - **A-02:** Plan §2.1 listet `_templates/kfz-werkstatt/MANIFEST.md` als Pflicht-Datei, ist aber in Tasks-Liste nicht explizit zugeordnet. Wahrscheinlich Phase XI Abschluss-Task; offen halten.
+- **A-03:** `impeccable`-Skill rejected die in Plan §4.3 + Plan §15 Punkt 4 von Emin freigegebenen Fonts (Fraunces/Inter/JetBrains Mono). Konflikt voll dokumentiert in `.specify/CONFLICTS.md` C-01. Plan gilt für 1.3, Skill für andere Aspekte (OKLCH/spacing/no-border-left/line-length-cap) angewendet.
+
+## B-Blocker
+
+- **B-02 (Phase IV CSS):** PostCSS + postcss-import als zusätzliche Dev-Deps eingeführt, weil Tailwind-CLI alleine `@import` nicht auflöst. `tw:build`-Script auf `postcss` umgestellt. Im Plan §11.1 nicht explizit, aber notwendig — sollte 1.4 als Plan-Patch nachgetragen werden.
+- **B-03 (Phase VI Copy):** Plan §10 + Constitution §5.3 referenzieren `_Strategie/GOOGLE_ADS_SPEZIALIST/PSYCHOLOGY_PLAYBOOK.md`. Datei existiert nicht im Repo (vault location). Copy-Pool wurde mit PAS-Framework + Mittelstand-Heuristiken geschrieben; Psychologie-Verfeinerung in 1.4-Review oder bei Vault-Zugriff nachholbar.
 
 ---
 
