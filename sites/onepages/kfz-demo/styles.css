@@ -395,7 +395,6 @@ input, button, textarea, select {
 
 .site-footer__address {
   font-style: normal;
-  color: var(--color-muted);
   margin-bottom: 0.5rem;
 }
 
