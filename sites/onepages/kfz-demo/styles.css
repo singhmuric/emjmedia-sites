@@ -108,13 +108,17 @@
   --hero-tint: linear-gradient(180deg, oklch(0.22 0.008 80) 0%, transparent 60%);
 }
 
-/* --- Footer tone (NFR-C-06 "Footer dunkel") ------------------- */
+/* --- Footer tone (NFR-C-06 "Footer dunkel") -------------------
+   RGB (not OKLCH) so every contrast-checker — incl. headless Chrome
+   inside Lighthouse that doesn't coerce oklch() in getComputedStyle —
+   can read the values directly. Visually identical to the OKLCH-picked
+   pair (~8.7:1 muted/bg, >12:1 fg/bg). */
 
 :root {
-  --color-footer-bg: oklch(0.22 0.008 80);      /* warm dark */
-  --color-footer-fg: oklch(0.92 0.005 80);
-  --color-footer-muted: oklch(0.78 0.005 80);   /* AA against footer-bg */
-  --color-footer-border: oklch(0.35 0.008 80);
+  --color-footer-bg: #1d1a16;
+  --color-footer-fg: #e7e3dd;
+  --color-footer-muted: #b9b3aa;
+  --color-footer-border: #4a453c;
 }
 
 /* --- Motion tokens (emil-kowalski custom easings) ---------------- */
