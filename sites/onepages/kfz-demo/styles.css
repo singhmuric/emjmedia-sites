@@ -1029,51 +1029,75 @@ input, button, textarea, select {
   height: 100%;
 }
 
-/* --- Scroll-Reveal (NFR-C-09) ---------------------------------- */
+/* --- Scroll-Reveal (NFR-C-09) v2 — Progressive Enhancement 2026-04-22 ---
+ * Bug-Fix aus v1: Inhalte NIE initial auf opacity:0 setzen, denn wenn JS
+ * nicht lädt oder IntersectionObserver nicht feuert, bleiben Sektionen
+ * unsichtbar (Session 1.4 Bug: 5 Sektionen leer auf Live-Site).
+ *
+ * Fail-Safe Muster:
+ *  1. Default (ohne JS): opacity:1, transform:none — Content IMMER sichtbar.
+ *  2. JS setzt <html class="js-reveal-ready"> erst NACHDEM der Observer
+ *     erfolgreich angelegt wurde → dann werden noch-nicht-revealed Elemente
+ *     hidden. Wenn JS bricht, bleibt Content sichtbar.
+ *  3. Observer observiert BEIDE Attribute ([data-reveal] und [data-reveal-stagger]).
+ *     Das war die JS-Lücke in v1.
+ *  4. Easing: cubic-bezier(0.23, 1, 0.32, 1) per emil-design-eng (Strong Ease-Out).
+ *  5. Duration 420ms, Stagger 60ms — im 30–80ms Korridor (emil) für Cascade.
+ */
 
-[data-reveal] {
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity 400ms var(--ease-out),
-    transform 400ms var(--ease-out);
-  will-change: opacity, transform;
-}
+/* Default: sichtbar, keine Transition. */
 
-[data-reveal].is-revealed { opacity: 1; transform: none; }
-
+[data-reveal],
 [data-reveal-stagger] > * {
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    opacity 400ms var(--ease-out),
-    transform 400ms var(--ease-out);
+  opacity: 1;
+  transform: none;
 }
 
-[data-reveal-stagger].is-revealed > * { opacity: 1; transform: none; }
+/* Progressive Enhancement: erst wenn JS bereit ist, werden nicht-revealed
+ * Elemente hidden + mit Transition versehen. */
 
-[data-reveal-stagger].is-revealed > *:nth-child(1) { transition-delay: 0ms; }
+html.js-reveal-ready [data-reveal]:not(.is-revealed),
+html.js-reveal-ready [data-reveal-stagger]:not(.is-revealed) > * {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 420ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 420ms cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform, opacity;
+}
 
-[data-reveal-stagger].is-revealed > *:nth-child(2) { transition-delay: 60ms; }
+html.js-reveal-ready [data-reveal].is-revealed,
+html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
+  opacity: 1;
+  transform: none;
+}
 
-[data-reveal-stagger].is-revealed > *:nth-child(3) { transition-delay: 120ms; }
+/* Stagger-Cascade für Children eines [data-reveal-stagger] Containers. */
 
-[data-reveal-stagger].is-revealed > *:nth-child(4) { transition-delay: 180ms; }
+html.js-reveal-ready [data-reveal-stagger].is-revealed > *:nth-child(1) { transition-delay: 0ms; }
 
-[data-reveal-stagger].is-revealed > *:nth-child(5) { transition-delay: 240ms; }
+html.js-reveal-ready [data-reveal-stagger].is-revealed > *:nth-child(2) { transition-delay: 60ms; }
 
-[data-reveal-stagger].is-revealed > *:nth-child(6) { transition-delay: 300ms; }
+html.js-reveal-ready [data-reveal-stagger].is-revealed > *:nth-child(3) { transition-delay: 120ms; }
 
-[data-reveal-stagger].is-revealed > *:nth-child(7) { transition-delay: 360ms; }
+html.js-reveal-ready [data-reveal-stagger].is-revealed > *:nth-child(4) { transition-delay: 180ms; }
 
-[data-reveal-stagger].is-revealed > *:nth-child(n+8) { transition-delay: 420ms; }
+html.js-reveal-ready [data-reveal-stagger].is-revealed > *:nth-child(5) { transition-delay: 240ms; }
+
+html.js-reveal-ready [data-reveal-stagger].is-revealed > *:nth-child(6) { transition-delay: 300ms; }
+
+html.js-reveal-ready [data-reveal-stagger].is-revealed > *:nth-child(n+7) { transition-delay: 360ms; }
+
+/* Reduced-motion: Content bleibt sichtbar, keine Bewegung (emil: opacity OK,
+ * transform nicht). */
 
 @media (prefers-reduced-motion: reduce) {
-  [data-reveal],
-  [data-reveal-stagger] > * {
+  html.js-reveal-ready [data-reveal],
+  html.js-reveal-ready [data-reveal-stagger] > * {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
+    will-change: auto;
   }
 }
 
@@ -1330,26 +1354,62 @@ input, button, textarea, select {
   transition: border-color var(--motion-fast) var(--ease-out);
 }
 
+/* NFR-C-10 (Upgrade 2026-04-22) — Card-Hover per emil-design-eng + taste-skill.
+ * Änderungen ggü. v1:
+ *  - Hover-Gate: @media (hover: hover) and (pointer: fine) — kein Sticky-Hover
+ *    auf Touch-Geräten (Skill: Touch Device Hover States).
+ *  - Easing: cubic-bezier(0.23, 1, 0.32, 1) — stärkerer ease-out, fühlt
+ *    sich schneller an als Default bei gleicher Duration (Skill: Custom Curves).
+ *  - Lift: -4px statt -2px — spürbar, aber unter der Aufmerksamkeits-Schwelle.
+ *  - Shadow in Slate-Hue getönt statt pure black (Skill: Rule 4 Materiality).
+ *  - :active → scale(0.98) translateY(-1px) — tactile feedback beim Klick
+ *    (Skill: Rule 5 Interactive UI States / scale(0.97) on :active).
+ *  - Icon bekommt kleinen Tilt (-3deg) + scale(1.04) beim Hover — eine der
+ *    „Kleinigkeiten", die im Aggregat das Gefühl ausmachen.
+ *  - Nur transform + opacity animieren → GPU-Pfad (Skill: Performance Rules).
+ */
+
 .leistung {
   transition:
-    border-color var(--motion-fast) var(--ease-out),
-    transform 200ms var(--ease-out),
-    box-shadow 200ms var(--ease-out);
+    border-color 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 220ms cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
 }
 
-/* NFR-C-10 — hover-lift: translateY(-2px) + shadow intensity ×1.5 */
+.leistung .card-icon {
+  transition:
+    transform 260ms cubic-bezier(0.23, 1, 0.32, 1),
+    color 180ms cubic-bezier(0.23, 1, 0.32, 1);
+}
 
-.leistung:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--color-accent) 32%, var(--color-border));
-  box-shadow:
-    0 4px 12px oklch(0 0 0 / 0.09),
-    0 2px 4px oklch(0 0 0 / 0.06);
+@media (hover: hover) and (pointer: fine) {
+  .leistung:hover {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklab, var(--color-accent) 42%, var(--color-border));
+    box-shadow:
+      0 14px 32px -12px color-mix(in oklab, var(--color-accent) 22%, oklch(0.24 0.02 255 / 0.18)),
+      0 4px 10px -4px oklch(0.24 0.02 255 / 0.10);
+  }
+  .leistung:hover .card-icon {
+    transform: rotate(-3deg) scale(1.04);
+  }
+}
+
+.leistung:active {
+  transform: translateY(-1px) scale(0.985);
+  transition-duration: 140ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .leistung { transition: border-color var(--motion-fast) var(--ease-out); }
-  .leistung:hover { transform: none; }
+  .leistung,
+  .leistung .card-icon {
+    transition: border-color 120ms ease;
+    will-change: auto;
+  }
+  .leistung:hover,
+  .leistung:active { transform: none; }
+  .leistung:hover .card-icon { transform: none; }
 }
 
 .card-icon {
