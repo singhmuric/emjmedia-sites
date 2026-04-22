@@ -112,9 +112,9 @@
 
 :root {
   --color-footer-bg: oklch(0.22 0.008 80);      /* warm dark */
-  --color-footer-fg: oklch(0.88 0.005 80);
-  --color-footer-muted: oklch(0.66 0.005 80);
-  --color-footer-border: oklch(0.32 0.008 80);
+  --color-footer-fg: oklch(0.92 0.005 80);
+  --color-footer-muted: oklch(0.78 0.005 80);   /* AA against footer-bg */
+  --color-footer-border: oklch(0.35 0.008 80);
 }
 
 /* --- Motion tokens (emil-kowalski custom easings) ---------------- */

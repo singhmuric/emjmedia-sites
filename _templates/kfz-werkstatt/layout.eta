@@ -21,6 +21,15 @@
 <% /* Preload primary font for the chosen variant */ %>
 <% const heroFont = it.variant === 'a' ? 'fraunces-latin' : it.variant === 'c' ? 'jetbrains-mono-latin' : 'inter-latin'; %>
 <link rel="preload" href="fonts/<%= heroFont %>.woff2" as="font" type="font/woff2" crossorigin>
+<% /* Preload the hero image (LCP candidate) — responsive via imagesrcset.
+      Browser picks the smallest file that matches the viewport. */ %>
+<% if (it.images && it.images.hero) { %>
+<link rel="preload" as="image"
+      href="assets/<%= it.images.hero.base %>-960.webp"
+      imagesrcset="assets/<%= it.images.hero.base %>-480.webp 480w, assets/<%= it.images.hero.base %>-960.webp 960w, assets/<%= it.images.hero.base %>-1600.webp 1600w"
+      imagesizes="(min-width: 1024px) 58vw, 100vw"
+      type="image/webp">
+<% } %>
 <link rel="stylesheet" href="styles.css">
 <script src="scripts.js" defer></script>
 <%~ include('./schema/autorepair', it) %>
