@@ -1,4 +1,4 @@
-<section class="section kontakt" id="kontakt">
+<section class="section kontakt" id="kontakt" data-reveal>
   <div class="container kontakt__inner">
     <header class="section-head">
       <p class="section-eyebrow">Termin anfragen</p>

@@ -418,6 +418,12 @@ async function renderInstance(lead, opts) {
   await copyDir(join(TEMPLATE_ROOT, 'fonts'), join(outDir, 'fonts'));
   await copyDir(join(TEMPLATE_ROOT, 'icons'), join(outDir, 'icons'));
 
+  // Interactions JS (NFR-C-09/11/12)
+  const jsSrc = join(TEMPLATE_ROOT, 'scripts/interactions.js');
+  if (existsSync(jsSrc)) {
+    await copyFile(jsSrc, join(outDir, 'scripts.js'));
+  }
+
   const cssBytes = await buildCss(join(outDir, 'styles.css'));
 
   await writeFile(join(outDir, 'sitemap.xml'), buildSitemap(slug, published));

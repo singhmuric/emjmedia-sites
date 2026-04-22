@@ -1,4 +1,4 @@
-<section class="section oeffnungszeiten" id="oeffnungszeiten">
+<section class="section oeffnungszeiten" id="oeffnungszeiten" data-reveal>
   <div class="container oeffnungszeiten__inner">
     <header class="section-head">
       <p class="section-eyebrow">Öffnungszeiten & Anfahrt</p>

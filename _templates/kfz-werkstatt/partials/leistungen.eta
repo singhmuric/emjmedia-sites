@@ -6,12 +6,12 @@
 %>
 <section class="section" id="leistungen">
   <div class="container">
-    <header class="section-head">
+    <header class="section-head" data-reveal>
       <p class="section-eyebrow">Leistungen</p>
       <h2 class="section-title">Was wir für Sie machen</h2>
     </header>
 
-    <ul class="leistungen-grid" role="list">
+    <ul class="leistungen-grid" role="list" data-reveal-stagger>
       <% for (const l of it.leistungen) { %>
       <% const img = imageForService(l.id); %>
       <li class="card leistung <%= img ? 'leistung--photo' : 'leistung--icon' %>">

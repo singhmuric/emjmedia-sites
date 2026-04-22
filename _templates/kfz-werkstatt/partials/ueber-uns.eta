@@ -20,7 +20,7 @@
     ? it.lead.meister_name.split(/\s+/).map((w) => w.charAt(0).toUpperCase()).slice(0, 2).join('')
     : 'TB';
 %>
-<section class="section ueber-uns" id="ueber-uns">
+<section class="section ueber-uns" id="ueber-uns" data-reveal>
   <div class="container ueber-uns__inner">
     <div class="ueber-uns__portrait">
       <% if (aboutImage) { %>

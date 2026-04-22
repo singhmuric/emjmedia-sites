@@ -20,12 +20,12 @@
 <% if (visible >= 3 || (visible >= 1 && teaser.length > 0)) { %>
 <section class="section trust-block" id="trust-block" aria-labelledby="trust-block-title">
   <div class="container trust-block__inner">
-    <header class="section-head">
+    <header class="section-head" data-reveal>
       <p class="section-eyebrow">Vertrauen</p>
       <h2 class="section-title" id="trust-block-title">Was uns auszeichnet</h2>
     </header>
 
-    <ul class="trust-grid" role="list">
+    <ul class="trust-grid" role="list" data-reveal-stagger>
       <% for (const b of badges) { %>
       <li class="trust-cell">
         <span class="trust-cell__icon"><%~ inlineSvg(b.icon, 'trust-cell__icon-svg') %></span>
@@ -35,21 +35,21 @@
 
       <% if (yearsLabel) { %>
       <li class="trust-cell trust-cell--years">
-        <strong class="trust-cell__big"><%= it.lead.gruendungsjahr %></strong>
+        <strong class="trust-cell__big"><span data-counter data-counter-to="<%= it.lead.gruendungsjahr %>" data-counter-decimals="0">0</span></strong>
         <span class="trust-cell__label"><%= yearsLabel %></span>
       </li>
       <% } %>
 
       <% if (gRating) { %>
       <li class="trust-cell trust-cell--rating">
-        <strong class="trust-cell__big"><%= gRating.value %></strong>
-        <span class="trust-cell__label"><%= gRating.count %> Google-Bewertungen</span>
+        <strong class="trust-cell__big"><span data-counter data-counter-to="<%= it.lead.google_rating %>" data-counter-decimals="1">0,0</span> ★</strong>
+        <span class="trust-cell__label"><span data-counter data-counter-to="<%= gRating.count %>" data-counter-decimals="0">0</span> Google-Bewertungen</span>
       </li>
       <% } %>
     </ul>
 
     <% if (teaser.length > 0) { %>
-    <figure class="trust-teaser">
+    <figure class="trust-teaser" data-reveal>
       <blockquote>
         <p>„<%= teaser[0].text %>"</p>
       </blockquote>

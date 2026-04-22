@@ -1,4 +1,4 @@
-<section class="cta-band" id="cta-band" aria-labelledby="cta-band-text">
+<section class="cta-band" id="cta-band" aria-labelledby="cta-band-text" data-reveal>
   <div class="container cta-band__inner">
     <p class="cta-band__text" id="cta-band-text"><%= it.ctaBand %></p>
     <a class="btn btn-primary cta-band__btn" href="<%= telHref(it.lead.telefon_e164) %>">

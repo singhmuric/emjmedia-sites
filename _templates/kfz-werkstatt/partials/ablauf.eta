@@ -1,11 +1,11 @@
 <section class="section ablauf" id="ablauf">
   <div class="container">
-    <header class="section-head">
+    <header class="section-head" data-reveal>
       <p class="section-eyebrow">Ablauf</p>
       <h2 class="section-title">In vier Schritten zum Termin</h2>
     </header>
 
-    <ol class="ablauf-steps" role="list">
+    <ol class="ablauf-steps" role="list" data-reveal-stagger>
       <% it.ablauf.forEach((step, i) => { %>
       <li class="ablauf-step">
         <span class="ablauf-step__num" aria-hidden="true"><%= String(i + 1).padStart(2, '0') %></span>

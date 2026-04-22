@@ -4,12 +4,12 @@
 <% if (zitate.length > 0) { %>
 <section class="section kundenstimmen" id="kundenstimmen" aria-labelledby="kundenstimmen-title">
   <div class="container">
-    <header class="section-head">
+    <header class="section-head" data-reveal>
       <p class="section-eyebrow">Stimmen unserer Kunden</p>
       <h2 class="section-title" id="kundenstimmen-title">Was Kunden uns auf Google geschrieben haben</h2>
     </header>
 
-    <ul class="stimmen-grid" role="list">
+    <ul class="stimmen-grid" role="list" data-reveal-stagger>
       <% for (const z of zitate) { %>
       <li class="stimme">
         <span class="stimme__avatar" aria-hidden="true"><%= (z.vorname || '?').charAt(0).toUpperCase() %></span>
