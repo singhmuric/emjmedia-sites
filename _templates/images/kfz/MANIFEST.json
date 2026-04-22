@@ -1,0 +1,164 @@
+{
+  "generated": "2026-04-22T10:59:12.229Z",
+  "widths": [
+    480,
+    960,
+    1600
+  ],
+  "formats": [
+    "webp",
+    "avif"
+  ],
+  "slots": [
+    {
+      "slot": "hero",
+      "source": "hebelbühne 2.jpeg",
+      "motiv": "hero",
+      "alt": "Auto auf der Hebebühne in der Werkstatt",
+      "use": "NFR-C-01 Hero-Bild-Dominanz",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    },
+    {
+      "slot": "about-primary",
+      "source": "arbeit am auto.jpeg",
+      "motiv": "about",
+      "alt": "Zwei Kollegen arbeiten gemeinsam am Motor",
+      "use": "NFR-C-04 Meister-Foto in „Über uns\"",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    },
+    {
+      "slot": "leistung-inspektion",
+      "source": "auslesegerät.jpeg",
+      "motiv": "service",
+      "alt": "Diagnose-Auslesegerät am Auto",
+      "use": "NFR-C-03 Service-Card Inspektion",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    },
+    {
+      "slot": "leistung-tuev",
+      "source": "arbeit am auto 2.jpeg",
+      "motiv": "service",
+      "alt": "Prüfarbeiten am Auto für die Hauptuntersuchung",
+      "use": "NFR-C-03 Service-Card TÜV/AU",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    },
+    {
+      "slot": "leistung-bremsen",
+      "source": "bremsschiebe.jpeg",
+      "motiv": "service",
+      "alt": "Bremsscheibe und Bremssattel beim Ausbau",
+      "use": "NFR-C-03 Service-Card Bremsen",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    },
+    {
+      "slot": "leistung-oelwechsel",
+      "source": "arbeit am motor.jpeg",
+      "motiv": "service",
+      "alt": "Ölwechsel und Arbeit am Motor",
+      "use": "NFR-C-03 Service-Card Ölwechsel",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    },
+    {
+      "slot": "leistung-reifen",
+      "source": "reifen.png",
+      "motiv": "service",
+      "alt": "Neuer Reifen und Felge in der Werkstatt",
+      "use": "NFR-C-03 Service-Card Reifenservice",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    },
+    {
+      "slot": "leistung-unfall",
+      "source": "auto am arbeit 3.jpeg",
+      "motiv": "service",
+      "alt": "Detailarbeit am Fahrzeug nach Unfallschaden",
+      "use": "NFR-C-03 Service-Card Unfallschaden",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    },
+    {
+      "slot": "atmosphere-detail",
+      "source": "werkzeug 2.jpeg",
+      "motiv": "atmosphere",
+      "alt": "Werkzeug-Detail in der Werkstatt",
+      "use": "Atmosphäre-Detail, frei verwendbar",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    },
+    {
+      "slot": "atmosphere-wide",
+      "source": "werkzeug.png",
+      "motiv": "atmosphere",
+      "alt": "Werkstatt-Werkzeug in ruhiger Komposition",
+      "use": "Atmosphäre-Reserve",
+      "srcWidth": 1536,
+      "srcHeight": 1024,
+      "aspect": 1.5,
+      "widths": [
+        480,
+        960,
+        1600
+      ]
+    }
+  ]
+}

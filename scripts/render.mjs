@@ -16,7 +16,7 @@ import { marked } from 'marked';
 
 import { validateLead } from './lib/validate-lead.mjs';
 import { resolveVariant } from './lib/variant.mjs';
-import { selectImages, loadManifest } from './lib/image-pool.mjs';
+import { selectImagesLegacy, loadManifest } from './lib/image-pool.mjs';
 import { buildAutoRepairJsonLd, buildFaqPageJsonLd, jsonLdScript } from './lib/schema.mjs';
 import { createEta, formatOeffnungszeiten, jahre, copyrightYear, telHref, formatTel, whatsappHref, mapsHref, present, escapeHtml, pictureTag, inlineSvg } from './lib/eta.mjs';
 
@@ -30,7 +30,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const TEMPLATE_ROOT = resolve(ROOT, '_templates/kfz-werkstatt');
 const LEGAL_ROOT = resolve(ROOT, '_templates/legal');
-const IMAGE_POOL_ROOT = resolve(ROOT, '_templates/images/kfz');
+const IMAGE_POOL_ROOT = resolve(ROOT, '_templates/images/kfz/pool');
 const OUTPUT_ROOT = resolve(ROOT, 'sites/onepages');
 const BUILD_LOG_DIR = resolve(ROOT, '_logs/builds');
 const TW_CONFIG = resolve(TEMPLATE_ROOT, 'tailwind.config.cjs');
@@ -248,34 +248,38 @@ function kernleistungLabel(v) {
   return map[v] ?? 'KFZ-Werkstatt';
 }
 
-const IMAGE_WIDTHS = [320, 768, 1200, 1920];
+const IMAGE_WIDTHS = [480, 960, 1600];
 const IMAGE_FORMATS = ['webp', 'avif'];
 
+// Walks a slot object from MANIFEST.json or a nested { slotName: slot }
+// dictionary and copies every {slot}-{w}.{ext} file into assetsDir.
 async function copyImages(images, outDir) {
   const assetsDir = join(outDir, 'assets');
   await ensureDir(assetsDir);
   const copied = {};
-  for (const [key, img] of Object.entries(images)) {
-    if (!img) continue;
-    if (Array.isArray(img)) {
-      copied[key] = [];
-      for (const i of img) {
-        const out = await copyAllSizes(i, assetsDir);
-        if (out) copied[key].push(out);
+  for (const [key, val] of Object.entries(images)) {
+    if (val == null) continue;
+    if (isSlot(val)) {
+      const r = await copyAllSizes(val, assetsDir);
+      if (r) copied[key] = r;
+    } else if (typeof val === 'object') {
+      copied[key] = {};
+      for (const [inner, slot] of Object.entries(val)) {
+        if (!isSlot(slot)) continue;
+        const r = await copyAllSizes(slot, assetsDir);
+        if (r) copied[key][inner] = r;
       }
-      continue;
     }
-    const out = await copyAllSizes(img, assetsDir);
-    if (out) copied[key] = out;
   }
   return copied;
 }
 
-// Copies every {base}-{w}.{ext} that exists in the pool. Returns the base
-// name (e.g. "04-aussen-reihengebaeude") so partials can build srcset.
-async function copyAllSizes(img, assetsDir) {
-  if (!img?.filename) return null;
-  const base = basename(img.filename, extname(img.filename));
+function isSlot(v) {
+  return v && typeof v === 'object' && typeof v.slot === 'string';
+}
+
+async function copyAllSizes(slot, assetsDir) {
+  const base = slot.slot;
   let copiedAny = false;
   for (const w of IMAGE_WIDTHS) {
     for (const ext of IMAGE_FORMATS) {
@@ -286,7 +290,7 @@ async function copyAllSizes(img, assetsDir) {
     }
   }
   if (!copiedAny) return null;
-  return { base, alt: img.alt ?? '', motiv: img.motiv ?? null };
+  return { base, alt: slot.alt ?? '', motiv: slot.motiv ?? null, aspect: slot.aspect ?? null };
 }
 
 async function copyDir(src, dest) {
@@ -340,7 +344,7 @@ async function renderInstance(lead, opts) {
   let images = null;
   let imagePoolWarning = null;
   try {
-    images = await selectImages(slug, variant);
+    images = await selectImagesLegacy();
   } catch (err) {
     imagePoolWarning = err.message;
   }

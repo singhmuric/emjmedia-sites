@@ -83,7 +83,7 @@ export function present(v) {
   return true;
 }
 
-const DEFAULT_WIDTHS = [320, 768, 1200, 1920];
+const DEFAULT_WIDTHS = [480, 960, 1600];
 
 export function pictureTag(image, opts = {}) {
   if (!image || !image.base) return '';
@@ -93,7 +93,8 @@ export function pictureTag(image, opts = {}) {
   const isHero = !!opts.hero;
   const w = opts.width ?? 1600;
   const h = opts.height ?? 1000;
-  const fallbackWidth = opts.fallbackWidth ?? 1200;
+  const fallbackWidth = opts.fallbackWidth ?? 960;
+  const className = opts.className ? ` class="${opts.className}"` : '';
 
   const srcset = (ext) => widths.map((wd) => `assets/${image.base}-${wd}.${ext} ${wd}w`).join(', ');
 
@@ -101,7 +102,7 @@ export function pictureTag(image, opts = {}) {
   const fetch = isHero ? 'fetchpriority="high"' : 'loading="lazy" fetchpriority="low"';
   const decoding = isHero ? 'decoding="auto"' : 'decoding="async"';
 
-  return `<picture>
+  return `<picture${className}>
   <source type="image/avif" sizes="${sizes}" srcset="${srcset('avif')}">
   <source type="image/webp" sizes="${sizes}" srcset="${srcset('webp')}">
   <img src="assets/${image.base}-${fallbackWidth}.webp" alt="${altEsc}" width="${w}" height="${h}" ${fetch} ${decoding}>
