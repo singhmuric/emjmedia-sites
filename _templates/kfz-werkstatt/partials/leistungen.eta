@@ -1,3 +1,9 @@
+<%
+  // NFR-C-03 — services whose images we have in the pool get a photo
+  // header; the rest fall back to the icon header.
+  const imageSlots = it.images && it.images.leistungen ? it.images.leistungen : {};
+  const imageForService = (id) => imageSlots[id] || null;
+%>
 <section class="section" id="leistungen">
   <div class="container">
     <header class="section-head">
@@ -7,10 +13,17 @@
 
     <ul class="leistungen-grid" role="list">
       <% for (const l of it.leistungen) { %>
-      <li class="card leistung">
+      <% const img = imageForService(l.id); %>
+      <li class="card leistung <%= img ? 'leistung--photo' : 'leistung--icon' %>">
+        <% if (img) { %>
+        <%~ pictureTag(img, { sizes: '(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw', width: 480, height: 320, fallbackWidth: 480, className: 'leistung__photo' }) %>
+        <% } else { %>
         <span class="leistung__icon"><%~ inlineSvg(l.id, 'leistung__icon-svg') %></span>
-        <h3 class="card-title"><%= l.titel %></h3>
-        <% if (l.beschreibung) { %><p class="card-body"><%= l.beschreibung %></p><% } %>
+        <% } %>
+        <div class="leistung__body">
+          <h3 class="card-title"><%= l.titel %></h3>
+          <% if (l.beschreibung) { %><p class="card-body"><%= l.beschreibung %></p><% } %>
+        </div>
       </li>
       <% } %>
     </ul>

@@ -42,6 +42,30 @@
 
         <p class="oeffnungszeiten__hint">Werkstatt liegt zentral, Parkplätze direkt vor der Tür.</p>
       </div>
+
+      <figure class="oeffnungszeiten__map" aria-label="Schematische Karte des Werkstatt-Standorts">
+        <svg class="standort-map" viewBox="0 0 400 280" role="img" aria-hidden="false" xmlns="http://www.w3.org/2000/svg">
+          <title>Standort <%= it.lead.firmenname %> in <%= it.lead.ort %></title>
+          <defs>
+            <pattern id="dotgrid" width="14" height="14" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill="currentColor" opacity="0.18" />
+            </pattern>
+          </defs>
+          <rect width="400" height="280" fill="var(--color-surface)" />
+          <rect width="400" height="280" fill="url(#dotgrid)" color="var(--color-muted)" />
+          <path d="M 0 170 Q 90 120 200 150 T 400 130" fill="none" stroke="var(--color-border)" stroke-width="8" stroke-linecap="round" />
+          <path d="M 0 170 Q 90 120 200 150 T 400 130" fill="none" stroke="var(--color-bg)" stroke-width="3" stroke-dasharray="4 6" />
+          <path d="M 140 0 L 170 160 L 230 280" fill="none" stroke="var(--color-border)" stroke-width="6" stroke-linecap="round" />
+          <path d="M 140 0 L 170 160 L 230 280" fill="none" stroke="var(--color-bg)" stroke-width="2" />
+          <g transform="translate(200 150)">
+            <circle r="28" fill="color-mix(in oklab, var(--color-accent) 18%, transparent)" />
+            <circle r="10" fill="var(--color-accent)" />
+            <path d="M 0 -24 L 7 -10 L -7 -10 Z" fill="var(--color-accent)" />
+          </g>
+          <text x="200" y="210" text-anchor="middle" font-family="var(--font-body)" font-size="13" font-weight="600" fill="var(--color-fg)"><%= it.lead.ort %></text>
+        </svg>
+        <figcaption>Schematische Orientierungskarte. <a href="<%= mapsHref(it.lead.strasse, it.lead.plz, it.lead.ort) %>" rel="noopener" target="_blank">Route in Google Maps</a>.</figcaption>
+      </figure>
     </div>
   </div>
 </section>

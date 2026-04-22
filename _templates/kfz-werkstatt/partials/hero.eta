@@ -1,4 +1,11 @@
 <section class="hero" id="hero">
+  <% if (it.images && it.images.hero) { %>
+  <div class="hero__media" aria-hidden="false">
+    <%~ pictureTag(it.images.hero, { hero: true, sizes: '(min-width: 1024px) 58vw, 100vw', width: 1600, height: 1067 }) %>
+    <span class="hero__media-scrim" aria-hidden="true"></span>
+  </div>
+  <% } %>
+
   <div class="container hero__inner">
     <div class="hero__copy">
       <h1 class="hero__h1"><%= it.heroH1 %></h1>
@@ -11,31 +18,6 @@
         </a>
         <a class="btn btn-secondary" href="#kontakt">Termin anfragen</a>
       </div>
-
-      <%
-        const trust = [];
-        const ts = it.lead.trust_signale || {};
-        if (ts.meisterbetrieb && it.lead.gruendungsjahr) {
-          trust.push(`Meisterbetrieb seit ${it.lead.gruendungsjahr}`);
-        } else if (ts.meisterbetrieb) {
-          trust.push('Meisterbetrieb');
-        }
-        if (typeof it.lead.google_rating === 'number' && typeof it.lead.google_reviews_count === 'number' && it.lead.google_reviews_count > 0) {
-          trust.push(`${it.lead.google_rating.toString().replace('.', ',')} / 5 Sterne · ${it.lead.google_reviews_count} Google-Bewertungen`);
-        }
-        if (ts.tuev_partner) trust.push('TÜV-Partner / AU-Stelle');
-      %>
-      <% if (trust.length > 0) { %>
-      <ul class="hero__trust" aria-label="Vertrauens-Signale">
-        <% for (const t of trust) { %><li><%= t %></li><% } %>
-      </ul>
-      <% } %>
-    </div>
-
-    <div class="hero__media">
-      <% if (it.images && it.images.hero) { %>
-        <%~ pictureTag(it.images.hero, { hero: true, sizes: '(min-width: 768px) 50vw, 100vw', width: 1600, height: 1100 }) %>
-      <% } %>
     </div>
   </div>
 </section>

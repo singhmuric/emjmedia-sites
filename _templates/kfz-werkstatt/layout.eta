@@ -30,15 +30,16 @@
 <%~ include('./partials/header', it) %>
 <main id="main">
 <%~ include('./partials/hero', it) %>
+<%~ include('./partials/trust-strip', it) %>
 <%~ include('./partials/leistungen', it) %>
 <%~ include('./partials/trust-block', it) %>
-<%~ include('./partials/cta-band', it) %>
 <%~ include('./partials/ueber-uns', it) %>
 <%~ include('./partials/ablauf', it) %>
 <%~ include('./partials/kundenstimmen', it) %>
 <%~ include('./partials/oeffnungszeiten', it) %>
 <%~ include('./partials/kontakt', it) %>
 <%~ include('./partials/faq', it) %>
+<%~ include('./partials/cta-band', it) %>
 </main>
 <%~ include('./partials/footer', it) %>
 </body>

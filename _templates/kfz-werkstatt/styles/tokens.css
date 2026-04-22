@@ -105,6 +105,14 @@
   --hero-tint: linear-gradient(180deg, oklch(0.22 0.008 80) 0%, transparent 60%);
 }
 
+/* --- Footer tone (NFR-C-06 "Footer dunkel") ------------------- */
+:root {
+  --color-footer-bg: oklch(0.22 0.008 80);      /* warm dark */
+  --color-footer-fg: oklch(0.88 0.005 80);
+  --color-footer-muted: oklch(0.66 0.005 80);
+  --color-footer-border: oklch(0.32 0.008 80);
+}
+
 /* --- Motion tokens (emil-kowalski custom easings) ---------------- */
 :root {
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de" data-variant="c">
+<html lang="de" data-variant="a">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>Kfz-Meisterbetrieb Bergman… | KFZ-Werkstatt in Bad Bramstedt</title>
@@ -11,11 +11,11 @@
 <meta property="og:url" content="https://kfz-demo.emj-media.de/">
 <meta property="og:title" content="Kfz-Meisterbetrieb Bergman… | KFZ-Werkstatt in Bad Bramstedt">
 <meta property="og:description" content="Ihre freie KFZ-Werkstatt in Bad Bramstedt: Inspektion, TÜV und Reparatur aus Meisterhand. Faire Preise, schnelle Termine — jetzt anrufen.">
-<meta property="og:image" content="https://kfz-demo.emj-media.de/assets/04-aussen-reihengebaeude-1200.webp">
+<meta property="og:image" content="https://kfz-demo.emj-media.de/assets/hero-1200.webp">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Kfz-Meisterbetrieb Bergman… | KFZ-Werkstatt in Bad Bramstedt">
 <meta name="twitter:description" content="Ihre freie KFZ-Werkstatt in Bad Bramstedt: Inspektion, TÜV und Reparatur aus Meisterhand. Faire Preise, schnelle Termine — jetzt anrufen.">
-<link rel="preload" href="fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/fraunces-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css"><script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -176,6 +176,14 @@
   </div>
 </header>
 <main id="main"><section class="hero" id="hero">
+    <div class="hero__media" aria-hidden="false">
+    <picture>
+  <source type="image/avif" sizes="(min-width: 1024px) 58vw, 100vw" srcset="assets/hero-480.avif 480w, assets/hero-960.avif 960w, assets/hero-1600.avif 1600w">
+  <source type="image/webp" sizes="(min-width: 1024px) 58vw, 100vw" srcset="assets/hero-480.webp 480w, assets/hero-960.webp 960w, assets/hero-1600.webp 1600w">
+  <img src="assets/hero-960.webp" alt="Auto auf der Hebebühne in der Werkstatt" width="1600" height="1067" fetchpriority="high" decoding="auto">
+</picture>    <span class="hero__media-scrim" aria-hidden="true"></span>
+  </div>
+  
   <div class="container hero__inner">
     <div class="hero__copy">
       <h1 class="hero__h1">Kfz-Meisterbetrieb Bergmann GmbH — Ihre KFZ-Meisterwerkstatt in Bad Bramstedt</h1>
@@ -188,20 +196,18 @@
         </a>
         <a class="btn btn-secondary" href="#kontakt">Termin anfragen</a>
       </div>
-
-                  <ul class="hero__trust" aria-label="Vertrauens-Signale">
-        <li>Meisterbetrieb seit 1998</li><li>4,6 / 5 Sterne · 73 Google-Bewertungen</li>      </ul>
-          </div>
-
-    <div class="hero__media">
-              <picture>
-  <source type="image/avif" sizes="(min-width: 768px) 50vw, 100vw" srcset="assets/04-aussen-reihengebaeude-320.avif 320w, assets/04-aussen-reihengebaeude-768.avif 768w, assets/04-aussen-reihengebaeude-1200.avif 1200w, assets/04-aussen-reihengebaeude-1920.avif 1920w">
-  <source type="image/webp" sizes="(min-width: 768px) 50vw, 100vw" srcset="assets/04-aussen-reihengebaeude-320.webp 320w, assets/04-aussen-reihengebaeude-768.webp 768w, assets/04-aussen-reihengebaeude-1200.webp 1200w, assets/04-aussen-reihengebaeude-1920.webp 1920w">
-  <img src="assets/04-aussen-reihengebaeude-1200.webp" alt="Werkstatt im Gewerbegebiet im Reihenverbund" width="1600" height="1100" fetchpriority="high" decoding="auto">
-</picture>          </div>
+    </div>
   </div>
 </section>
-<section class="section" id="leistungen">
+<aside class="trust-strip" aria-label="Trust-Signale">
+  <div class="container">
+    <ul class="trust-strip__row" role="list">
+            <li class="trust-strip__item">Meisterbetrieb seit 1998</li>
+            <li class="trust-strip__item">Mitglied Kfz-Innung</li>
+            <li class="trust-strip__item">4,6 ★ Google (73)</li>
+          </ul>
+  </div>
+</aside><section class="section" id="leistungen">
   <div class="container">
     <header class="section-head">
       <p class="section-eyebrow">Leistungen</p>
@@ -209,38 +215,72 @@
     </header>
 
     <ul class="leistungen-grid" role="list">
-            <li class="card leistung">
-        <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="m9 14 2 2 4-4" /></svg></span>
-        <h3 class="card-title">Inspektion</h3>
-        <p class="card-body">Großer und kleiner Wartungs-Check nach Hersteller-Vorgabe.</p>      </li>
-            <li class="card leistung">
-        <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" /><path d="m9 12 2 2 4-4" /></svg></span>
-        <h3 class="card-title">TÜV &amp; AU</h3>
-        <p class="card-body">Hauptuntersuchung und AU im Haus, Termin nach Absprache.</p>      </li>
-            <li class="card leistung">
-        <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="2" /></svg></span>
-        <h3 class="card-title">Bremsen</h3>
-        <p class="card-body">Beläge und Scheiben tauschen wir zügig — mit Sicherheits-Check.</p>      </li>
-            <li class="card leistung">
-        <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z" /></svg></span>
-        <h3 class="card-title">Ölwechsel</h3>
-        <p class="card-body">Ölwechsel mit Hersteller-freigegebenem Öl, Filter inklusive.</p>      </li>
-            <li class="card leistung">
-        <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="1" /></svg></span>
-        <h3 class="card-title">Reifenservice</h3>
-        <p class="card-body">Reifen wechseln, einlagern, montieren — auf Wunsch saisonal.</p>      </li>
-            <li class="card leistung">
-        <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><path d="m10 20-1.25-2.5L6 18" /><path d="M10 4 8.75 6.5 6 6" /><path d="m14 20 1.25-2.5L18 18" /><path d="m14 4 1.25 2.5L18 6" /><path d="m17 21-3-6h-4" /><path d="m17 3-3 6 1.5 3" /><path d="M2 12h6.5L10 9" /><path d="m20 10-1.5 2 1.5 2" /><path d="M22 12h-6.5L14 15" /><path d="m4 10 1.5 2L4 14" /><path d="m7 21 3-6-1.5-3" /><path d="m7 3 3 6h4" /></svg></span>
-        <h3 class="card-title">Klimaservice</h3>
-        <p class="card-body">Klimaservice mit Lecksuche und passendem Kältemittel.</p>      </li>
-            <li class="card leistung">
-        <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8" /><path d="M7 14h.01" /><path d="M17 14h.01" /><rect width="18" height="8" x="3" y="10" rx="2" /><path d="M5 18v2" /><path d="M19 18v2" /></svg></span>
-        <h3 class="card-title">Unfallschaden</h3>
-        <p class="card-body">Unfallschaden-Abwicklung — wir sprechen mit Ihrer Versicherung.</p>      </li>
-            <li class="card leistung">
-        <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" /></svg></span>
-        <h3 class="card-title">Ersatzwagen</h3>
-        <p class="card-body">Ersatzwagen für die Zeit der Reparatur, sofern verfügbar.</p>      </li>
+                  <li class="card leistung leistung--photo">
+                <picture class="leistung__photo">
+  <source type="image/avif" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-inspektion-480.avif 480w, assets/leistung-inspektion-960.avif 960w, assets/leistung-inspektion-1600.avif 1600w">
+  <source type="image/webp" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-inspektion-480.webp 480w, assets/leistung-inspektion-960.webp 960w, assets/leistung-inspektion-1600.webp 1600w">
+  <img src="assets/leistung-inspektion-480.webp" alt="Diagnose-Auslesegerät am Auto" width="480" height="320" loading="lazy" fetchpriority="low" decoding="async">
+</picture>                <div class="leistung__body">
+          <h3 class="card-title">Inspektion</h3>
+          <p class="card-body">Großer und kleiner Wartungs-Check nach Hersteller-Vorgabe.</p>        </div>
+      </li>
+                  <li class="card leistung leistung--photo">
+                <picture class="leistung__photo">
+  <source type="image/avif" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-tuev-480.avif 480w, assets/leistung-tuev-960.avif 960w, assets/leistung-tuev-1600.avif 1600w">
+  <source type="image/webp" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-tuev-480.webp 480w, assets/leistung-tuev-960.webp 960w, assets/leistung-tuev-1600.webp 1600w">
+  <img src="assets/leistung-tuev-480.webp" alt="Prüfarbeiten am Auto für die Hauptuntersuchung" width="480" height="320" loading="lazy" fetchpriority="low" decoding="async">
+</picture>                <div class="leistung__body">
+          <h3 class="card-title">TÜV &amp; AU</h3>
+          <p class="card-body">Hauptuntersuchung und AU im Haus, Termin nach Absprache.</p>        </div>
+      </li>
+                  <li class="card leistung leistung--photo">
+                <picture class="leistung__photo">
+  <source type="image/avif" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-bremsen-480.avif 480w, assets/leistung-bremsen-960.avif 960w, assets/leistung-bremsen-1600.avif 1600w">
+  <source type="image/webp" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-bremsen-480.webp 480w, assets/leistung-bremsen-960.webp 960w, assets/leistung-bremsen-1600.webp 1600w">
+  <img src="assets/leistung-bremsen-480.webp" alt="Bremsscheibe und Bremssattel beim Ausbau" width="480" height="320" loading="lazy" fetchpriority="low" decoding="async">
+</picture>                <div class="leistung__body">
+          <h3 class="card-title">Bremsen</h3>
+          <p class="card-body">Beläge und Scheiben tauschen wir zügig — mit Sicherheits-Check.</p>        </div>
+      </li>
+                  <li class="card leistung leistung--photo">
+                <picture class="leistung__photo">
+  <source type="image/avif" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-oelwechsel-480.avif 480w, assets/leistung-oelwechsel-960.avif 960w, assets/leistung-oelwechsel-1600.avif 1600w">
+  <source type="image/webp" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-oelwechsel-480.webp 480w, assets/leistung-oelwechsel-960.webp 960w, assets/leistung-oelwechsel-1600.webp 1600w">
+  <img src="assets/leistung-oelwechsel-480.webp" alt="Ölwechsel und Arbeit am Motor" width="480" height="320" loading="lazy" fetchpriority="low" decoding="async">
+</picture>                <div class="leistung__body">
+          <h3 class="card-title">Ölwechsel</h3>
+          <p class="card-body">Ölwechsel mit Hersteller-freigegebenem Öl, Filter inklusive.</p>        </div>
+      </li>
+                  <li class="card leistung leistung--photo">
+                <picture class="leistung__photo">
+  <source type="image/avif" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-reifen-480.avif 480w, assets/leistung-reifen-960.avif 960w, assets/leistung-reifen-1600.avif 1600w">
+  <source type="image/webp" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-reifen-480.webp 480w, assets/leistung-reifen-960.webp 960w, assets/leistung-reifen-1600.webp 1600w">
+  <img src="assets/leistung-reifen-480.webp" alt="Neuer Reifen und Felge in der Werkstatt" width="480" height="320" loading="lazy" fetchpriority="low" decoding="async">
+</picture>                <div class="leistung__body">
+          <h3 class="card-title">Reifenservice</h3>
+          <p class="card-body">Reifen wechseln, einlagern, montieren — auf Wunsch saisonal.</p>        </div>
+      </li>
+                  <li class="card leistung leistung--icon">
+                <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><path d="m10 20-1.25-2.5L6 18" /><path d="M10 4 8.75 6.5 6 6" /><path d="m14 20 1.25-2.5L18 18" /><path d="m14 4 1.25 2.5L18 6" /><path d="m17 21-3-6h-4" /><path d="m17 3-3 6 1.5 3" /><path d="M2 12h6.5L10 9" /><path d="m20 10-1.5 2 1.5 2" /><path d="M22 12h-6.5L14 15" /><path d="m4 10 1.5 2L4 14" /><path d="m7 21 3-6-1.5-3" /><path d="m7 3 3 6h4" /></svg></span>
+                <div class="leistung__body">
+          <h3 class="card-title">Klimaservice</h3>
+          <p class="card-body">Klimaservice mit Lecksuche und passendem Kältemittel.</p>        </div>
+      </li>
+                  <li class="card leistung leistung--photo">
+                <picture class="leistung__photo">
+  <source type="image/avif" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-unfall-480.avif 480w, assets/leistung-unfall-960.avif 960w, assets/leistung-unfall-1600.avif 1600w">
+  <source type="image/webp" sizes="(min-width: 1024px) 28vw, (min-width: 640px) 45vw, 90vw" srcset="assets/leistung-unfall-480.webp 480w, assets/leistung-unfall-960.webp 960w, assets/leistung-unfall-1600.webp 1600w">
+  <img src="assets/leistung-unfall-480.webp" alt="Detailarbeit am Fahrzeug nach Unfallschaden" width="480" height="320" loading="lazy" fetchpriority="low" decoding="async">
+</picture>                <div class="leistung__body">
+          <h3 class="card-title">Unfallschaden</h3>
+          <p class="card-body">Unfallschaden-Abwicklung — wir sprechen mit Ihrer Versicherung.</p>        </div>
+      </li>
+                  <li class="card leistung leistung--icon">
+                <span class="leistung__icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="leistung__icon-svg" aria-hidden="true" focusable="false"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" /><circle cx="7" cy="17" r="2" /><path d="M9 17h6" /><circle cx="17" cy="17" r="2" /></svg></span>
+                <div class="leistung__body">
+          <h3 class="card-title">Ersatzwagen</h3>
+          <p class="card-body">Ersatzwagen für die Zeit der Reparatur, sofern verfügbar.</p>        </div>
+      </li>
           </ul>
   </div>
 </section>
@@ -280,32 +320,41 @@
         — Sandra K., 03/2026      </figcaption>
     </figure>
       </div>
-</section><section class="cta-band" id="cta-band" aria-labelledby="cta-band-text">
-  <div class="container cta-band__inner">
-    <p class="cta-band__text" id="cta-band-text">Anrufen. Termin holen. Erledigt.</p>
-    <a class="btn btn-primary cta-band__btn" href="tel:+4941929876543">
-      <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      <span>04192 98 76 543</span>
-    </a>
-  </div>
-</section>
-<section class="section ueber-uns" id="ueber-uns">
+</section><section class="section ueber-uns" id="ueber-uns">
   <div class="container ueber-uns__inner">
+    <div class="ueber-uns__portrait">
+            <figure class="ueber-uns__photo">
+        <picture class="ueber-uns__photo-frame">
+  <source type="image/avif" sizes="(min-width: 1024px) 40vw, 90vw" srcset="assets/about-primary-480.avif 480w, assets/about-primary-960.avif 960w, assets/about-primary-1600.avif 1600w">
+  <source type="image/webp" sizes="(min-width: 1024px) 40vw, 90vw" srcset="assets/about-primary-480.webp 480w, assets/about-primary-960.webp 960w, assets/about-primary-1600.webp 1600w">
+  <img src="assets/about-primary-960.webp" alt="Zwei Kollegen arbeiten gemeinsam am Motor" width="960" height="1280" loading="lazy" fetchpriority="low" decoding="async">
+</picture>      </figure>
+          </div>
+
     <div class="ueber-uns__copy">
       <header class="section-head">
         <p class="section-eyebrow">Über uns</p>
         <h2 class="section-title">Wer Ihr Auto in die Hand nimmt</h2>
       </header>
-      <p class="ueber-uns__text">Wir kümmern uns seit 1998 in Bad Bramstedt um Autos. Geführt von Thorsten Bergmann, 6-köpfiges Team. Bei uns wissen Sie vorher, was Sie erwartet — ehrliche Beratung, faire Preise, ein Termin, der hält.</p>
-    </div>
 
-        <div class="ueber-uns__media">
-      <picture>
-  <source type="image/avif" sizes="(min-width: 768px) 45vw, 100vw" srcset="assets/07-innen-werkzeugregale-320.avif 320w, assets/07-innen-werkzeugregale-768.avif 768w, assets/07-innen-werkzeugregale-1200.avif 1200w, assets/07-innen-werkzeugregale-1920.avif 1920w">
-  <source type="image/webp" sizes="(min-width: 768px) 45vw, 100vw" srcset="assets/07-innen-werkzeugregale-320.webp 320w, assets/07-innen-werkzeugregale-768.webp 768w, assets/07-innen-werkzeugregale-1200.webp 1200w, assets/07-innen-werkzeugregale-1920.webp 1920w">
-  <img src="assets/07-innen-werkzeugregale-1200.webp" alt="Sortierte Werkzeug-Wand in einer Werkstatt" width="1200" height="800" loading="lazy" fetchpriority="low" decoding="async">
-</picture>    </div>
-      </div>
+      <p class="ueber-uns__text">Wir kümmern uns seit 1998 in Bad Bramstedt um Autos aller Marken. Geführt von Thorsten Bergmann mit einem 6-köpfigen Team. Bei uns wissen Sie vorher, was Sie erwartet — ehrliche Beratung, faire Preise, ein Termin, der hält.</p>
+
+            <dl class="ueber-uns__meta">
+        <div>
+          <dt>Inhaber & Meister</dt>
+          <dd>Thorsten Bergmann</dd>
+        </div>
+                <div>
+          <dt>Seit</dt>
+          <dd>1998</dd>
+        </div>
+                        <div>
+          <dt>Team</dt>
+          <dd>6 Kolleg:innen</dd>
+        </div>
+              </dl>
+          </div>
+  </div>
 </section>
 <section class="section ablauf" id="ablauf">
   <div class="container">
@@ -447,6 +496,30 @@
 
         <p class="oeffnungszeiten__hint">Werkstatt liegt zentral, Parkplätze direkt vor der Tür.</p>
       </div>
+
+      <figure class="oeffnungszeiten__map" aria-label="Schematische Karte des Werkstatt-Standorts">
+        <svg class="standort-map" viewBox="0 0 400 280" role="img" aria-hidden="false" xmlns="http://www.w3.org/2000/svg">
+          <title>Standort Kfz-Meisterbetrieb Bergmann GmbH in Bad Bramstedt</title>
+          <defs>
+            <pattern id="dotgrid" width="14" height="14" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill="currentColor" opacity="0.18" />
+            </pattern>
+          </defs>
+          <rect width="400" height="280" fill="var(--color-surface)" />
+          <rect width="400" height="280" fill="url(#dotgrid)" color="var(--color-muted)" />
+          <path d="M 0 170 Q 90 120 200 150 T 400 130" fill="none" stroke="var(--color-border)" stroke-width="8" stroke-linecap="round" />
+          <path d="M 0 170 Q 90 120 200 150 T 400 130" fill="none" stroke="var(--color-bg)" stroke-width="3" stroke-dasharray="4 6" />
+          <path d="M 140 0 L 170 160 L 230 280" fill="none" stroke="var(--color-border)" stroke-width="6" stroke-linecap="round" />
+          <path d="M 140 0 L 170 160 L 230 280" fill="none" stroke="var(--color-bg)" stroke-width="2" />
+          <g transform="translate(200 150)">
+            <circle r="28" fill="color-mix(in oklab, var(--color-accent) 18%, transparent)" />
+            <circle r="10" fill="var(--color-accent)" />
+            <path d="M 0 -24 L 7 -10 L -7 -10 Z" fill="var(--color-accent)" />
+          </g>
+          <text x="200" y="210" text-anchor="middle" font-family="var(--font-body)" font-size="13" font-weight="600" fill="var(--color-fg)">Bad Bramstedt</text>
+        </svg>
+        <figcaption>Schematische Orientierungskarte. <a href="https://www.google.com/maps/search/?api=1&amp;query=Bahnhofstr.%2014%2C%2024576%20Bad%20Bramstedt" rel="noopener" target="_blank">Route in Google Maps</a>.</figcaption>
+      </figure>
     </div>
   </div>
 </section>
@@ -554,7 +627,16 @@
       </details>
           </div>
   </div>
-</section></main><footer class="site-footer" id="site-footer">
+</section><section class="cta-band" id="cta-band" aria-labelledby="cta-band-text">
+  <div class="container cta-band__inner">
+    <p class="cta-band__text" id="cta-band-text">Warnleuchte an? Rufen Sie uns an — meist bekommen Sie noch diese Woche einen Termin.</p>
+    <a class="btn btn-primary cta-band__btn" href="tel:+4941929876543">
+      <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <span>04192 98 76 543</span>
+    </a>
+  </div>
+</section>
+</main><footer class="site-footer" id="site-footer">
   <div class="container site-footer__inner">
     <div class="site-footer__nap">
       <strong class="site-footer__name">Kfz-Meisterbetrieb Bergmann GmbH</strong>

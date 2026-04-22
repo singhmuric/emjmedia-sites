@@ -1,0 +1,23 @@
+<%
+  const ts = it.lead.trust_signale || {};
+  const items = [];
+  if (ts.meisterbetrieb) {
+    items.push(it.lead.gruendungsjahr ? `Meisterbetrieb seit ${it.lead.gruendungsjahr}` : 'Meisterbetrieb');
+  }
+  if (ts.tuev_partner) items.push('TÜV-Partner · AU-Stelle');
+  if (ts.innung) items.push('Mitglied Kfz-Innung');
+  if (typeof it.lead.google_rating === 'number' && typeof it.lead.google_reviews_count === 'number' && it.lead.google_reviews_count > 0) {
+    items.push(`${it.lead.google_rating.toString().replace('.', ',')} ★ Google (${it.lead.google_reviews_count})`);
+  }
+%>
+<% if (items.length >= 2) { %>
+<aside class="trust-strip" aria-label="Trust-Signale">
+  <div class="container">
+    <ul class="trust-strip__row" role="list">
+      <% for (const text of items) { %>
+      <li class="trust-strip__item"><%= text %></li>
+      <% } %>
+    </ul>
+  </div>
+</aside>
+<% } %>
