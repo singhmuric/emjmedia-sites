@@ -74,7 +74,7 @@
     });
   }
 
-  /* -------- 4 · Prozess Progress-Sync (Sticky-Scroll) -------- */
+  /* -------- 4 · Prozess Progress-Sync (Sticky-Scroll + Travel-Dot) -------- */
   var progressItems = document.querySelectorAll('[data-progress] [data-step]');
   var stepEls = document.querySelectorAll('.prozess__step[data-step]');
   if (progressItems.length && stepEls.length && 'IntersectionObserver' in window) {
@@ -90,6 +90,49 @@
       }
     }, { threshold: 0.5, rootMargin: '-20% 0px -30% 0px' });
     stepEls.forEach(function (el) { stepIo.observe(el); });
+  }
+
+  /* -------- 4b · Prozess Travel-Dot (1.7 Polish §2.3) --------
+   * Travel-Dot scrollt entlang der linken Rail synchron zum
+   * Section-Scroll-Progress. Vanilla rAF + getBoundingClientRect
+   * (keine GSAP-Dep — JS-Budget ≤30 KB). Custom-Ease-out-Scrub
+   * via quadratisches Easing der Rohprogress-Zahl (emil EM-1).
+   * Fail-Safe: bei reduced-motion bleibt Dot an Start-Position;
+   * bei fehlender Rail oder Section passiert nichts.
+   */
+  var railTravel = document.querySelector('[data-rail-travel]');
+  var railList = document.querySelector('.prozess__progress');
+  var prozessSection = document.querySelector('.prozess');
+  if (railTravel && railList && prozessSection && !reduced()) {
+    var railTicking = false;
+    var updateTravel = function () {
+      var sect = prozessSection.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      /* Engagement range: von "Section-Top hits viewport-center"
+       * bis "Section-Bottom hits viewport-center". Gibt weichen Travel
+       * ueber die mittleren 50-100% des Scrollings durch die Section. */
+      var range = sect.height + vh * 0.5;
+      var raw = (vh * 0.75 - sect.top) / range;
+      var p = Math.max(0, Math.min(1, raw));
+      /* Scrub-Easing: smoothstep-approx. via p*p*(3-2p) — sanfter
+       * Start + Ende, nicht linear. emil-design-eng EM-2. */
+      var eased = p * p * (3 - 2 * p);
+      var travelRange = railList.clientHeight - 15; /* minus Dot-Höhe */
+      if (travelRange < 0) travelRange = 0;
+      var offsetTop = railList.offsetTop;
+      railTravel.style.transform = 'translateY(' + (offsetTop + eased * travelRange) + 'px)';
+    };
+    window.addEventListener('scroll', function () {
+      if (railTicking) return;
+      railTicking = true;
+      requestAnimationFrame(function () { updateTravel(); railTicking = false; });
+    }, { passive: true });
+    window.addEventListener('resize', updateTravel);
+    /* Initial + on load (fonts fertig). */
+    updateTravel();
+    if (document.readyState !== 'complete') {
+      window.addEventListener('load', updateTravel);
+    }
   }
 
   /* -------- 5 · Counter-Animation (NFR data-counter) -------- */

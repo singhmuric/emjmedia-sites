@@ -182,7 +182,7 @@
           <svg class="btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           <span>04192 98 76 543</span>
         </a>
-        <a class="btn btn-outline btn-lg" href="#kontakt">Termin anfragen<span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn-lg hero__cta--secondary" href="#kontakt">Termin anfragen<span class="btn__arrow" aria-hidden="true">→</span></a>
       </div>
 
       <ul class="hero__pills" data-reveal>
@@ -398,14 +398,18 @@
         <p class="eyebrow eyebrow--inverse" data-reveal>So läuft's ab</p>
         <h2 class="section-title" id="prozess-title" data-reveal>Vom Anruf bis<br>zur Übergabe.</h2>
         <p class="prozess__lead" data-reveal>Sechs Schritte, die wir jedem Kunden im Wortlaut so versprechen.</p>
-        <ol class="prozess__progress" aria-hidden="true" data-progress>
-          <li data-step="1"><span>01</span> Anfrage</li>
-          <li data-step="2"><span>02</span> Termin</li>
-          <li data-step="3"><span>03</span> Diagnose</li>
-          <li data-step="4"><span>04</span> Reparatur</li>
-          <li data-step="5"><span>05</span> Kontrolle</li>
-          <li data-step="6"><span>06</span> Übergabe</li>
-        </ol>
+        <div class="prozess__rail" data-progress>
+          <span class="prozess__rail-line" aria-hidden="true"></span>
+          <span class="prozess__rail-travel" aria-hidden="true" data-rail-travel></span>
+          <ol class="prozess__progress" aria-hidden="true">
+            <li data-step="1"><span class="prozess__rail-num">01</span><span class="prozess__rail-label">Anfrage</span></li>
+            <li data-step="2"><span class="prozess__rail-num">02</span><span class="prozess__rail-label">Termin</span></li>
+            <li data-step="3"><span class="prozess__rail-num">03</span><span class="prozess__rail-label">Diagnose</span></li>
+            <li data-step="4"><span class="prozess__rail-num">04</span><span class="prozess__rail-label">Reparatur</span></li>
+            <li data-step="5"><span class="prozess__rail-num">05</span><span class="prozess__rail-label">Kontrolle</span></li>
+            <li data-step="6"><span class="prozess__rail-num">06</span><span class="prozess__rail-label">Übergabe</span></li>
+          </ol>
+        </div>
       </div>
     </aside>
 
@@ -453,18 +457,51 @@
 <!-- SECTION 7 · TESTIMONIALS + STATS (DNA §10.6) -->
 <section class="stimmen" id="stimmen" aria-labelledby="stimmen-title">
   <div class="container stimmen__grid">
-    <article class="stimmen__feature" data-reveal>
-      <span class="stimmen__quote-char" aria-hidden="true">„</span>
-      <p class="eyebrow" id="stimmen-title">Kunden über uns</p>
-      <blockquote class="stimmen__feature-quote">
-        <p>Ehrliche Beratung, fairer Preis, Termin hat auf den Tag gepasst. Der Meister hat mir am Telefon erklärt, warum der Reparaturvorschlag der anderen Werkstatt zu teuer war. Danach war klar: hierher gehe ich das nächste Mal auch.</p>
-      </blockquote>
-      <footer class="stimmen__feature-attr">
-        <p class="stimmen__stars"><span class="sr-only">5 von 5 Sternen</span><span aria-hidden="true">★★★★★</span></p>
-        <p class="stimmen__name"><strong>Sandra K.</strong> · VW Golf VII · Kundin seit 2019</p>
-        <p class="stimmen__date">Google-Bewertung, 03/2026</p>
-      </footer>
-    </article>
+    <div class="stimmen__feature-stack">
+      <article class="stimmen__feature stimmen__feature--portrait" data-reveal>
+        <span class="stimmen__quote-char" aria-hidden="true">„</span>
+        <figure class="stimmen__feature-portrait" data-avatar-slot="kundin-1">
+          <picture>
+            <source type="image/avif" srcset="assets/kundin-sandra-480.avif 480w, assets/kundin-sandra-960.avif 960w" sizes="96px">
+            <source type="image/webp" srcset="assets/kundin-sandra-480.webp 480w, assets/kundin-sandra-960.webp 960w" sizes="96px">
+            <img src="assets/kundin-sandra-480.webp" width="96" height="96" alt="Porträt von Sandra K., Kundin seit 2019" loading="lazy" decoding="async">
+          </picture>
+        </figure>
+        <div class="stimmen__feature-body">
+          <p class="eyebrow" id="stimmen-title">Kunden über uns</p>
+          <blockquote class="stimmen__feature-quote">
+            <p>Ehrliche Beratung, fairer Preis, Termin hat auf den Tag gepasst. Der Meister hat mir am Telefon erklärt, warum der Reparaturvorschlag der anderen Werkstatt zu teuer war. Danach war klar: hierher gehe ich das nächste Mal auch.</p>
+          </blockquote>
+          <footer class="stimmen__feature-attr">
+            <p class="stimmen__stars"><span class="sr-only">5 von 5 Sternen</span><span aria-hidden="true">★★★★★</span></p>
+            <p class="stimmen__name"><strong>Sandra K.</strong> · VW Golf VII · Kundin seit 2019</p>
+            <p class="stimmen__date">Google-Bewertung, 03/2026</p>
+          </footer>
+        </div>
+      </article>
+
+      <article class="stimmen__feature stimmen__feature--portrait" data-reveal>
+        <span class="stimmen__quote-char" aria-hidden="true">„</span>
+        <figure class="stimmen__feature-portrait" data-avatar-slot="kundin-2">
+          <picture>
+            <source type="image/avif" srcset="assets/kundin-sabine-480.avif 480w, assets/kundin-sabine-960.avif 960w" sizes="96px">
+            <source type="image/webp" srcset="assets/kundin-sabine-480.webp 480w, assets/kundin-sabine-960.webp 960w" sizes="96px">
+            <img src="assets/kundin-sabine-480.webp" width="96" height="96" alt="Porträt von Sabine M., Kundin seit 2021" loading="lazy" decoding="async">
+          </picture>
+        </figure>
+        <div class="stimmen__feature-body">
+          <p class="eyebrow">Meisterhand im Detail</p>
+          <blockquote class="stimmen__feature-quote">
+            <p>Mein A4 war zur Inspektion. Danach fuhr er ruhiger als vorher — weil die Kollegen auch die Achsvermessung mitgemacht haben und vorher zurückgefragt haben, ob's sein darf. Transparent, fair, schnell. So geht Werkstatt.</p>
+          </blockquote>
+          <footer class="stimmen__feature-attr">
+            <p class="stimmen__stars"><span class="sr-only">5 von 5 Sternen</span><span aria-hidden="true">★★★★★</span></p>
+            <p class="stimmen__name"><strong>Sabine M.</strong> · Audi A4 Avant · Kundin seit 2021</p>
+            <p class="stimmen__date">Google-Bewertung, 04/2026</p>
+          </footer>
+        </div>
+      </article>
+    </div>
 
     <aside class="stimmen__side">
       <ul class="stimmen__stack" data-reveal-stagger>

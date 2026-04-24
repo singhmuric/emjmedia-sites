@@ -540,13 +540,33 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   object-position: center 35%;
   filter: contrast(1.04) saturate(0.9) brightness(0.78);
 }
+/* 1.7 Polish §2.6 — Gerichteter Scrim: starker Darken links (wo Text sitzt),
+ * fade-out ab 72% nach rechts (Kennzahlen-Card bleibt offen, Werkstatt-Bild
+ * bleibt als Werkstatt erkennbar). Addendum §2.6 A wörtlich.
+ * Mobile: stärker bis ~60% (Text rutscht näher ans Bildzentrum). */
 .hero__scrim {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(135deg, rgba(11, 18, 32, 0.88) 0%, rgba(11, 18, 32, 0.55) 55%, rgba(11, 18, 32, 0.82) 100%),
-    linear-gradient(to top, rgba(11, 18, 32, 0.94) 0%, rgba(11, 18, 32, 0) 40%);
+  background: linear-gradient(
+    100deg,
+    rgba(11, 18, 32, 0.72) 0%,
+    rgba(11, 18, 32, 0.55) 28%,
+    rgba(11, 18, 32, 0.18) 55%,
+    rgba(11, 18, 32, 0) 72%
+  );
+  pointer-events: none;
   z-index: -1;
+}
+@media (max-width: 720px) {
+  .hero__scrim {
+    background: linear-gradient(
+      180deg,
+      rgba(11, 18, 32, 0.72) 0%,
+      rgba(11, 18, 32, 0.58) 40%,
+      rgba(11, 18, 32, 0.35) 70%,
+      rgba(11, 18, 32, 0.20) 100%
+    );
+  }
 }
 .hero__inner {
   position: relative;
@@ -569,6 +589,9 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   margin: 0 0 1rem;
   color: var(--color-white);
   font-feature-settings: "ss01", "ss02";
+  /* 1.7 §2.6 B — subtle text-shadow blur-only (kein harter Offset,
+   * kein -webkit-text-stroke). Weiche Tiefentrennung auf hellem Foto. */
+  text-shadow: 0 2px 12px rgba(11, 18, 32, 0.55);
 }
 .hero__h1-line { display: block; }
 .hero__h1 em { font-style: normal; color: var(--color-warm-accent); }
@@ -577,8 +600,12 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   max-width: 42ch;
   font-size: clamp(1rem, 0.94rem + 0.35vw, 1.12rem);
   line-height: 1.55;
-  color: var(--color-white-70);
+  /* 1.7 §2.6 — Subline ist Lesbarkeits-kritisch. Opacity von 70% → 88%
+   * damit Kontrast gegen Scrim-Bereich AA erfüllt. */
+  color: rgba(255, 255, 255, 0.88);
   margin: 0 0 1.8rem;
+  /* §2.6 B Text-Shadow nur Blur — verstärkt Lesbarkeit auf Foto-Mix. */
+  text-shadow: 0 2px 12px rgba(11, 18, 32, 0.55);
 }
 
 .hero__ctas {
@@ -587,27 +614,50 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   gap: 12px;
   margin-bottom: 1.6rem;
 }
+/* 1.7 Polish §2.2 — Secondary-CTA aus Ghost-Outline zu solid.
+ * Ghost-Variante war auf hellem Hero-Foto kaum als Button erkennbar.
+ * Solid Nachtblau mit Messing-Border; Hover invertiert zu Messing-BG.
+ * Hierarchie erhalten: Primär (solid Messing) schlägt Sekundär (Nachtblau+Messing-Border). */
+.hero__cta--secondary {
+  background: rgba(11, 18, 32, 0.90);
+  color: var(--color-white);
+  border: 1px solid var(--color-warm-accent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.hero__cta--secondary:hover {
+  background: var(--color-warm-accent);
+  color: var(--color-authority);
+  border-color: var(--color-warm-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(184, 146, 90, 0.28);
+}
 
 .hero__pills {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
+/* 1.7 Polish §2.1 — solid statt transparent. Transparente Pills waren auf
+ * hellen Werkstatt-Foto-Bereichen schlecht lesbar. Jetzt Nachtblau-88%
+ * mit Messing-Border + weißer Schrift + Messing-Haken-Tint. Kontrast ≥ AA. */
 .hero__pills li {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: var(--color-white-06);
-  border: 1px solid var(--color-deep-accent-20);
+  gap: 8px;
+  padding: 0.55rem 1rem;
+  background: rgba(11, 18, 32, 0.88);
+  border: 1px solid rgba(184, 146, 90, 0.25);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   border-radius: var(--radius-pill);
   font-size: 11px;
   font-weight: 500;
-  letter-spacing: 1px;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--color-white-70);
+  color: var(--color-white);
 }
-.hero__pills li span { color: var(--color-warm-accent); }
+.hero__pills li span { color: var(--color-warm-accent); font-weight: 700; }
 
 .hero__widget {
   position: relative;
@@ -1050,32 +1100,92 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
 .prozess__side .section-title em { color: var(--color-warm-accent); }
 .prozess__lead { color: var(--color-white-70); margin: 0 0 1.8rem; font-size: 0.95rem; line-height: 1.6; }
 
+/* 1.7 Polish §2.3 — Rail-Design: vertikale Linie mit 6 Dots + Travel-Dot.
+ * WendeBau-DNA §10.5 als Blaupause, 22/72-Split statt 30/65 (Addendum §2.3).
+ * Linke Spalte: schlank, Rail entlang, aktiver Step Messing-Dot, Travel-Dot
+ * scrollt mit Section-Progress. */
+.prozess__rail {
+  position: relative;
+  margin-top: 1.8rem;
+  padding-left: 26px;
+  min-height: 260px;
+}
+.prozess__rail-line {
+  position: absolute;
+  left: 5.5px;
+  top: 10px;
+  bottom: 10px;
+  width: 1.5px;
+  background: var(--color-white-10);
+}
+.prozess__rail-travel {
+  position: absolute;
+  left: -1px;
+  top: 0;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: var(--color-warm-accent);
+  box-shadow: 0 0 0 4px rgba(184, 146, 90, 0.22),
+              0 0 16px rgba(184, 146, 90, 0.55);
+  transform: translateY(0);
+  will-change: transform;
+  transition: transform 0.08s linear;
+  z-index: 2;
+  pointer-events: none;
+}
 .prozess__progress {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: relative;
 }
 .prozess__progress li {
   position: relative;
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  padding: 10px 0 10px 22px;
-  font-size: 0.95rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 28px;
+  font-size: 0.92rem;
   color: var(--color-white-55);
-  transition: color var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
-  border-left: 2px solid var(--color-white-10);
+  transition: color var(--dur-med) var(--ease-out);
 }
-.prozess__progress li span {
+.prozess__progress li::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: background var(--dur-med) var(--ease-out),
+              border-color var(--dur-med) var(--ease-out),
+              box-shadow var(--dur-med) var(--ease-out);
+}
+.prozess__progress li .prozess__rail-num {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 2px;
   color: var(--color-warm-accent);
-  min-width: 24px;
+  min-width: 22px;
+}
+.prozess__progress li .prozess__rail-label {
+  letter-spacing: 0.02em;
 }
 .prozess__progress li.is-active {
   color: var(--color-white);
-  border-left-color: var(--color-warm-accent);
+}
+.prozess__progress li.is-active::before {
+  background: var(--color-warm-accent);
+  border-color: var(--color-warm-accent);
+  box-shadow: 0 0 0 3px rgba(184, 146, 90, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prozess__rail-travel { transition: none; }
 }
 
 .prozess__steps {
@@ -1133,27 +1243,32 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
 
 @media (min-width: 960px) {
   .prozess__grid {
-    grid-template-columns: 32% minmax(0, 1fr);
-    gap: clamp(2.5rem, 5vw, 5rem);
+    /* 1.7 §2.3 — 22/72 statt 32/68, damit Rail schlanker wirkt und
+     * ab Step 2 kein leerer Dunkelblau-Raum mehr entsteht. */
+    grid-template-columns: 22% minmax(0, 72%);
+    gap: clamp(2rem, 4vw, 3.5rem);
     align-items: start;
   }
   .prozess__side-inner {
     position: sticky;
     top: 110px;
   }
+  .prozess__rail { min-height: 340px; }
   .prozess__steps { gap: clamp(6rem, 12vh, 10rem); }
+  /* Step-Höhe 80vh+ laut Addendum §2.3 damit Sticky-Zeitfenster funktioniert. */
   .prozess__step {
-    min-height: 60vh;
+    min-height: 80vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 44px 46px 48px;
   }
+  /* Ghost-Nummern 300-400px laut Addendum §2.3; clamp(20rem, 22vw, 24rem) ≈ 320-384px. */
   .prozess__ghost {
-    font-size: clamp(10rem, 16vw, 15rem);
-    opacity: 0.06;
-    top: -24px;
-    right: -40px;
+    font-size: clamp(18rem, 22vw, 24rem);
+    opacity: 0.05;
+    top: -32px;
+    right: -48px;
   }
 }
 
@@ -1170,6 +1285,13 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   align-items: start;
 }
 
+/* 1.7 Polish §2.4 — Zwei Feature-Cards vertikal stacken (löst leere Fläche
+ * rechts unter erster Quote). Avatar-Slot links 96px auf Desktop, 64px mobile. */
+.stimmen__feature-stack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 2vw, 1.75rem);
+}
 .stimmen__feature {
   position: relative;
   padding: 32px 32px 36px;
@@ -1178,6 +1300,36 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   border: 1px solid rgba(10, 10, 10, 0.06);
   box-shadow: 0 12px 40px rgba(11, 18, 32, 0.04);
   isolation: isolate;
+}
+.stimmen__feature--portrait {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+.stimmen__feature-portrait {
+  margin: 0;
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(11, 18, 32, 0.12);
+  flex-shrink: 0;
+  background: var(--color-light-2);
+}
+.stimmen__feature-portrait picture,
+.stimmen__feature-portrait img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.stimmen__feature-body { min-width: 0; }
+@media (max-width: 720px) {
+  .stimmen__feature--portrait {
+    grid-template-columns: 64px 1fr;
+    gap: 1rem;
+    padding: 26px 24px 28px;
+  }
+  .stimmen__feature-portrait { width: 64px; height: 64px; }
 }
 .stimmen__quote-char {
   position: absolute;

@@ -14,6 +14,20 @@
         { "type": "host", "value": "(?<subdomain>[^.]+)\\.emj-media\\.de" }
       ],
       "destination": "/sites/onepages/:subdomain/:path*"
+    },
+    {
+      "source": "/",
+      "has": [
+        { "type": "host", "value": "([^.]+)\\.vercel\\.app" }
+      ],
+      "destination": "/sites/onepages/kfz-demo/index.html"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "([^.]+)\\.vercel\\.app" }
+      ],
+      "destination": "/sites/onepages/kfz-demo/:path*"
     }
   ],
   "headers": [

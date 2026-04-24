@@ -25,32 +25,92 @@
 .prozess__side .section-title em { color: var(--color-warm-accent); }
 .prozess__lead { color: var(--color-white-70); margin: 0 0 1.8rem; font-size: 0.95rem; line-height: 1.6; }
 
+/* 1.7 Polish §2.3 — Rail-Design: vertikale Linie mit 6 Dots + Travel-Dot.
+ * WendeBau-DNA §10.5 als Blaupause, 22/72-Split statt 30/65 (Addendum §2.3).
+ * Linke Spalte: schlank, Rail entlang, aktiver Step Messing-Dot, Travel-Dot
+ * scrollt mit Section-Progress. */
+.prozess__rail {
+  position: relative;
+  margin-top: 1.8rem;
+  padding-left: 26px;
+  min-height: 260px;
+}
+.prozess__rail-line {
+  position: absolute;
+  left: 5.5px;
+  top: 10px;
+  bottom: 10px;
+  width: 1.5px;
+  background: var(--color-white-10);
+}
+.prozess__rail-travel {
+  position: absolute;
+  left: -1px;
+  top: 0;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: var(--color-warm-accent);
+  box-shadow: 0 0 0 4px rgba(184, 146, 90, 0.22),
+              0 0 16px rgba(184, 146, 90, 0.55);
+  transform: translateY(0);
+  will-change: transform;
+  transition: transform 0.08s linear;
+  z-index: 2;
+  pointer-events: none;
+}
 .prozess__progress {
-  display: grid;
-  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  position: relative;
 }
 .prozess__progress li {
   position: relative;
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  padding: 10px 0 10px 22px;
-  font-size: 0.95rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  min-height: 28px;
+  font-size: 0.92rem;
   color: var(--color-white-55);
-  transition: color var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
-  border-left: 2px solid var(--color-white-10);
+  transition: color var(--dur-med) var(--ease-out);
 }
-.prozess__progress li span {
+.prozess__progress li::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  transition: background var(--dur-med) var(--ease-out),
+              border-color var(--dur-med) var(--ease-out),
+              box-shadow var(--dur-med) var(--ease-out);
+}
+.prozess__progress li .prozess__rail-num {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 11px;
+  font-size: 10px;
   letter-spacing: 2px;
   color: var(--color-warm-accent);
-  min-width: 24px;
+  min-width: 22px;
+}
+.prozess__progress li .prozess__rail-label {
+  letter-spacing: 0.02em;
 }
 .prozess__progress li.is-active {
   color: var(--color-white);
-  border-left-color: var(--color-warm-accent);
+}
+.prozess__progress li.is-active::before {
+  background: var(--color-warm-accent);
+  border-color: var(--color-warm-accent);
+  box-shadow: 0 0 0 3px rgba(184, 146, 90, 0.28);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .prozess__rail-travel { transition: none; }
 }
 
 .prozess__steps {
@@ -108,27 +168,32 @@
 
 @media (min-width: 960px) {
   .prozess__grid {
-    grid-template-columns: 32% minmax(0, 1fr);
-    gap: clamp(2.5rem, 5vw, 5rem);
+    /* 1.7 §2.3 — 22/72 statt 32/68, damit Rail schlanker wirkt und
+     * ab Step 2 kein leerer Dunkelblau-Raum mehr entsteht. */
+    grid-template-columns: 22% minmax(0, 72%);
+    gap: clamp(2rem, 4vw, 3.5rem);
     align-items: start;
   }
   .prozess__side-inner {
     position: sticky;
     top: 110px;
   }
+  .prozess__rail { min-height: 340px; }
   .prozess__steps { gap: clamp(6rem, 12vh, 10rem); }
+  /* Step-Höhe 80vh+ laut Addendum §2.3 damit Sticky-Zeitfenster funktioniert. */
   .prozess__step {
-    min-height: 60vh;
+    min-height: 80vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     padding: 44px 46px 48px;
   }
+  /* Ghost-Nummern 300-400px laut Addendum §2.3; clamp(20rem, 22vw, 24rem) ≈ 320-384px. */
   .prozess__ghost {
-    font-size: clamp(10rem, 16vw, 15rem);
-    opacity: 0.06;
-    top: -24px;
-    right: -40px;
+    font-size: clamp(18rem, 22vw, 24rem);
+    opacity: 0.05;
+    top: -32px;
+    right: -48px;
   }
 }
 
