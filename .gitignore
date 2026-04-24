@@ -51,6 +51,7 @@ Thumbs.db
 .claude/state/
 .claude/cache/
 .claude/local/
+.claude/settings.local.json
 
 # Temp
 tmp/
