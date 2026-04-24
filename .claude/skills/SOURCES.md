@@ -1,6 +1,6 @@
 # Skill-Quellen — gepinnte Commits
 
-Stand: 2026-04-21
+Stand: 2026-04-23
 
 | Skill | Quelle | Commit-SHA | Sub-Pfad |
 |-------|--------|------------|----------|
@@ -14,3 +14,10 @@ Stand: 2026-04-21
 | landing-page-copywriter | https://github.com/onewave-ai/claude-skills.git | `eb3d80be32b6cafcf0d5df1c1b8a95df75838271` | landing-page-copywriter |
 | cold-email | https://github.com/alirezarezvani/claude-skills.git | `f567c61def3fb86046d7242b4bf27fceb63ad8b4` | marketing-skill/cold-email |
 | browser-use | https://github.com/browser-use/browser-use.git | `702b7352c3dc1d39ab8daef2f076dfe7adcfa1c3` | skills/browser-use |
+| frontend-design | https://github.com/anthropics/skills.git | `5128e1865d670f5d6c9cef000e6dfc4e951fb5b9` | skills/frontend-design |
+| web-design-guidelines | https://github.com/vercel-labs/agent-skills.git | `ce3e64e468f8fa09a2d075d102771838061fdac0` | skills/web-design-guidelines |
+
+## Änderungshistorie
+
+- **2026-04-23** — `frontend-design` (Anthropic) + `web-design-guidelines` (Vercel) vendored. Hintergrund: Constitution v1.2 §12, Skill-Pflicht-Stack erweitert. Skills wurden aus ihren Repos kopiert, `.git` entfernt — reine eingefrorene Kopien. Updates bewusst per Re-Clone + Diff-Review.
+- **2026-04-20** — Initial-Vendoring von 10 Skills.

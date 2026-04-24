@@ -1,7 +1,7 @@
 # EMJmedia — Project Constitution
 
-**Version:** 1.2
-**Stand:** 23.04.2026
+**Version:** 1.1
+**Stand:** 21.04.2026
 **Gilt für:** Alle Agenten (Opus/Sonnet/Haiku), Menschen und Automationen, die an diesem Repo arbeiten.
 
 Diese Constitution ist das oberste Gesetz des Projekts. Spec, Plan, Tasks und Implementation müssen sie einhalten. Abweichungen nur durch eine neue Constitution-Version (siehe §10 Governance).
@@ -197,33 +197,7 @@ Jede Seite, die ausgeliefert wird, erfüllt ausnahmslos:
 
 ---
 
-## §12 — Skill-Pflicht bei UI-Implementierung
-
-12.1 **Pflicht-Ladung vor UI-Tasks.** Vor jeder Implementation-Phase, die UI-Elemente (Komponenten, Hover-States, Animationen, Layout, Typografie, Copy) erzeugt oder ändert, MUSS der ausführende Agent folgende SKILL.md-Dateien lesen und explizit anwenden:
-
-- `.claude/skills/taste-skill/skills/taste-skill/SKILL.md`
-- `.claude/skills/emil-kowalski/skills/emil-design-eng/SKILL.md`
-- `.claude/skills/frontend-design/SKILL.md` *(neu ab v1.2, Anthropic)*
-- `.claude/skills/web-design-guidelines/SKILL.md` *(neu ab v1.2, Vercel)*
-- `.claude/skills/impeccable/source/skills/impeccable/SKILL.md` *(bei Layout/Rhythmus)*
-- `.claude/skills/landing-page-copywriter/SKILL.md` *(bei Copy-Arbeit)*
-
-12.2 **Log-Pflicht.** Jede angewandte Skill-Regel wird in `_logs/{session}-skill-invocations.md` dokumentiert mit Zeitstempel, Regel-Name (z. B. „emil: custom ease-out statt ease-in"), und Datei/Zeile wo angewendet. Format: `[HH:MM] skill: NAME geladen vor Task TASK-ID — Zitat/Kerninhalt`.
-
-12.3 **Visual-Check statt nur Lighthouse.** Nach Build: `.claude/skills/web-quality-skills/skills/web-quality-audit/SKILL.md` ausführen, UND zusätzlich visual-check via Puppeteer-Screenshot pro Sektion. Lighthouse testet Performance, nicht ob Inhalte visuell erscheinen (siehe 1.4-Bug: 100/100/96/69 UND 5 leere Sektionen).
-
-12.4 **Wortschatz-Brücke (Anti-Trigger-Gap).** NFR-Items, die Animation, Motion, Hover, Reveal, Typo-Hierarchie oder Materiality betreffen, MÜSSEN mindestens einen Skill-Begriff im Beschreibungstext führen (z. B. „gemäß emil-design-eng Rule 3", „per taste-skill MOTION_INTENSITY 6", „laut frontend-design Typography-Hierarchy"). Spec wird damit self-triggernd für die Skills. Engineering-only-Sprache („IntersectionObserver, threshold 0.15") ist zulässig, darf aber den Skill-Begriff nicht verdrängen.
-
-12.5 **Fail-Safe-Regel (Progressive Enhancement).** UI-Code mit JS-Abhängigkeit (Reveal, Counter, Stagger) MUSS im CSS-Default den sichtbaren Zustand setzen. Hidden-States dürfen nur aktiv werden, wenn JS nachweislich läuft (Flag-Class auf `<html>`). Ohne diese Regel verschwinden Inhalte bei JS-Fehlern — siehe Session-1.4-Bug (5 Sektionen leer auf Live-Site).
-
-12.6 **Skill-Opening-Block.** `emil-design-eng` wird nie ohne konkrete Design-Frage invoked. Sonst bleibt er beim Opening-Response-Block stehen („I'm ready to help…") ohne Wirkung. Invoke-Muster: „Anwenden auf {NFR-ID}: {konkrete Frage}".
-
-12.7 **Konflikt-Hierarchie.** Bei Widerspruch zwischen Skill und Plan/Spec gewinnen Plan und Spec (siehe z. B. `CONFLICTS.md` C-01: Fraunces+Inter aus Plan §4.3 vs. Skill-Ban). Konflikt wird dokumentiert, nicht stillschweigend aufgelöst.
-
----
-
 ## Änderungshistorie
 
-- **1.2 — 23.04.2026** — Neuer §12 (Skill-Pflicht bei UI-Implementierung): Pflicht-Ladung, Log-Pflicht, Visual-Check, Wortschatz-Brücke, Fail-Safe-Regel, Opening-Block-Warnung, Konflikt-Hierarchie. Hintergrund: Session 1.4 hat Skills nicht getriggert → 5 leere Sektionen trotz Lighthouse 100/100/96/69. Zwei neue Skills vendored: `frontend-design` (Anthropic) und `web-design-guidelines` (Vercel).
 - **1.1 — 21.04.2026** — Präzisierung §1.6 (Bild-Quellen-Policy + Branchen-Pool-Modell + Kundenfoto-Übergabe in 4.1), neuer §1.8 (Responsive mobile-first, Test-Viewports 375/768/1440 px, Touch-Target ≥ 44 px), Checkliste §11 um 2 Punkte ergänzt.
 - **1.0 — 21.04.2026** — Initial. Phase 0 Session 0.2. Stack plain HTML/Tailwind, Progressive Enhancement, WCAG AA, minimaler Legal-Scope.
