@@ -1,0 +1,62 @@
+/* ---------- SECTION 2 · STICKY-TRUST-RIBBON (DNA §10.2) ---------- */
+.ribbon {
+  position: relative;
+  z-index: 40;
+  padding: 10px 0;
+  background: var(--color-authority);
+  border-bottom: 1px solid var(--color-deep-accent-20);
+  margin-top: 64px;
+  color: var(--color-white-70);
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.ribbon::-webkit-scrollbar { display: none; }
+.ribbon__track {
+  display: inline-flex;
+  align-items: center;
+  gap: 22px;
+  white-space: nowrap;
+  width: max-content;
+  min-width: 100%;
+}
+.ribbon__item { display: inline-flex; align-items: center; gap: 6px; }
+.ribbon__item strong { color: var(--color-white); font-weight: 600; }
+.ribbon__sub { color: var(--color-white-55); font-size: 11px; }
+.ribbon__star { color: var(--color-warm-accent); font-size: 14px; }
+.ribbon__divider {
+  width: 1px; height: 14px;
+  background: var(--color-white-18);
+  flex-shrink: 0;
+}
+.ribbon__live { color: var(--color-white); }
+.ribbon__dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #6BD394;
+  box-shadow: 0 0 0 0 rgba(107, 211, 148, 0.6);
+  animation: ribbon-pulse 2.4s var(--ease-out) infinite;
+}
+.ribbon__phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-warm-accent);
+  font-weight: 600;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.ribbon__phone:hover { color: var(--color-white); }
+
+@keyframes ribbon-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(107, 211, 148, 0.6); }
+  70%  { box-shadow: 0 0 0 6px rgba(107, 211, 148, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(107, 211, 148, 0); }
+}
+
+@media (min-width: 960px) {
+  .ribbon { padding: 12px 0; overflow: visible; }
+  .ribbon__track { justify-content: center; flex-wrap: wrap; gap: 26px; white-space: normal; width: auto; }
+}
+
