@@ -531,6 +531,37 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   object-position: center 35%;
   filter: contrast(1.04) saturate(0.9) brightness(0.78);
 }
+/* Hotfix 1.8.2 — Dunkler Top-Scrim gegen Decken-LED-Streifen.
+ * Cowork-Klärung zu 1.8.1 §B: was als „weißlicher Nebel" wahrgenommen
+ * wurde, sind die LED-Beleuchtungen an der Werkstatt-Decke im Foto
+ * selbst (kein Code-Layer). Lösung: dünner dunkler Scrim am oberen
+ * Rand, der die Lichter abdämpft. Spiegelbildlich zum Subline-Scrim
+ * `.hero__scrim` aus 1.8 §2.2 (links-unten dunkel).
+ *
+ * Stacking: .hero__media ist `position: absolute` (positioned), das
+ * reicht als Containing Block für ::before mit `position: absolute`
+ * — funktional äquivalent zu `position: relative` für diesen Zweck.
+ * z-index 1 liegt im Stacking-Context von .hero__media (z-index -2),
+ * über img (in-flow) und über .hero__scrim (positioned ohne z-index).
+ * .hero__inner-Inhalte (Headline, Subline, CTAs) liegen außerhalb
+ * .hero__media → unbeeinflusst, bleiben über dem Top-Scrim sichtbar.
+ *
+ * Constitution §13: rein additive Änderung. .hero__scrim und alle
+ * anderen Hero-Layer unverändert. */
+.hero__media::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 14%;
+  background: linear-gradient(
+    180deg,
+    rgba(11, 18, 32, 0.55) 0%,
+    rgba(11, 18, 32, 0.25) 55%,
+    rgba(11, 18, 32, 0)    100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
 /* 1.8 §2.2 — Hero-Scrim Diagnose + Fix.
  *
  * ROOT-CAUSE-Befund (Schritt 2 Pflicht-Ablauf, vorher Schritt 1

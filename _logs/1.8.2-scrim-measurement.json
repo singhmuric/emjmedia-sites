@@ -1,0 +1,38 @@
+{
+  "sampleStrip": {
+    "x": 0,
+    "y": 170,
+    "width": 1440,
+    "height": 60
+  },
+  "before": {
+    "mean": [
+      54.4,
+      57.7,
+      67.8
+    ],
+    "max": [
+      184,
+      186,
+      187
+    ]
+  },
+  "after": {
+    "mean": [
+      49.7,
+      53.4,
+      63.9
+    ],
+    "max": [
+      184,
+      186,
+      187
+    ]
+  },
+  "deltaRGB": [
+    -4.7,
+    -4.3,
+    -3.9
+  ],
+  "note": "Negative delta = darker after scrim. Strip is below the fixed nav overlay (~120 px), within the 14% top-scrim zone."
+}
