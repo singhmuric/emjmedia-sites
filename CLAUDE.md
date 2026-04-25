@@ -138,6 +138,34 @@ Fehlt einer der Punkte: Task nicht fertig.
 3. Spec/Plan lesen — oft klärt der höhere Layer.
 4. **Bleib nicht im Terminal raten.** Im Log-File Flag setzen („BLOCKER: <Frage>"), Emin eskaliert zu Cowork.
 
+## 11. Modulare CSS-Architektur (Token-Ökonomie, Pflicht)
+
+Bei Template-Builds und -Polish wird CSS **ausschließlich in Partial-Dateien via `Edit` bearbeitet**, nie via `Write` auf der gebauten Gesamt-Datei.
+
+**Source of Truth (Edit-Targets):**
+```
+sites/onepages/{slug}/styles/tokens.css
+sites/onepages/{slug}/styles/base.css
+sites/onepages/{slug}/styles/components.css
+sites/onepages/{slug}/styles/sections/NN-name.css   ← eine Datei pro Section
+```
+
+**Build-Artefakt (nie direkt editieren):**
+```
+sites/onepages/{slug}/styles.css   ← wird generiert
+```
+
+**Build-Pipeline nach jeder Section-Änderung:**
+```bash
+bash scripts/build-css.sh {slug}
+```
+
+**Regel bei Polish-Runs mit mehreren Section-Änderungen:** Pro Polish-Punkt einzeln editieren + bauen + verifizieren, nicht alle Änderungen sammeln und am Ende einen Mega-Write machen.
+
+**Begründung:** Session 1.6 (Initial-Build Variant B) produzierte **78k Output-Tokens in 19 Minuten** für eine einzelne Section, weil Claude Code die gesamte `styles.css` bei jedem Durchgang neu schreiben wollte. Nach Umstellung auf Partial-Edits lief Session 1.7 mit Token-Output im Bereich normaler Edits. Modulare Partials + `Edit` reduzieren Output-Tokens um ~70 % gegenüber Monolith-`Write`.
+
+**Gilt für:** Alle Branchen-Templates (KFZ, WendeBau, KarlHeinz, künftige). Ausnahme nur bei echtem Initial-Scaffold einer brandneuen Datei, die noch nicht existiert — und auch dort nur für diese eine neue Datei, nicht für die Gesamt-`styles.css`.
+
 ---
 
-**Ende.** Diese Datei ist kompakt absichtlich. Details: Constitution §1–§12.
+**Ende.** Diese Datei ist kompakt absichtlich. Details: Constitution §1–§13.

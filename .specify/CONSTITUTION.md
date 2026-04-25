@@ -1,7 +1,7 @@
 # EMJmedia — Project Constitution
 
-**Version:** 1.2
-**Stand:** 23.04.2026
+**Version:** 1.3
+**Stand:** 24.04.2026
 **Gilt für:** Alle Agenten (Opus/Sonnet/Haiku), Menschen und Automationen, die an diesem Repo arbeiten.
 
 Diese Constitution ist das oberste Gesetz des Projekts. Spec, Plan, Tasks und Implementation müssen sie einhalten. Abweichungen nur durch eine neue Constitution-Version (siehe §10 Governance).
@@ -222,8 +222,34 @@ Jede Seite, die ausgeliefert wird, erfüllt ausnahmslos:
 
 ---
 
+## §13 — Token-Ökonomie & Modulare Code-Edits
+
+13.1 **Modulare CSS-Architektur (Pflicht).** Jedes Template unter `sites/onepages/{slug}/` hat CSS ausschließlich in Partial-Dateien als Source of Truth:
+```
+styles/tokens.css
+styles/base.css
+styles/components.css
+styles/sections/NN-name.css   ← eine Datei pro Section
+```
+Die ausgelieferte `styles.css` im Template-Root ist ausschließlich Build-Artefakt, generiert durch `scripts/build-css.sh {slug}`. Sie wird nie direkt editiert, weder von Menschen noch von Agenten.
+
+13.2 **Edit statt Write bei bestehenden Dateien.** Implementierende Agenten (Sonnet 4.6 in Claude Code, künftige Automationen) bearbeiten bestehende CSS-Partials mit dem `Edit`-Tool (gezielter Diff), nicht mit `Write` (vollständiger Dateineuschrieb). `Write` ist ausschließlich zulässig für: (a) Neuanlage einer noch nicht existierenden Datei, (b) explizite vollständige Neufassung mit vorheriger Freigabe in der Session-Spec.
+
+13.3 **Build nach jeder Section, nicht am Ende.** Bei Polish-Runs mit mehreren Section-Änderungen wird pro Polish-Punkt einzeln editiert, gebaut (`bash scripts/build-css.sh {slug}`) und verifiziert (curl-Check oder Puppeteer-Screenshot). Sammel-Writes am Ende eines Runs sind verboten.
+
+13.4 **Begründung.** In Session 1.6 (Initial-Build Variant B, 24.04.2026) produzierte Claude Code **78.000 Output-Tokens in 19 Minuten** für eine einzelne Section, weil der Agent versuchte, die komplette `styles.css` als Monolith zu schreiben. Nach Umstellung auf Partial-Edits fiel der Token-Output auf ein normales Niveau (Session 1.7 Polish-Loop umfasste sechs Fixes in vergleichbarem Zeit-Fenster mit Bruchteil des Token-Verbrauchs). Schätzung: Modulare Partials + `Edit` sparen ~70 % Output-Tokens gegenüber Monolith-`Write` bei Polish-Arbeit. Ohne diese Regel skaliert die Fabrik nicht — jedes zusätzliche Template würde unverhältnismäßig Tokens verbrennen.
+
+13.5 **Geltungsbereich.** Gilt für alle Branchen-Templates (KFZ, Bau/WendeBau, Immobilien/KarlHeinz, künftige) und für alle implementierenden Agenten, unabhängig davon, ob sie in Claude Code lokal, auf dem Headless-VPS oder in einer Automation laufen.
+
+13.6 **Analoges Prinzip für HTML/JS.** Wo HTML oder JS ebenfalls modular strukturiert ist (Sections, Components, Partials), gilt dieselbe Regel sinngemäß: `Edit` auf Partials, nicht `Write` auf Gesamt-Dateien. Für Templates mit Single-File-HTML (`index.html`) gilt `Edit` mit möglichst engem Diff-Scope.
+
+13.7 **Logging-Pflicht.** Wenn ein Agent eine Ausnahme von §13.2 macht (volle Neufassung statt Edit), wird das im Session-Skill-Invocation-Log mit Begründung dokumentiert. Review-Gate (§9.3) prüft diese Einträge.
+
+---
+
 ## Änderungshistorie
 
+- **1.3 — 24.04.2026** — Neuer §13 (Token-Ökonomie & Modulare Code-Edits): modulare CSS-Architektur als Pflicht, `Edit` statt `Write` auf bestehenden Partials, Build nach jeder Section. Hintergrund: Session 1.6 produzierte 78k Output-Tokens in 19 Min für eine Section durch Monolith-Write-Versuch; modulare Architektur in Session 1.7 bewies Effizienz-Gewinn. Gilt projektweit für alle Templates.
 - **1.2 — 23.04.2026** — Neuer §12 (Skill-Pflicht bei UI-Implementierung): Pflicht-Ladung, Log-Pflicht, Visual-Check, Wortschatz-Brücke, Fail-Safe-Regel, Opening-Block-Warnung, Konflikt-Hierarchie. Hintergrund: Session 1.4 hat Skills nicht getriggert → 5 leere Sektionen trotz Lighthouse 100/100/96/69. Zwei neue Skills vendored: `frontend-design` (Anthropic) und `web-design-guidelines` (Vercel).
 - **1.1 — 21.04.2026** — Präzisierung §1.6 (Bild-Quellen-Policy + Branchen-Pool-Modell + Kundenfoto-Übergabe in 4.1), neuer §1.8 (Responsive mobile-first, Test-Viewports 375/768/1440 px, Touch-Target ≥ 44 px), Checkliste §11 um 2 Punkte ergänzt.
 - **1.0 — 21.04.2026** — Initial. Phase 0 Session 0.2. Stack plain HTML/Tailwind, Progressive Enhancement, WCAG AA, minimaler Legal-Scope.
