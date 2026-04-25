@@ -289,28 +289,26 @@
     var updateCtaBorder = function (trigger) {
       var bbox = ctaBtn.getBoundingClientRect();
       if (!bbox.width || !bbox.height) return;
-      /* 1.8.3 §A + 1.8.4 §A + 1.8.5 §B — Geometrie + Sub-Pixel-Stabilität.
-       * SVG ist 6px breiter als der Button (CSS inset:-3px) für Glow- und
-       * Sub-Pixel-Reserve. rect bei (1.5, 1.5) mit width/height = bbox - 3
-       * → der 2.5px-Stroke sitzt zentriert auf der Button-Border-Linie.
-       * rx/ry: 14 = .hero__cta--secondary border-radius.
-       *
-       * 1.8.5 §B: dpr-aware Rundung für Retina-Displays. Bbox-Werte
-       * sind in CSS-Pixeln, gerundet aufs nächste Geräte-Pixel via
-       * Math.round(value * dpr) / dpr. Das eliminiert Sub-Pixel-
-       * Diskrepanzen, die auf Retina-Screens als feiner Versatz
-       * sichtbar werden. */
+      /* 1.8.6 — Geometrie radikal vereinfacht.
+       * SVG ist exakt Button-Größe (CSS inset:0). rect deckungsgleich
+       * mit dem viewBox: x=0, y=0, width=w, height=h. Stroke 2.5 px
+       * sitzt mittig auf der Kontur, je 1.25 px innen + 1.25 px außen,
+       * an allen vier Seiten symmetrisch. overflow:visible auf SVG
+       * erlaubt Stroke-Außenwachstum + Glow.
+       * vector-effect: non-scaling-stroke (CSS) hält die Stroke-Breite
+       * exakt 2.5 device-px unabhängig von viewBox-Skalierung. */
       var dpr = window.devicePixelRatio || 1;
       var snap = function (v) { return Math.round(v * dpr) / dpr; };
-      var w = snap(bbox.width + 6);
-      var h = snap(bbox.height + 6);
+      var w = snap(bbox.width);
+      var h = snap(bbox.height);
       ctaSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+      ctaSvg.setAttribute('preserveAspectRatio', 'none');
       ctaSvg.setAttribute('width', String(w));
       ctaSvg.setAttribute('height', String(h));
-      ctaRect.setAttribute('x', '1.5');
-      ctaRect.setAttribute('y', '1.5');
-      ctaRect.setAttribute('width', String(w - 3));
-      ctaRect.setAttribute('height', String(h - 3));
+      ctaRect.setAttribute('x', '0');
+      ctaRect.setAttribute('y', '0');
+      ctaRect.setAttribute('width', String(w));
+      ctaRect.setAttribute('height', String(h));
       ctaRect.setAttribute('rx', '14');
       ctaRect.setAttribute('ry', '14');
       var len = ctaRect.getTotalLength();
