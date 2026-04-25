@@ -289,14 +289,21 @@
     var updateCtaBorder = function (trigger) {
       var bbox = ctaBtn.getBoundingClientRect();
       if (!bbox.width || !bbox.height) return;
-      /* 1.8.3 §A + 1.8.4 §A — Geometrie nachgezogen + Sub-Pixel-Stabilität.
+      /* 1.8.3 §A + 1.8.4 §A + 1.8.5 §B — Geometrie + Sub-Pixel-Stabilität.
        * SVG ist 6px breiter als der Button (CSS inset:-3px) für Glow- und
        * Sub-Pixel-Reserve. rect bei (1.5, 1.5) mit width/height = bbox - 3
        * → der 2.5px-Stroke sitzt zentriert auf der Button-Border-Linie.
-       * rx/ry: 14 = .hero__cta--secondary border-radius. Math.round statt
-       * floor verhindert "rect zu klein"-Versatz, insbesondere rechts. */
-      var w = Math.round(bbox.width + 6);
-      var h = Math.round(bbox.height + 6);
+       * rx/ry: 14 = .hero__cta--secondary border-radius.
+       *
+       * 1.8.5 §B: dpr-aware Rundung für Retina-Displays. Bbox-Werte
+       * sind in CSS-Pixeln, gerundet aufs nächste Geräte-Pixel via
+       * Math.round(value * dpr) / dpr. Das eliminiert Sub-Pixel-
+       * Diskrepanzen, die auf Retina-Screens als feiner Versatz
+       * sichtbar werden. */
+      var dpr = window.devicePixelRatio || 1;
+      var snap = function (v) { return Math.round(v * dpr) / dpr; };
+      var w = snap(bbox.width + 6);
+      var h = snap(bbox.height + 6);
       ctaSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
       ctaSvg.setAttribute('width', String(w));
       ctaSvg.setAttribute('height', String(h));

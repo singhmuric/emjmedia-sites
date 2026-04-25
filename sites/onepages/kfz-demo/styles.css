@@ -306,29 +306,31 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   body { background: #fff; color: #000; }
   a { color: #000; }
 }
-/* ---------- SECTION 1 · NAV (DNA §5.14 Scroll-Glass) ---------- */
+/* ---------- SECTION 1 · NAV (1.8.5 §A — solid Nachtblau + Messing-Trennlinie) ----------
+ * Cowork-Diagnose 1.8.5 §0 (Beleg: `_logs/1.8.5-header-diagnose.md`):
+ * Initial-State `.nav` mit `rgba(11, 18, 32, 0.65)` + `backdrop-filter:
+ * blur(8px)` mischt das darunterliegende Hero-Foto durch — Pixel-Sample
+ * in der Top-Bar war rgb(98, 102, 108) statt rgb(11, 18, 32). Das ist
+ * der "weiße verschwommene Effekt", den der User die ganze Zeit gemeint
+ * hat (drei Hotfix-Iterationen waren am Hero-Foto am falschen Element).
+ *
+ * Fix: Header dauerhaft solid Nachtblau, kein backdrop-blur. 1px-Messing-
+ * border-bottom als Designs-Akzent zur Trust-Ribbon. is-scrolled-State
+ * verkleinert nur noch Padding, ändert kein Background mehr (war ohnehin
+ * praktisch identisch). */
 .nav {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 60;
   padding: 14px 0;
-  /* Initial-State halbopak — garantiert WCAG-AA-Kontrast auf beliebigen
-   * Light-Sections beim Mobile-First-Load; is-scrolled intensifiziert. */
-  background: rgba(11, 18, 32, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid transparent;
-  transition: background-color var(--dur-med) var(--ease-out),
-              backdrop-filter var(--dur-med) var(--ease-out),
-              border-color var(--dur-med) var(--ease-out),
-              padding var(--dur-med) var(--ease-out);
+  background: var(--color-authority);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid rgba(184, 146, 90, 0.55);
+  transition: padding var(--dur-med) var(--ease-out);
   color: var(--color-white);
 }
 .nav.is-scrolled {
-  background: var(--color-authority-95);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom-color: var(--color-deep-accent-20);
   padding: 10px 0;
 }
 .nav__inner {
@@ -548,23 +550,14 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
  *
  * Constitution §13: rein additive Änderung. .hero__scrim und alle
  * anderen Hero-Layer unverändert. */
-.hero__media::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  /* 1.8.4 §B — Strategiewechsel. 1.8.2 (Schleier 14%) und 1.8.3
-   * (Schleier 7%) ersetzt durch eine OPAKE Nachtblau-Bar mit 1px-
-   * Messing-Trennlinie. LED-Streifen sind hinter der opaken Bar
-   * vollständig unsichtbar; die Trennlinie wird zum bewussten
-   * Designs-Akzent („Header zur Bar zum Bild"). Höhe 16% deckt
-   * die LEDs zuverlässig ab, ohne in Headline/Subline zu reichen
-   * (Hero-Headline beginnt bei ~50% Hero-Höhe). */
-  height: 16%;
-  background: rgb(11, 18, 32);
-  border-bottom: 1px solid rgba(184, 146, 90, 0.55);
-  pointer-events: none;
-  z-index: 1;
-}
+/* 1.8.5 §A — Rollback aus 1.8.2/1.8.3/1.8.4 §B.
+ * Drei Iterationen wurden am falschen Element gemacht: User hat den
+ * "weißen verschwommenen Effekt" als Decken-LEDs im Foto interpretiert,
+ * aber Cowork-Diagnose (`_logs/1.8.5-header-diagnose.md`) hat ihn als
+ * .nav-Element identifiziert (semi-transparent + backdrop-blur).
+ * Die .hero__media::before-Regel war die ganze Zeit am falschen Element
+ * und wird ersatzlos entfernt. Constitution §13: keine toten CSS-Pfade.
+ * Fix kommt in styles/sections/01-nav.css. */
 /* 1.8 §2.2 — Hero-Scrim Diagnose + Fix.
  *
  * ROOT-CAUSE-Befund (Schritt 2 Pflicht-Ablauf, vorher Schritt 1
@@ -680,7 +673,14 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   isolation: isolate;
   background: rgba(11, 18, 32, 0.95);
   color: var(--color-white);
-  border: 1px solid var(--color-warm-accent);
+  /* 1.8.5 §B — Border auf transparent gesetzt: der animierte SVG-Hot-
+   * Spot war zusammen mit dem statischen 1px-Messing-Border als
+   * Doppellinie sichtbar (Sub-Pixel-Versatz wirkte als zwei parallele
+   * Linien rechts). Layout-Geometrie bleibt durch border:1px stabil,
+   * aber visuell unsichtbar während der Animation läuft.
+   * reduced-motion-Branch unten setzt Border wieder auf solid Messing
+   * als Fallback. */
+  border: 1px solid transparent;
   box-shadow: 0 4px 18px rgba(11, 18, 32, 0.35);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
@@ -741,10 +741,16 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
     animation: none;
     /* 1.8.3 §A — Glow auch ausblenden bei reduced-motion (gilt als
      * "Bewegung-naher" visueller Effekt). Solider 1px-Messing-Border-
-     * Fallback auf .hero__cta--secondary bleibt sichtbar. */
+     * Fallback auf .hero__cta--secondary kommt jetzt aus dem
+     * border-color-Override unten (1.8.5 §B). */
     filter: none;
   }
   .cta-border-loop { opacity: 0; }
+  /* 1.8.5 §B — bei reduced-motion border-color zurück auf Messing,
+   * damit der Button auch ohne SVG-Hot-Spot eindeutig konturiert ist. */
+  .hero__cta--secondary {
+    border-color: var(--color-warm-accent);
+  }
 }
 
 .hero__pills {
