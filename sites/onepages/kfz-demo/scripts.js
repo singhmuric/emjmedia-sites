@@ -271,18 +271,32 @@
   var ctaSvg = ctaBtn && ctaBtn.querySelector('.cta-border-loop');
   var ctaRect = ctaSvg && ctaSvg.querySelector('rect');
   if (ctaBtn && ctaSvg && ctaRect) {
-    var updateCtaBorder = function () {
+    /* 1.8.4 §A — diag-log nur bei window.__ctaDiag = true. Sonst no-op,
+     * damit production-loads keine console-Schreiblast haben. Tests
+     * können vor goto() das Flag setzen und nach update den
+     * gesammelten Eintrag-Array via window.__ctaDiagLog auslesen. */
+    var diagLog = function (trigger, bbox) {
+      if (typeof window !== 'undefined' && window.__ctaDiag) {
+        if (!window.__ctaDiagLog) window.__ctaDiagLog = [];
+        window.__ctaDiagLog.push({
+          t: new Date().toISOString(),
+          trigger: trigger,
+          bboxW: +bbox.width.toFixed(2),
+          bboxH: +bbox.height.toFixed(2)
+        });
+      }
+    };
+    var updateCtaBorder = function (trigger) {
       var bbox = ctaBtn.getBoundingClientRect();
       if (!bbox.width || !bbox.height) return;
-      /* 1.8.3 §A — Geometrie nachgezogen.
-       * SVG ist 4px breiter als der Button (CSS inset:-2px), damit
-       * stroke-width 2.5 + drop-shadow-Glow Platz nach außen haben.
-       * rect bei (1.5, 1.5) mit width/height = bbox - 3 → der 2.5px-
-       * Stroke sitzt zentriert auf der Button-Border-Linie.
-       * rx/ry: 14 = .hero__cta--secondary border-radius, exakter Match
-       * eliminiert die ~1px Ecken-Versätze aus 1.8.1. */
-      var w = Math.round(bbox.width + 4);
-      var h = Math.round(bbox.height + 4);
+      /* 1.8.3 §A + 1.8.4 §A — Geometrie nachgezogen + Sub-Pixel-Stabilität.
+       * SVG ist 6px breiter als der Button (CSS inset:-3px) für Glow- und
+       * Sub-Pixel-Reserve. rect bei (1.5, 1.5) mit width/height = bbox - 3
+       * → der 2.5px-Stroke sitzt zentriert auf der Button-Border-Linie.
+       * rx/ry: 14 = .hero__cta--secondary border-radius. Math.round statt
+       * floor verhindert "rect zu klein"-Versatz, insbesondere rechts. */
+      var w = Math.round(bbox.width + 6);
+      var h = Math.round(bbox.height + 6);
       ctaSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
       ctaSvg.setAttribute('width', String(w));
       ctaSvg.setAttribute('height', String(h));
@@ -295,16 +309,22 @@
       var len = ctaRect.getTotalLength();
       ctaRect.style.strokeDasharray = (len * 0.15) + ' ' + (len * 0.85);
       ctaRect.style.setProperty('--cta-len', String(len));
+      diagLog(trigger || 'unknown', bbox);
     };
-    updateCtaBorder();
+    updateCtaBorder('initial');
     if (typeof ResizeObserver === 'function') {
-      var ctaRO = new ResizeObserver(function () { updateCtaBorder(); });
+      var ctaRO = new ResizeObserver(function () { updateCtaBorder('resize'); });
       ctaRO.observe(ctaBtn);
     } else {
-      window.addEventListener('resize', updateCtaBorder);
+      window.addEventListener('resize', function () { updateCtaBorder('resize'); });
     }
-    if (document.readyState !== 'complete') {
-      window.addEventListener('load', updateCtaBorder);
+    /* 1.8.4 §A — Web-Fonts (Fraunces, Inter) laden asynchron nach
+     * DOMContentLoaded. Button-bbox ändert sich nach Font-Load minimal.
+     * window.load deckt Bilder/Stylesheets, document.fonts.ready deckt
+     * Webfonts gezielt. Beide Trigger zusätzlich zum Initial-Lauf. */
+    window.addEventListener('load', function () { updateCtaBorder('load'); });
+    if (document.fonts && typeof document.fonts.ready.then === 'function') {
+      document.fonts.ready.then(function () { updateCtaBorder('fonts.ready'); });
     }
   }
 })();

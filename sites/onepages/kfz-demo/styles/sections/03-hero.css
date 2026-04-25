@@ -39,19 +39,16 @@
   content: "";
   position: absolute;
   inset: 0 0 auto 0;
-  /* 1.8.3 §B — Reichweite halbiert (14% → 7%). User-Klarstellung:
-   * Bereich verkleinern, NICHT abdunkeln. Gradient-Stops bleiben
-   * identisch zu 1.8.2 (0.55 → 0.25 → 0), damit der Pegel der
-   * Abdunkelung am ganz oberen Rand unverändert ist; nur die Zone
-   * läuft jetzt schon bei ~7% Hero-Höhe aus. LEDs unterhalb dieser
-   * Zone werden wieder voll sichtbar (gewollt). */
-  height: 7%;
-  background: linear-gradient(
-    180deg,
-    rgba(11, 18, 32, 0.55) 0%,
-    rgba(11, 18, 32, 0.25) 55%,
-    rgba(11, 18, 32, 0)    100%
-  );
+  /* 1.8.4 §B — Strategiewechsel. 1.8.2 (Schleier 14%) und 1.8.3
+   * (Schleier 7%) ersetzt durch eine OPAKE Nachtblau-Bar mit 1px-
+   * Messing-Trennlinie. LED-Streifen sind hinter der opaken Bar
+   * vollständig unsichtbar; die Trennlinie wird zum bewussten
+   * Designs-Akzent („Header zur Bar zum Bild"). Höhe 16% deckt
+   * die LEDs zuverlässig ab, ohne in Headline/Subline zu reichen
+   * (Hero-Headline beginnt bei ~50% Hero-Höhe). */
+  height: 16%;
+  background: rgb(11, 18, 32);
+  border-bottom: 1px solid rgba(184, 146, 90, 0.55);
   pointer-events: none;
   z-index: 1;
 }
@@ -176,15 +173,18 @@
   -webkit-backdrop-filter: blur(6px);
 }
 .cta-border-loop {
-  /* 1.8.3 §A — inset -2px (vorher -1) damit der Glow-Drop-Shadow-Stack
-   * außerhalb der Button-Bbox Platz hat und nicht abgeschnitten wird. */
+  /* 1.8.4 §A — inset -3px (vorher -2) für mehr Reserve außen, falls
+   * bbox-Messung zwischen Layout-Pässen 1 px abweicht (Sub-Pixel-Drift).
+   * translateZ(0) erzeugt einen GPU-Layer für das SVG → stabilere
+   * Sub-Pixel-Rendering, beseitigt rechte-Kanten-Versatz aus 1.8.3. */
   position: absolute;
-  inset: -2px;
-  width: calc(100% + 4px);
-  height: calc(100% + 4px);
+  inset: -3px;
+  width: calc(100% + 6px);
+  height: calc(100% + 6px);
   pointer-events: none;
   overflow: visible;
   z-index: 1;
+  transform: translateZ(0);
   transition: opacity var(--dur-med) var(--ease-out);
 }
 .cta-border-loop rect {

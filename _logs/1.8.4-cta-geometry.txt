@@ -1,0 +1,4 @@
+2026-04-25T14:09:23.951Z | bbox=199.71x54.75 | trigger=initial
+2026-04-25T14:09:23.958Z | bbox=199.71x54.75 | trigger=resize
+2026-04-25T14:09:23.968Z | bbox=199.71x54.75 | trigger=load
+2026-04-25T14:09:23.981Z | bbox=199.71x54.75 | trigger=fonts.ready
