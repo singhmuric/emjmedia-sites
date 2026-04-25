@@ -630,71 +630,70 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
  * vom Werkstatt-Foto. Hierarchie unverändert: Primär (solid Messing)
  * schlägt Sekundär (Nachtblau).
  *
- * 1.8 §2.5 — Animierter Messing-Border via ::before (conic-gradient +
- * mask-composite). Border kommt nicht mehr von 1px-CSS-Border, sondern
- * von einem ::before-Pseudo, das einen 80°-Hot-Spot Messing über einen
- * sonst transparenten conic-gradient legt und endlos rotiert (3.2s
- * linear, emil-design-eng "constant motion → linear").
- * border: none auf der Hauptregel, fallback-Border via ::before
- * background bei prefers-reduced-motion.
- */
+ * Hotfix 1.8.1 §A — Animierter Messing-Border per SVG-Rect-stroke
+ * (vorher conic-gradient + mask-composite-Variante; die wanderte
+ * kreisförmig durch den Button-Innenraum statt entlang der echten
+ * Rechteck-Kontur). Jetzt: dediziertes <svg.cta-border-loop> mit
+ * <rect>, stroke-dasharray = "Hot-Spot 15% / Gap 85%", animation
+ * via stroke-dashoffset 3.2s linear infinite. Pfadlänge wird in
+ * scripts.js via getTotalLength() berechnet und über --cta-len
+ * Custom-Property an die Keyframes weitergegeben (path-len ist
+ * responsive, ResizeObserver hält das aktuell).
+ * Solider 1px-Messing-Border bleibt als Fallback bei reduced-motion
+ * und wenn JS nicht lädt (Fail-Safe Constitution §12.5). */
 .hero__cta--secondary {
   position: relative;
+  isolation: isolate;
   background: rgba(11, 18, 32, 0.95);
   color: var(--color-white);
-  border: none;
+  border: 1px solid var(--color-warm-accent);
   box-shadow: 0 4px 18px rgba(11, 18, 32, 0.35);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
-/* ::before liegt INNERHALB der border-box (inset: 0) und wird durch
- * den mask-composite-Trick nur am 2px-Rand sichtbar. Kein z-index, kein
- * overflow:hidden — der Pseudo-Rand überlagert den Button-Background
- * in der 2px-Lane, in der Mitte ist er durch mask transparent. So bleibt
- * Inline-Content (Text + Pfeil) sichtbar. */
-.hero__cta--secondary::before {
-  content: "";
+.cta-border-loop {
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 2px;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0deg,
-    transparent 280deg,
-    var(--color-warm-accent) 320deg,
-    rgba(245, 220, 170, 1) 340deg,
-    var(--color-warm-accent) 360deg
-  );
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  animation: hero-cta-border-loop 3.2s linear infinite;
+  inset: -1px;
+  width: calc(100% + 2px);
+  height: calc(100% + 2px);
   pointer-events: none;
+  overflow: visible;
+  z-index: 1;
   transition: opacity var(--dur-med) var(--ease-out);
 }
-@keyframes hero-cta-border-loop {
-  to { transform: rotate(1turn); }
+.cta-border-loop rect {
+  fill: none;
+  stroke: var(--color-warm-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  animation: cta-march 3.2s linear infinite;
+}
+/* Hot-Spot wandert die Rechteck-Kontur einmal pro 3.2s ab.
+ * --cta-len wird von scripts.js auf rect.getTotalLength() gesetzt.
+ * Fallback 200 falls JS nicht greift — dann ist der Cycle nicht
+ * exakt 1 Umlauf, aber der solide 1px-Border-Fallback trägt. */
+@keyframes cta-march {
+  from { stroke-dashoffset: var(--cta-len, 200); }
+  to   { stroke-dashoffset: 0; }
 }
 .hero__cta--secondary:hover {
   background: var(--color-warm-accent);
   color: var(--color-authority);
+  border-color: var(--color-warm-accent);
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(184, 146, 90, 0.28);
 }
-.hero__cta--secondary:hover::before {
-  /* Bei Hover wird der Button komplett Messing — Border-Loop ausblenden,
-   * sonst erscheint er als doppelter Outline-Effekt auf gleicher Farbe. */
+.hero__cta--secondary:hover .cta-border-loop {
+  /* Hover invertiert den Button auf solid Messing — der animated
+   * Border würde auf gleicher Farbe als doppelter Outline wirken,
+   * also ausblenden während Hover. Nach Hover wieder sichtbar. */
   opacity: 0;
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero__cta--secondary::before {
-    animation: none;
-    /* Solider Messing-Border-Fallback (ersetzt die nicht-rotierende
-     * Loop-Animation für motion-empfindliche Nutzer). */
-    background: var(--color-warm-accent);
-  }
+  .cta-border-loop rect { animation: none; }
+  .cta-border-loop      { opacity: 0; }
+  /* Bei reduced-motion bleibt der solide 1px-Messing-Border als
+   * Fallback sichtbar (siehe .hero__cta--secondary border:1px). */
 }
 
 .hero__pills {

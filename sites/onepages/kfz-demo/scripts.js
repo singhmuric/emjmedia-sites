@@ -257,4 +257,48 @@
       t.style.animationPlayState = 'paused';
     });
   }
+
+  /* -------- 10 · Hero-CTA Animated Border (Hotfix 1.8.1 §A) --------
+   * Ersetzt die conic-gradient + mask-composite-Variante aus 1.8 §2.5,
+   * die kreisförmig durch den Button-Innenraum lief statt auf der
+   * echten Rechteck-Kontur. Jetzt SVG-Rect über dem Button mit
+   * stroke-dasharray = (15% Hot-Spot, 85% Gap) und animiertem
+   * stroke-dashoffset (CSS @keyframes cta-march, 3.2s linear).
+   * Pfadlänge ist responsiv → JS misst per getTotalLength() bei
+   * Mount und bei jedem Resize neu, schreibt sie in --cta-len für
+   * die Keyframe-Animation. Silent-skip wenn Button fehlt. */
+  var ctaBtn = document.querySelector('.hero__cta--secondary');
+  var ctaSvg = ctaBtn && ctaBtn.querySelector('.cta-border-loop');
+  var ctaRect = ctaSvg && ctaSvg.querySelector('rect');
+  if (ctaBtn && ctaSvg && ctaRect) {
+    var updateCtaBorder = function () {
+      var bbox = ctaBtn.getBoundingClientRect();
+      if (!bbox.width || !bbox.height) return;
+      /* SVG ist 2px breiter als der Button (CSS inset:-1px), damit der
+       * 2px-Stroke des <rect> exakt auf der 1px-Border-Mittellinie sitzt
+       * und nichts vom Border-Glow-Sweep außerhalb der Box geclippt wird. */
+      var w = Math.round(bbox.width + 2);
+      var h = Math.round(bbox.height + 2);
+      ctaSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+      ctaSvg.setAttribute('width', String(w));
+      ctaSvg.setAttribute('height', String(h));
+      ctaRect.setAttribute('x', '1');
+      ctaRect.setAttribute('y', '1');
+      ctaRect.setAttribute('width', String(w - 2));
+      ctaRect.setAttribute('height', String(h - 2));
+      var len = ctaRect.getTotalLength();
+      ctaRect.style.strokeDasharray = (len * 0.15) + ' ' + (len * 0.85);
+      ctaRect.style.setProperty('--cta-len', String(len));
+    };
+    updateCtaBorder();
+    if (typeof ResizeObserver === 'function') {
+      var ctaRO = new ResizeObserver(function () { updateCtaBorder(); });
+      ctaRO.observe(ctaBtn);
+    } else {
+      window.addEventListener('resize', updateCtaBorder);
+    }
+    if (document.readyState !== 'complete') {
+      window.addEventListener('load', updateCtaBorder);
+    }
+  }
 })();
