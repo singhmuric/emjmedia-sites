@@ -1,26 +1,28 @@
-/* ---------- SECTION 1 · NAV (DNA §5.14 Scroll-Glass) ---------- */
+/* ---------- SECTION 1 · NAV (1.8.5 §A — solid Nachtblau + Messing-Trennlinie) ----------
+ * Cowork-Diagnose 1.8.5 §0 (Beleg: `_logs/1.8.5-header-diagnose.md`):
+ * Initial-State `.nav` mit `rgba(11, 18, 32, 0.65)` + `backdrop-filter:
+ * blur(8px)` mischt das darunterliegende Hero-Foto durch — Pixel-Sample
+ * in der Top-Bar war rgb(98, 102, 108) statt rgb(11, 18, 32). Das ist
+ * der "weiße verschwommene Effekt", den der User die ganze Zeit gemeint
+ * hat (drei Hotfix-Iterationen waren am Hero-Foto am falschen Element).
+ *
+ * Fix: Header dauerhaft solid Nachtblau, kein backdrop-blur. 1px-Messing-
+ * border-bottom als Designs-Akzent zur Trust-Ribbon. is-scrolled-State
+ * verkleinert nur noch Padding, ändert kein Background mehr (war ohnehin
+ * praktisch identisch). */
 .nav {
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 60;
   padding: 14px 0;
-  /* Initial-State halbopak — garantiert WCAG-AA-Kontrast auf beliebigen
-   * Light-Sections beim Mobile-First-Load; is-scrolled intensifiziert. */
-  background: rgba(11, 18, 32, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-bottom: 1px solid transparent;
-  transition: background-color var(--dur-med) var(--ease-out),
-              backdrop-filter var(--dur-med) var(--ease-out),
-              border-color var(--dur-med) var(--ease-out),
-              padding var(--dur-med) var(--ease-out);
+  background: var(--color-authority);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid rgba(184, 146, 90, 0.55);
+  transition: padding var(--dur-med) var(--ease-out);
   color: var(--color-white);
 }
 .nav.is-scrolled {
-  background: var(--color-authority-95);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom-color: var(--color-deep-accent-20);
   padding: 10px 0;
 }
 .nav__inner {

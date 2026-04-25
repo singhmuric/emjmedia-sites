@@ -74,64 +74,55 @@
     });
   }
 
-  /* -------- 4 · Prozess Progress-Sync (Sticky-Scroll + Travel-Dot) -------- */
-  var progressItems = document.querySelectorAll('[data-progress] [data-step]');
-  var stepEls = document.querySelectorAll('.prozess__step[data-step]');
-  if (progressItems.length && stepEls.length && 'IntersectionObserver' in window) {
-    var stepIo = new IntersectionObserver(function (entries) {
-      for (var i = 0; i < entries.length; i++) {
-        var e = entries[i];
-        if (!e.isIntersecting) continue;
-        var step = e.target.getAttribute('data-step');
-        progressItems.forEach(function (p) {
-          if (p.getAttribute('data-step') === step) p.classList.add('is-active');
-          else p.classList.remove('is-active');
-        });
-      }
-    }, { threshold: 0.5, rootMargin: '-20% 0px -30% 0px' });
-    stepEls.forEach(function (el) { stepIo.observe(el); });
-  }
+  /* -------- 4 · Prozess SVG-Connector Scroll-Animation (1.8 §2.1) --------
+   * Jeder .connector-path wird beim Scrollen progressiv "gezeichnet"
+   * via stroke-dashoffset (linear → smoothstep über scroll-progress).
+   * Skill: emil-design-eng §4 Easing-Decision — constant motion (scroll-bound)
+   * → linear-Mapping, geglättet mit smoothstep p*p*(3-2p) auf scroll-progress.
+   * Vanilla-JS (kein GSAP — Constitution §2.4 JS-Budget ≤30 KB).
+   *
+   * Fail-Safe (Constitution §12.5): CSS-Default zeigt den Pfad voll
+   * sichtbar (kein dasharray). JS schaltet erst auf "hidden initial"
+   * um, wenn IO/animation aktiv ist und prefers-reduced-motion inaktiv.
+   * Bei reduced-motion oder kein-IO: Pfad bleibt sichtbar wie im CSS. */
+  var connectorPaths = document.querySelectorAll('.connector-path');
+  if (connectorPaths.length && !reduced() && 'IntersectionObserver' in window) {
+    var connSpecs = [];
+    connectorPaths.forEach(function (path) {
+      var connectorEl = path.closest('.step-connector');
+      if (!connectorEl) return;
+      var length = path.getTotalLength();
+      path.style.strokeDasharray = length;
+      path.style.strokeDashoffset = length;
+      connSpecs.push({ path: path, el: connectorEl, length: length });
+    });
 
-  /* -------- 4b · Prozess Travel-Dot (1.7 Polish §2.3) --------
-   * Travel-Dot scrollt entlang der linken Rail synchron zum
-   * Section-Scroll-Progress. Vanilla rAF + getBoundingClientRect
-   * (keine GSAP-Dep — JS-Budget ≤30 KB). Custom-Ease-out-Scrub
-   * via quadratisches Easing der Rohprogress-Zahl (emil EM-1).
-   * Fail-Safe: bei reduced-motion bleibt Dot an Start-Position;
-   * bei fehlender Rail oder Section passiert nichts.
-   */
-  var railTravel = document.querySelector('[data-rail-travel]');
-  var railList = document.querySelector('.prozess__progress');
-  var prozessSection = document.querySelector('.prozess');
-  if (railTravel && railList && prozessSection && !reduced()) {
-    var railTicking = false;
-    var updateTravel = function () {
-      var sect = prozessSection.getBoundingClientRect();
-      var vh = window.innerHeight || document.documentElement.clientHeight;
-      /* Engagement range: von "Section-Top hits viewport-center"
-       * bis "Section-Bottom hits viewport-center". Gibt weichen Travel
-       * ueber die mittleren 50-100% des Scrollings durch die Section. */
-      var range = sect.height + vh * 0.5;
-      var raw = (vh * 0.75 - sect.top) / range;
-      var p = Math.max(0, Math.min(1, raw));
-      /* Scrub-Easing: smoothstep-approx. via p*p*(3-2p) — sanfter
-       * Start + Ende, nicht linear. emil-design-eng EM-2. */
-      var eased = p * p * (3 - 2 * p);
-      var travelRange = railList.clientHeight - 15; /* minus Dot-Höhe */
-      if (travelRange < 0) travelRange = 0;
-      var offsetTop = railList.offsetTop;
-      railTravel.style.transform = 'translateY(' + (offsetTop + eased * travelRange) + 'px)';
-    };
-    window.addEventListener('scroll', function () {
-      if (railTicking) return;
-      railTicking = true;
-      requestAnimationFrame(function () { updateTravel(); railTicking = false; });
-    }, { passive: true });
-    window.addEventListener('resize', updateTravel);
-    /* Initial + on load (fonts fertig). */
-    updateTravel();
-    if (document.readyState !== 'complete') {
-      window.addEventListener('load', updateTravel);
+    if (connSpecs.length) {
+      var connTicking = false;
+      var updateConnectors = function () {
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        for (var i = 0; i < connSpecs.length; i++) {
+          var spec = connSpecs[i];
+          var rect = spec.el.getBoundingClientRect();
+          /* Engagement-Range: top of element bei vh*0.75 (start)
+           * bis bottom of element bei vh*0.25 (end).
+           * → raw = (start_y - rect.top) / (start_y - end_y) */
+          var startY = vh * 0.75;
+          var endY = vh * 0.25 - rect.height;
+          var raw = (startY - rect.top) / (startY - endY);
+          var p = raw < 0 ? 0 : raw > 1 ? 1 : raw;
+          /* smoothstep für sanfte Lerp am Anfang + Ende. */
+          var eased = p * p * (3 - 2 * p);
+          spec.path.style.strokeDashoffset = String(spec.length * (1 - eased));
+        }
+      };
+      window.addEventListener('scroll', function () {
+        if (connTicking) return;
+        connTicking = true;
+        requestAnimationFrame(function () { updateConnectors(); connTicking = false; });
+      }, { passive: true });
+      window.addEventListener('resize', updateConnectors);
+      updateConnectors();
     }
   }
 
@@ -265,5 +256,80 @@
     document.querySelectorAll('.marquee__track, .review-band__track').forEach(function (t) {
       t.style.animationPlayState = 'paused';
     });
+  }
+
+  /* -------- 10 · Hero-CTA Animated Border (Hotfix 1.8.1 §A) --------
+   * Ersetzt die conic-gradient + mask-composite-Variante aus 1.8 §2.5,
+   * die kreisförmig durch den Button-Innenraum lief statt auf der
+   * echten Rechteck-Kontur. Jetzt SVG-Rect über dem Button mit
+   * stroke-dasharray = (15% Hot-Spot, 85% Gap) und animiertem
+   * stroke-dashoffset (CSS @keyframes cta-march, 3.2s linear).
+   * Pfadlänge ist responsiv → JS misst per getTotalLength() bei
+   * Mount und bei jedem Resize neu, schreibt sie in --cta-len für
+   * die Keyframe-Animation. Silent-skip wenn Button fehlt. */
+  var ctaBtn = document.querySelector('.hero__cta--secondary');
+  var ctaSvg = ctaBtn && ctaBtn.querySelector('.cta-border-loop');
+  var ctaRect = ctaSvg && ctaSvg.querySelector('rect');
+  if (ctaBtn && ctaSvg && ctaRect) {
+    /* 1.8.4 §A — diag-log nur bei window.__ctaDiag = true. Sonst no-op,
+     * damit production-loads keine console-Schreiblast haben. Tests
+     * können vor goto() das Flag setzen und nach update den
+     * gesammelten Eintrag-Array via window.__ctaDiagLog auslesen. */
+    var diagLog = function (trigger, bbox) {
+      if (typeof window !== 'undefined' && window.__ctaDiag) {
+        if (!window.__ctaDiagLog) window.__ctaDiagLog = [];
+        window.__ctaDiagLog.push({
+          t: new Date().toISOString(),
+          trigger: trigger,
+          bboxW: +bbox.width.toFixed(2),
+          bboxH: +bbox.height.toFixed(2)
+        });
+      }
+    };
+    var updateCtaBorder = function (trigger) {
+      var bbox = ctaBtn.getBoundingClientRect();
+      if (!bbox.width || !bbox.height) return;
+      /* 1.8.6 — Geometrie radikal vereinfacht.
+       * SVG ist exakt Button-Größe (CSS inset:0). rect deckungsgleich
+       * mit dem viewBox: x=0, y=0, width=w, height=h. Stroke 2.5 px
+       * sitzt mittig auf der Kontur, je 1.25 px innen + 1.25 px außen,
+       * an allen vier Seiten symmetrisch. overflow:visible auf SVG
+       * erlaubt Stroke-Außenwachstum + Glow.
+       * vector-effect: non-scaling-stroke (CSS) hält die Stroke-Breite
+       * exakt 2.5 device-px unabhängig von viewBox-Skalierung. */
+      var dpr = window.devicePixelRatio || 1;
+      var snap = function (v) { return Math.round(v * dpr) / dpr; };
+      var w = snap(bbox.width);
+      var h = snap(bbox.height);
+      ctaSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+      ctaSvg.setAttribute('preserveAspectRatio', 'none');
+      ctaSvg.setAttribute('width', String(w));
+      ctaSvg.setAttribute('height', String(h));
+      ctaRect.setAttribute('x', '0');
+      ctaRect.setAttribute('y', '0');
+      ctaRect.setAttribute('width', String(w));
+      ctaRect.setAttribute('height', String(h));
+      ctaRect.setAttribute('rx', '14');
+      ctaRect.setAttribute('ry', '14');
+      var len = ctaRect.getTotalLength();
+      ctaRect.style.strokeDasharray = (len * 0.15) + ' ' + (len * 0.85);
+      ctaRect.style.setProperty('--cta-len', String(len));
+      diagLog(trigger || 'unknown', bbox);
+    };
+    updateCtaBorder('initial');
+    if (typeof ResizeObserver === 'function') {
+      var ctaRO = new ResizeObserver(function () { updateCtaBorder('resize'); });
+      ctaRO.observe(ctaBtn);
+    } else {
+      window.addEventListener('resize', function () { updateCtaBorder('resize'); });
+    }
+    /* 1.8.4 §A — Web-Fonts (Fraunces, Inter) laden asynchron nach
+     * DOMContentLoaded. Button-bbox ändert sich nach Font-Load minimal.
+     * window.load deckt Bilder/Stylesheets, document.fonts.ready deckt
+     * Webfonts gezielt. Beide Trigger zusätzlich zum Initial-Lauf. */
+    window.addEventListener('load', function () { updateCtaBorder('load'); });
+    if (document.fonts && typeof document.fonts.ready.then === 'function') {
+      document.fonts.ready.then(function () { updateCtaBorder('fonts.ready'); });
+    }
   }
 })();

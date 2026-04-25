@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "left": 774.23,
+      "text": "Wie läuft der TÜV bei Ihnen ab?"
+    },
+    {
+      "left": 774.23,
+      "text": "Arbeiten Sie auch an meiner Marke?"
+    },
+    {
+      "left": 774.23,
+      "text": "Bekomme ich einen Kostenvoranschlag?"
+    },
+    {
+      "left": 774.23,
+      "text": "Gibt es einen Ersatzwagen oder Hol-/Brin"
+    },
+    {
+      "left": 774.23,
+      "text": "Wie schnell bekomme ich einen Termin?"
+    },
+    {
+      "left": 774.23,
+      "text": "Reparieren Sie auch E-Autos und Hybride?"
+    },
+    {
+      "left": 774.23,
+      "text": "Was kostet eine Inspektion ungefähr?"
+    }
+  ],
+  "minX": 774.23,
+  "maxX": 774.23,
+  "spreadPx": 0,
+  "withinTolerance": true
+}

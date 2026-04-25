@@ -1,0 +1,54 @@
+{
+  "diagLog": [
+    {
+      "t": "2026-04-25T14:09:23.951Z",
+      "trigger": "initial",
+      "bboxW": 199.71,
+      "bboxH": 54.75
+    },
+    {
+      "t": "2026-04-25T14:09:23.958Z",
+      "trigger": "resize",
+      "bboxW": 199.71,
+      "bboxH": 54.75
+    },
+    {
+      "t": "2026-04-25T14:09:23.968Z",
+      "trigger": "load",
+      "bboxW": 199.71,
+      "bboxH": 54.75
+    },
+    {
+      "t": "2026-04-25T14:09:23.981Z",
+      "trigger": "fonts.ready",
+      "bboxW": 199.71,
+      "bboxH": 54.75
+    }
+  ],
+  "headline": {
+    "hero": {
+      "y": 112.09375,
+      "height": 774
+    },
+    "headlineTop": 232.46875,
+    "headlineTopPct": 30.03472222222222
+  },
+  "ledZone": {
+    "x": 0,
+    "y": 190,
+    "width": 1440,
+    "height": 60,
+    "mean": [
+      23.1,
+      29.1,
+      41.6
+    ],
+    "max": [
+      188,
+      188,
+      190
+    ],
+    "opaqueOk": false
+  },
+  "sublineContrast": 12.83
+}

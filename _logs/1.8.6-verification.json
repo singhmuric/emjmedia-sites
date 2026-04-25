@@ -1,0 +1,22 @@
+{
+  "button": {
+    "x": 370.2109375,
+    "y": 591.78125,
+    "width": 199.7109375,
+    "height": 54.75
+  },
+  "halo": {
+    "x": 358,
+    "y": 579,
+    "width": 224,
+    "height": 79
+  },
+  "edgeOffsets": {
+    "top": 0.72,
+    "bottom": 1.03,
+    "left": 0.29,
+    "right": 1.42
+  },
+  "spreadPx": 1.13,
+  "symmetryPass": true
+}

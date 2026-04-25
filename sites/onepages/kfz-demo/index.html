@@ -147,11 +147,6 @@
     <span class="ribbon__item">Meisterbetrieb seit <strong>1998</strong></span>
     <span class="ribbon__divider" aria-hidden="true"></span>
     <span class="ribbon__item ribbon__live"><span class="ribbon__dot" aria-hidden="true"></span> Nächster freier Termin: <strong>Mo&nbsp;14:00</strong></span>
-    <span class="ribbon__divider" aria-hidden="true"></span>
-    <a class="ribbon__item ribbon__phone" href="tel:+4941929876543">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      04192 98 76 543
-    </a>
   </div>
 </aside>
 
@@ -182,7 +177,7 @@
           <svg class="btn__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           <span>04192 98 76 543</span>
         </a>
-        <a class="btn btn-lg hero__cta--secondary" href="#kontakt">Termin anfragen<span class="btn__arrow" aria-hidden="true">→</span></a>
+        <a class="btn btn-lg hero__cta--secondary" href="#kontakt">Termin anfragen<span class="btn__arrow" aria-hidden="true">→</span><svg class="cta-border-loop" aria-hidden="true" focusable="false"><rect rx="14" ry="14"/></svg></a>
       </div>
 
       <ul class="hero__pills" data-reveal>
@@ -390,68 +385,185 @@
   </div>
 </section>
 
-<!-- SECTION 6 · PROZESS — Sticky-Scroll-Timeline (DNA §10.5) -->
+<!-- SECTION 6 · PROZESS — Alternierendes Panel-Layout
+     (1.8 §2.1, 1:1 nach _templates/kfz-werkstatt/_inspiration/WENDEBAU_PROZESS_SOURCE.html) -->
 <section class="prozess" id="prozess" aria-labelledby="prozess-title">
-  <div class="container prozess__grid">
-    <aside class="prozess__side">
-      <div class="prozess__side-inner">
-        <p class="eyebrow eyebrow--inverse" data-reveal>So läuft's ab</p>
-        <h2 class="section-title" id="prozess-title" data-reveal>Vom Anruf bis<br>zur Übergabe.</h2>
-        <p class="prozess__lead" data-reveal>Sechs Schritte, die wir jedem Kunden im Wortlaut so versprechen.</p>
-        <div class="prozess__rail" data-progress>
-          <span class="prozess__rail-line" aria-hidden="true"></span>
-          <span class="prozess__rail-travel" aria-hidden="true" data-rail-travel></span>
-          <ol class="prozess__progress" aria-hidden="true">
-            <li data-step="1"><span class="prozess__rail-num">01</span><span class="prozess__rail-label">Anfrage</span></li>
-            <li data-step="2"><span class="prozess__rail-num">02</span><span class="prozess__rail-label">Termin</span></li>
-            <li data-step="3"><span class="prozess__rail-num">03</span><span class="prozess__rail-label">Diagnose</span></li>
-            <li data-step="4"><span class="prozess__rail-num">04</span><span class="prozess__rail-label">Reparatur</span></li>
-            <li data-step="5"><span class="prozess__rail-num">05</span><span class="prozess__rail-label">Kontrolle</span></li>
-            <li data-step="6"><span class="prozess__rail-num">06</span><span class="prozess__rail-label">Übergabe</span></li>
-          </ol>
-        </div>
-      </div>
-    </aside>
-
-    <ol class="prozess__steps">
-      <li class="prozess__step" id="step-1" data-step="1">
-        <span class="prozess__ghost" aria-hidden="true">01</span>
-        <p class="prozess__label">Schritt 01 von 06</p>
-        <h3 class="prozess__title">Anfrage</h3>
-        <p class="prozess__text">Sie rufen an oder schreiben. Wir hören zu, stellen zwei, drei konkrete Fragen und notieren, was das Auto gerade macht — und was nicht.</p>
-      </li>
-      <li class="prozess__step" id="step-2" data-step="2">
-        <span class="prozess__ghost" aria-hidden="true">02</span>
-        <p class="prozess__label">Schritt 02 von 06</p>
-        <h3 class="prozess__title">Termin</h3>
-        <p class="prozess__text">Akute Sachen noch in dieser oder nächster Woche. Planbares — Inspektion, TÜV — in ein bis zwei Wochen. Sie bekommen eine Uhrzeit, die wir einhalten.</p>
-      </li>
-      <li class="prozess__step" id="step-3" data-step="3">
-        <span class="prozess__ghost" aria-hidden="true">03</span>
-        <p class="prozess__label">Schritt 03 von 06</p>
-        <h3 class="prozess__title">Diagnose</h3>
-        <p class="prozess__text">Der Meister liest Fehlercodes aus und prüft Sicht, Geräusch, Fahrverhalten. Erst wenn klar ist, was zu tun ist, rechnen wir.</p>
-      </li>
-      <li class="prozess__step" id="step-4" data-step="4">
-        <span class="prozess__ghost" aria-hidden="true">04</span>
-        <p class="prozess__label">Schritt 04 von 06</p>
-        <h3 class="prozess__title">Reparatur</h3>
-        <p class="prozess__text">Wir arbeiten zum vereinbarten Festpreis. Kommt wider Erwarten etwas dazu, rufen wir an — vor dem Schraubenschlüssel, nicht danach.</p>
-      </li>
-      <li class="prozess__step" id="step-5" data-step="5">
-        <span class="prozess__ghost" aria-hidden="true">05</span>
-        <p class="prozess__label">Schritt 05 von 06</p>
-        <h3 class="prozess__title">Kontrolle</h3>
-        <p class="prozess__text">Nach jeder Reparatur fährt der Meister eine Probefahrt. Kurz, aber bewusst. Erst dann ist das Auto „fertig".</p>
-      </li>
-      <li class="prozess__step" id="step-6" data-step="6">
-        <span class="prozess__ghost" aria-hidden="true">06</span>
-        <p class="prozess__label">Schritt 06 von 06</p>
-        <h3 class="prozess__title">Übergabe</h3>
-        <p class="prozess__text">Wir erklären, was gemacht wurde, was die Rechnung kostet und worauf Sie in den nächsten 500 km achten sollten. Schlüssel, Unterschrift, fertig.</p>
-      </li>
-    </ol>
+  <div class="prozess-intro">
+    <p class="prozess-intro__eyebrow" data-reveal>So läuft's ab</p>
+    <h2 class="prozess__headline" id="prozess-title" data-reveal>Vom Anruf bis<br>zur <em>Übergabe</em>.</h2>
+    <p class="prozess__lead" data-reveal>Sechs Schritte, die wir jedem Kunden im Wortlaut so versprechen.</p>
   </div>
+
+  <div class="step-wrap step-wrap--odd" id="wrap-1">
+    <div class="step-wrap__row">
+      <div class="step-panel">
+        <span class="step-ghost" aria-hidden="true">01</span>
+        <svg class="step-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- Telefon-Handset (Step 01: Anfrage) -->
+          <path d="M22 12 C20 10, 14 12, 14 18 L14 22 C14 24, 16 26, 18 26 L22 24 C24 22, 26 22, 28 24 L36 32 C38 34, 40 36, 40 40 L38 42 C36 44, 36 46, 38 48 L42 50 C48 50, 50 44, 48 40 C44 34, 34 24, 28 18 C26 16, 24 14, 22 12 Z"/>
+          <path d="M38 16 C42 12, 48 12, 52 16"/>
+          <path d="M40 21 C43 18, 49 18, 52 21" opacity="0.55"/>
+        </svg>
+      </div>
+      <div class="step-text">
+        <span class="step-label">Schritt 01</span>
+        <h3 class="step-title">Anfrage</h3>
+        <p class="step-desc">Sie rufen an oder schreiben. Wir hören zu, stellen zwei, drei konkrete Fragen und notieren, was das Auto gerade macht — und was nicht.</p>
+        <span class="step-tag">✓ Rückruf binnen 24h</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-connector step-connector--oe" aria-hidden="true">
+    <div class="step-connector__inner">
+      <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+        <path class="connector-path" d="M 18 0 C 18 30, 82 30, 82 60"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="step-wrap step-wrap--even" id="wrap-2">
+    <div class="step-wrap__row">
+      <div class="step-panel">
+        <span class="step-ghost" aria-hidden="true">02</span>
+        <svg class="step-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- Kalender mit Haken (Step 02: Termin) -->
+          <rect x="10" y="14" width="44" height="40" rx="4"/>
+          <line x1="10" y1="24" x2="54" y2="24"/>
+          <line x1="20" y1="8" x2="20" y2="20"/>
+          <line x1="44" y1="8" x2="44" y2="20"/>
+          <polyline points="22,40 30,48 46,32"/>
+        </svg>
+      </div>
+      <div class="step-text">
+        <span class="step-label">Schritt 02</span>
+        <h3 class="step-title">Termin</h3>
+        <p class="step-desc">Akute Sachen noch in dieser oder nächster Woche. Planbares — Inspektion, TÜV — in ein bis zwei Wochen. Sie bekommen eine Uhrzeit, die wir einhalten.</p>
+        <span class="step-tag">✓ Festtermin</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-connector step-connector--eo" aria-hidden="true">
+    <div class="step-connector__inner">
+      <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+        <path class="connector-path" d="M 82 0 C 82 30, 18 30, 18 60"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="step-wrap step-wrap--odd" id="wrap-3">
+    <div class="step-wrap__row">
+      <div class="step-panel">
+        <span class="step-ghost" aria-hidden="true">03</span>
+        <svg class="step-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- OBD-Diagnose-Stecker (Step 03: Diagnose) -->
+          <rect x="10" y="20" width="44" height="20" rx="3"/>
+          <path d="M14 24 v12 M20 24 v12 M26 24 v12 M32 24 v12 M38 24 v12 M44 24 v12 M50 24 v12"/>
+          <path d="M32 40 v8"/>
+          <path d="M22 56 h20" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="step-text">
+        <span class="step-label">Schritt 03</span>
+        <h3 class="step-title">Diagnose</h3>
+        <p class="step-desc">Der Meister liest Fehlercodes aus und prüft Sicht, Geräusch, Fahrverhalten. Erst wenn klar ist, was zu tun ist, rechnen wir.</p>
+        <span class="step-tag">✓ Erst Klarheit, dann Auftrag</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-connector step-connector--oe" aria-hidden="true">
+    <div class="step-connector__inner">
+      <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+        <path class="connector-path" d="M 18 0 C 18 30, 82 30, 82 60"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="step-wrap step-wrap--even" id="wrap-4">
+    <div class="step-wrap__row">
+      <div class="step-panel">
+        <span class="step-ghost" aria-hidden="true">04</span>
+        <svg class="step-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- Schraubenschlüssel (Step 04: Reparatur) -->
+          <path d="M50 14 a8 8 0 1 0 -10 10 L18 46 a4 4 0 0 0 0 6 l4 4 a4 4 0 0 0 6 0 L50 34 a8 8 0 0 0 0 -20 z"/>
+          <circle cx="46" cy="18" r="2.5" fill="currentColor"/>
+        </svg>
+      </div>
+      <div class="step-text">
+        <span class="step-label">Schritt 04</span>
+        <h3 class="step-title">Reparatur</h3>
+        <p class="step-desc">Wir arbeiten zum vereinbarten Festpreis. Kommt wider Erwarten etwas dazu, rufen wir an — vor dem Schraubenschlüssel, nicht danach.</p>
+        <span class="step-tag">✓ Festpreis</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-connector step-connector--eo" aria-hidden="true">
+    <div class="step-connector__inner">
+      <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+        <path class="connector-path" d="M 82 0 C 82 30, 18 30, 18 60"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="step-wrap step-wrap--odd" id="wrap-5">
+    <div class="step-wrap__row">
+      <div class="step-panel">
+        <span class="step-ghost" aria-hidden="true">05</span>
+        <svg class="step-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- Checkliste / Clipboard (Step 05: Kontrolle) -->
+          <rect x="14" y="10" width="36" height="48" rx="3"/>
+          <rect x="22" y="6" width="20" height="8" rx="2"/>
+          <polyline points="20,24 24,28 30,22"/>
+          <line x1="34" y1="25" x2="46" y2="25"/>
+          <polyline points="20,36 24,40 30,34"/>
+          <line x1="34" y1="37" x2="46" y2="37"/>
+          <polyline points="20,48 24,52 30,46"/>
+          <line x1="34" y1="49" x2="46" y2="49"/>
+        </svg>
+      </div>
+      <div class="step-text">
+        <span class="step-label">Schritt 05</span>
+        <h3 class="step-title">Kontrolle</h3>
+        <p class="step-desc">Nach jeder Reparatur fährt der Meister eine Probefahrt. Kurz, aber bewusst. Erst dann ist das Auto „fertig".</p>
+        <span class="step-tag">✓ Probefahrt durch Meister</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-connector step-connector--oe" aria-hidden="true">
+    <div class="step-connector__inner">
+      <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+        <path class="connector-path" d="M 18 0 C 18 30, 82 30, 82 60"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="step-wrap step-wrap--even" id="wrap-6">
+    <div class="step-wrap__row">
+      <div class="step-panel">
+        <span class="step-ghost" aria-hidden="true">06</span>
+        <svg class="step-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <!-- Auto-Schlüssel mit Bart (Step 06: Übergabe) -->
+          <circle cx="20" cy="32" r="10"/>
+          <circle cx="20" cy="32" r="3.5"/>
+          <line x1="30" y1="32" x2="56" y2="32"/>
+          <line x1="48" y1="32" x2="48" y2="40"/>
+          <line x1="54" y1="32" x2="54" y2="44"/>
+        </svg>
+      </div>
+      <div class="step-text">
+        <span class="step-label">Schritt 06</span>
+        <h3 class="step-title">Übergabe</h3>
+        <p class="step-desc">Wir erklären, was gemacht wurde, was die Rechnung kostet und worauf Sie in den nächsten 500 km achten sollten. Schlüssel, Unterschrift, fertig.</p>
+        <span class="step-tag">✓ Schlüssel &amp; Erklärung</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Letzter Step (06) hat absichtlich keinen Connector danach. -->
 </section>
 
 <!-- SECTION 7 · TESTIMONIALS + STATS (DNA §10.6) -->

@@ -18,31 +18,75 @@
   object-position: center 35%;
   filter: contrast(1.04) saturate(0.9) brightness(0.78);
 }
-/* 1.7 Polish §2.6 — Gerichteter Scrim: starker Darken links (wo Text sitzt),
- * fade-out ab 72% nach rechts (Kennzahlen-Card bleibt offen, Werkstatt-Bild
- * bleibt als Werkstatt erkennbar). Addendum §2.6 A wörtlich.
- * Mobile: stärker bis ~60% (Text rutscht näher ans Bildzentrum). */
+/* Hotfix 1.8.2 — Dunkler Top-Scrim gegen Decken-LED-Streifen.
+ * Cowork-Klärung zu 1.8.1 §B: was als „weißlicher Nebel" wahrgenommen
+ * wurde, sind die LED-Beleuchtungen an der Werkstatt-Decke im Foto
+ * selbst (kein Code-Layer). Lösung: dünner dunkler Scrim am oberen
+ * Rand, der die Lichter abdämpft. Spiegelbildlich zum Subline-Scrim
+ * `.hero__scrim` aus 1.8 §2.2 (links-unten dunkel).
+ *
+ * Stacking: .hero__media ist `position: absolute` (positioned), das
+ * reicht als Containing Block für ::before mit `position: absolute`
+ * — funktional äquivalent zu `position: relative` für diesen Zweck.
+ * z-index 1 liegt im Stacking-Context von .hero__media (z-index -2),
+ * über img (in-flow) und über .hero__scrim (positioned ohne z-index).
+ * .hero__inner-Inhalte (Headline, Subline, CTAs) liegen außerhalb
+ * .hero__media → unbeeinflusst, bleiben über dem Top-Scrim sichtbar.
+ *
+ * Constitution §13: rein additive Änderung. .hero__scrim und alle
+ * anderen Hero-Layer unverändert. */
+/* 1.8.5 §A — Rollback aus 1.8.2/1.8.3/1.8.4 §B.
+ * Drei Iterationen wurden am falschen Element gemacht: User hat den
+ * "weißen verschwommenen Effekt" als Decken-LEDs im Foto interpretiert,
+ * aber Cowork-Diagnose (`_logs/1.8.5-header-diagnose.md`) hat ihn als
+ * .nav-Element identifiziert (semi-transparent + backdrop-blur).
+ * Die .hero__media::before-Regel war die ganze Zeit am falschen Element
+ * und wird ersatzlos entfernt. Constitution §13: keine toten CSS-Pfade.
+ * Fix kommt in styles/sections/01-nav.css. */
+/* 1.8 §2.2 — Hero-Scrim Diagnose + Fix.
+ *
+ * ROOT-CAUSE-Befund (Schritt 2 Pflicht-Ablauf, vorher Schritt 1
+ * dokumentiert in _logs/1.8-hero-before.json mit min-Kontrast 3.12:1):
+ * Vorher hatte .hero__scrim z-index:-1 INNERHALB des Containers
+ * .hero__media (selbst z-index:-2). Der lokale Stacking-Context von
+ * .hero__media rendert in-flow Children (das <picture>/<img>) ÜBER
+ * negative-z-index positioned Children. Der Scrim lag also hinter
+ * dem Foto und war seit 1.7 unsichtbar — die optische Aufhellung kam
+ * NUR vom hero__h1/hero__promise text-shadow, nicht vom Scrim.
+ * Beweis: Vorher 0.72->0 und Option A 0.88->0 ergaben identische
+ * Pixelwerte rgb(135,136,138) bei (172, 569) [siehe before.json /
+ * after-a.json bevor dieser Fix].
+ *
+ * FIX (Schritt 2 Pflicht-Ablauf): z-index entfernt. Damit liegt der
+ * Scrim als positioned-Element (auto z-index ≈ stacking-layer 6)
+ * über dem in-flow img (layer 3) im selben Stacking-Context und
+ * erscheint endlich sichtbar.
+ *
+ * SCRIM (Schritt 3 Option A): Verstärkt 0.88 → 0 entlang 105deg, damit
+ * die Subline-Breite voll abgedeckt ist. Kennzahlen-Card rechts vom
+ * 90%-Endpunkt → Foto bleibt als Foto erkennbar.
+ * Mobile: vertikal 0.88 → 0.30, Subline-Y-Bereich voll abgedeckt. */
 .hero__scrim {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    100deg,
-    rgba(11, 18, 32, 0.72) 0%,
-    rgba(11, 18, 32, 0.55) 28%,
-    rgba(11, 18, 32, 0.18) 55%,
-    rgba(11, 18, 32, 0) 72%
+    105deg,
+    rgba(11, 18, 32, 0.88) 0%,
+    rgba(11, 18, 32, 0.78) 30%,
+    rgba(11, 18, 32, 0.45) 55%,
+    rgba(11, 18, 32, 0.12) 75%,
+    rgba(11, 18, 32, 0)    90%
   );
   pointer-events: none;
-  z-index: -1;
 }
 @media (max-width: 720px) {
   .hero__scrim {
     background: linear-gradient(
       180deg,
-      rgba(11, 18, 32, 0.72) 0%,
-      rgba(11, 18, 32, 0.58) 40%,
-      rgba(11, 18, 32, 0.35) 70%,
-      rgba(11, 18, 32, 0.20) 100%
+      rgba(11, 18, 32, 0.88) 0%,
+      rgba(11, 18, 32, 0.78) 35%,
+      rgba(11, 18, 32, 0.55) 65%,
+      rgba(11, 18, 32, 0.30) 100%
     );
   }
 }
@@ -92,16 +136,83 @@
   gap: 12px;
   margin-bottom: 1.6rem;
 }
-/* 1.7 Polish §2.2 — Secondary-CTA aus Ghost-Outline zu solid.
- * Ghost-Variante war auf hellem Hero-Foto kaum als Button erkennbar.
- * Solid Nachtblau mit Messing-Border; Hover invertiert zu Messing-BG.
- * Hierarchie erhalten: Primär (solid Messing) schlägt Sekundär (Nachtblau+Messing-Border). */
+/* 1.8 §2.3 — Secondary-CTA solid-check.
+ * Vorher 0.90 Opacity auf hellem Foto immer noch leicht transparent.
+ * Jetzt 0.95 + box-shadow für klare Solid-Erscheinung und Separation
+ * vom Werkstatt-Foto. Hierarchie unverändert: Primär (solid Messing)
+ * schlägt Sekundär (Nachtblau).
+ *
+ * Hotfix 1.8.1 §A — Animierter Messing-Border per SVG-Rect-stroke
+ * (vorher conic-gradient + mask-composite-Variante; die wanderte
+ * kreisförmig durch den Button-Innenraum statt entlang der echten
+ * Rechteck-Kontur). Jetzt: dediziertes <svg.cta-border-loop> mit
+ * <rect>, stroke-dasharray = "Hot-Spot 15% / Gap 85%", animation
+ * via stroke-dashoffset 3.2s linear infinite. Pfadlänge wird in
+ * scripts.js via getTotalLength() berechnet und über --cta-len
+ * Custom-Property an die Keyframes weitergegeben (path-len ist
+ * responsive, ResizeObserver hält das aktuell).
+ * Solider 1px-Messing-Border bleibt als Fallback bei reduced-motion
+ * und wenn JS nicht lädt (Fail-Safe Constitution §12.5). */
 .hero__cta--secondary {
-  background: rgba(11, 18, 32, 0.90);
+  position: relative;
+  isolation: isolate;
+  background: rgba(11, 18, 32, 0.95);
   color: var(--color-white);
-  border: 1px solid var(--color-warm-accent);
+  /* 1.8.5 §B — Border auf transparent gesetzt: der animierte SVG-Hot-
+   * Spot war zusammen mit dem statischen 1px-Messing-Border als
+   * Doppellinie sichtbar (Sub-Pixel-Versatz wirkte als zwei parallele
+   * Linien rechts). Layout-Geometrie bleibt durch border:1px stabil,
+   * aber visuell unsichtbar während der Animation läuft.
+   * reduced-motion-Branch unten setzt Border wieder auf solid Messing
+   * als Fallback. */
+  border: 1px solid transparent;
+  box-shadow: 0 4px 18px rgba(11, 18, 32, 0.35);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+.cta-border-loop {
+  /* 1.8.6 — Geometrie radikal vereinfacht. Vorher (1.8.3-1.8.5) hatte
+   * das SVG inset:-3px (= 6 px breiter als der Button), während
+   * scripts.js die SVG-Attribute width/height = bbox.width/height
+   * setzte. Browser-Renderer hat das viewBox auf die tatsächliche
+   * Element-Größe skaliert → linker Stroke landete außen, rechter
+   * innen → Asymmetrie auf den Vertikalen.
+   *
+   * Jetzt: SVG ist exakt Button-Größe (inset:0), rect deckungsgleich
+   * mit dem viewBox. overflow:visible erlaubt der Stroke-Außenkante
+   * außerhalb der Bounding-Box zu wachsen (Glow + 1.25 px Stroke-Außen).
+   * vector-effect: non-scaling-stroke hält die Stroke-Breite genau
+   * 2.5 device-px, unabhängig von viewBox-Skalierung. */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+  transform: translateZ(0);
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+.cta-border-loop rect {
+  fill: none;
+  stroke: var(--color-warm-accent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter:
+    drop-shadow(0 0 2px var(--color-warm-accent))
+    drop-shadow(0 0 6px rgba(184, 146, 90, 0.55))
+    drop-shadow(0 0 12px rgba(184, 146, 90, 0.32));
+  animation: cta-march 3.2s linear infinite;
+}
+/* Hot-Spot wandert die Rechteck-Kontur einmal pro 3.2s ab.
+ * --cta-len wird von scripts.js auf rect.getTotalLength() gesetzt.
+ * Fallback 200 falls JS nicht greift — dann ist der Cycle nicht
+ * exakt 1 Umlauf, aber der solide 1px-Border-Fallback trägt. */
+@keyframes cta-march {
+  from { stroke-dashoffset: var(--cta-len, 200); }
+  to   { stroke-dashoffset: 0; }
 }
 .hero__cta--secondary:hover {
   background: var(--color-warm-accent);
@@ -109,6 +220,28 @@
   border-color: var(--color-warm-accent);
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(184, 146, 90, 0.28);
+}
+.hero__cta--secondary:hover .cta-border-loop {
+  /* Hover invertiert den Button auf solid Messing — der animated
+   * Border würde auf gleicher Farbe als doppelter Outline wirken,
+   * also ausblenden während Hover. Nach Hover wieder sichtbar. */
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-border-loop rect {
+    animation: none;
+    /* 1.8.3 §A — Glow auch ausblenden bei reduced-motion (gilt als
+     * "Bewegung-naher" visueller Effekt). Solider 1px-Messing-Border-
+     * Fallback auf .hero__cta--secondary kommt jetzt aus dem
+     * border-color-Override unten (1.8.5 §B). */
+    filter: none;
+  }
+  .cta-border-loop { opacity: 0; }
+  /* 1.8.5 §B — bei reduced-motion border-color zurück auf Messing,
+   * damit der Button auch ohne SVG-Hot-Spot eindeutig konturiert ist. */
+  .hero__cta--secondary {
+    border-color: var(--color-warm-accent);
+  }
 }
 
 .hero__pills {

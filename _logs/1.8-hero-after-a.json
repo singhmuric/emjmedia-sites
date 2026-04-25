@@ -1,0 +1,88 @@
+{
+  "label": "after-a",
+  "url": "http://localhost:4000/kfz-demo/",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "deviceScaleFactor": 1
+  },
+  "timestamp": "2026-04-25T13:57:37.725Z",
+  "hero": {
+    "x": 0,
+    "y": 112.09375,
+    "width": 1440,
+    "height": 774
+  },
+  "subline": {
+    "x": 152,
+    "y": 507.43792724609375,
+    "width": 474.8046875,
+    "height": 55.546875,
+    "color": "rgba(255, 255, 255, 0.88)"
+  },
+  "samples": [
+    {
+      "name": "right-of-subline",
+      "x": 651,
+      "y": 527,
+      "w": 60,
+      "h": 16,
+      "bgRGB": [
+        27.6,
+        32,
+        41.7
+      ],
+      "bgLuminance": 0.0144,
+      "fgEffectiveRGB": [
+        228,
+        228,
+        229
+      ],
+      "fgLuminance": 0.7774,
+      "contrast": 12.86
+    },
+    {
+      "name": "below-subline",
+      "x": 172,
+      "y": 569,
+      "w": 160,
+      "h": 8,
+      "bgRGB": [
+        34.8,
+        40.5,
+        52.3
+      ],
+      "bgLuminance": 0.0216,
+      "fgEffectiveRGB": [
+        229,
+        229,
+        231
+      ],
+      "fgLuminance": 0.7852,
+      "contrast": 11.67
+    },
+    {
+      "name": "far-right-bright",
+      "x": 605,
+      "y": 529,
+      "w": 50,
+      "h": 12,
+      "bgRGB": [
+        14.4,
+        18.9,
+        28.5
+      ],
+      "bgLuminance": 0.0065,
+      "fgEffectiveRGB": [
+        226,
+        227,
+        228
+      ],
+      "fgLuminance": 0.7654,
+      "contrast": 14.44
+    }
+  ],
+  "minContrast": 11.67,
+  "maxContrast": 14.44,
+  "wcagAANormalText": true
+}

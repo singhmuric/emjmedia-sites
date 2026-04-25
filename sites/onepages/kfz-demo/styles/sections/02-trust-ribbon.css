@@ -39,15 +39,6 @@
   box-shadow: 0 0 0 0 rgba(107, 211, 148, 0.6);
   animation: ribbon-pulse 2.4s var(--ease-out) infinite;
 }
-.ribbon__phone {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--color-warm-accent);
-  font-weight: 600;
-  transition: color var(--dur-fast) var(--ease-out);
-}
-.ribbon__phone:hover { color: var(--color-white); }
 
 @keyframes ribbon-pulse {
   0%   { box-shadow: 0 0 0 0 rgba(107, 211, 148, 0.6); }

@@ -1,0 +1,190 @@
+<!--
+  WENDEBAU PROZESS-SECTION — 1:1-SOURCE-REFERENZ
+  ==============================================
+  Extrahiert aus: uploads/website (1).html, Zeilen 1528–1759.
+  Verwendung: Blueprint für KFZ-Template Prozess-Section ("Vom Anruf bis zur Übergabe").
+
+  Das Muster:
+  - Intro-Section mit Eyebrow + H2 + Subline (zentriert, hell-beige BG)
+  - 6 alternierende Step-Zeilen (odd/even → row-reverse)
+  - Jede Zeile: 200×200 px Icon-Panel (weiß, Border, Ghost-Nummer + SVG-Icon)
+    + Text-Block rechts bzw. links (Label, H3, Description, grüner Tag)
+  - Zwischen den Steps: SVG-Connector (S-Kurve), stroke-dashoffset animiert
+    beim Scrollen via GSAP ScrollTrigger (scrub: 0.8)
+  - Kompakt: ~296 px pro Step inkl. Connector (nicht 80vh!)
+
+  Für die KFZ-Variante:
+  - Farben anpassen auf Template-Tokens (Nachtblau statt Tannengrün,
+    Messing statt Gold-Variante). Mapping unten im Handover 1.8.
+  - Inhalte: 6 Steps Anfrage → Termin → Diagnose → Reparatur → Kontrolle → Übergabe
+  - Icon-SVGs thematisch austauschen (Telefon, Kalender, Diagnose-Gerät,
+    Schraubenschlüssel, Checklist, Schlüsselübergabe).
+-->
+
+<!-- ═══════════════════════════════════════════════════════════════
+     04 PROZESS — CSS
+════════════════════════════════════════════════════════════════ -->
+<style>
+.prozess-intro { background: #FAF9F6; padding: 80px 6%; }
+.intro-inner { max-width: 860px; margin: 0 auto; }
+.intro-label { font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #C9A84C; text-transform: uppercase; margin-bottom: 16px; }
+.prozess-headline { font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 42px; color: #0A1A0F; line-height: 1.1; margin-bottom: 18px; }
+.prozess-subtext { font-family: 'IBM Plex Sans', sans-serif; font-size: 17px; color: rgba(0,0,0,0.55); line-height: 1.7; max-width: 560px; }
+
+.step-wrap.odd  { background: #FAF9F6; }
+.step-wrap.even { background: #FAF9F6; }
+.step-wrap { margin-bottom: 0; }
+.step-wrap .step-row { max-width: 1100px; margin: 0 auto; padding: 48px 6%; display: flex; align-items: center; gap: 64px; }
+.step-wrap.even .step-row { flex-direction: row-reverse; }
+
+.step-panel { width: 200px; height: 200px; flex-shrink: 0; border-radius: 20px; background: #ffffff; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1.5px solid rgba(27,94,59,0.15); box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: border-color 0.4s ease, box-shadow 0.4s ease; }
+.step-panel.active { border-color: #1B5E3B; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.step-ghost { position: absolute; font-family: 'Archivo', sans-serif; font-weight: 900; font-size: 120px; color: rgba(27,94,59,0.07); line-height: 1; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; user-select: none; }
+.step-icon { width: 64px; height: 64px; position: relative; z-index: 1; }
+
+.step-text { flex: 1; min-width: 0; }
+.step-wrap .step-label { display: block; font-family: 'IBM Plex Sans', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 3px; color: #1B5E3B; text-transform: uppercase; margin-bottom: 12px; }
+.step-title { font-family: 'Archivo', sans-serif; font-weight: 700; font-size: 26px; color: #0A0A0A; line-height: 1.2; margin-bottom: 12px; }
+.step-desc { font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; color: rgba(0,0,0,0.6); line-height: 1.7; margin-bottom: 20px; max-width: 480px; }
+.step-tag { display: inline-block; background: rgba(27,94,59,0.08); color: #1B5E3B; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600; border-radius: 20px; padding: 5px 14px; border: none; }
+
+.step-connector { height: 60px; overflow: visible; }
+.step-connector.conn-oe { background: #FAF9F6; }
+.step-connector.conn-eo { background: #FAF9F6; }
+.connector-inner { max-width: 1100px; margin: 0 auto; height: 100%; padding: 0 6%; }
+.connector-inner svg { width: 100%; height: 100%; display: block; }
+.connector-path { fill: none; stroke: #1B5E3B; stroke-width: 2; opacity: 0.2; stroke-linecap: round; }
+.prozess-intro .intro-label { color: #1B5E3B; }
+.step-wrap { opacity: 1 !important; transform: none !important; }
+.step-panel { opacity: 1 !important; transform: none !important; }
+.step-text { opacity: 1 !important; }
+.step-tag { opacity: 1 !important; }
+.step-ghost { opacity: 0.06 !important; }
+
+@media (max-width: 720px) {
+  .step-wrap .step-row, .step-wrap.even .step-row { flex-direction: column; align-items: flex-start; gap: 28px; padding: 40px 5%; }
+  .step-panel { width: 140px; height: 140px; }
+  .step-ghost { font-size: 80px; }
+  .prozess-headline { font-size: 30px; }
+  .step-title { font-size: 20px; }
+  .step-connector { height: 48px; }
+}
+</style>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     04 PROZESS — HTML
+════════════════════════════════════════════════════════════════ -->
+<section class="prozess-intro" id="prozess">
+  <div class="intro-inner">
+    <p class="intro-label">So funktioniert's</p>
+    <h2 class="prozess-headline">In 6 Schritten zur geförderten Sanierung</h2>
+    <p class="prozess-subtext">Kein Papierkram, kein Stress. Wir übernehmen jeden Schritt — Sie entscheiden nur, wann es losgeht.</p>
+  </div>
+</section>
+
+<div class="step-wrap odd" id="wrap-1">
+  <div class="step-row">
+    <div class="step-panel" id="panel-1">
+      <span class="step-ghost">01</span>
+      <svg class="step-icon" viewBox="0 0 64 64" fill="none" stroke="#1B5E3B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Telefon-Handset-Icon — hier Original-Pfad der WendeBau -->
+        <path d="M22 12 C20 10, 14 12, 14 18 L14 22 C14 24, 16 26, 18 26 L22 24 C24 22, 26 22, 28 24 L36 32 C38 34, 40 36, 40 40 L38 42 C36 44, 36 46, 38 48 L42 50 C48 50, 50 44, 48 40 C44 34, 34 24, 28 18 C26 16, 24 14, 22 12 Z"/>
+        <path d="M38 16 C42 12, 48 12, 52 16"/>
+        <path d="M40 21 C43 18, 49 18, 52 21" opacity="0.55"/>
+      </svg>
+    </div>
+    <div class="step-text" id="text-1">
+      <span class="step-label">Schritt 01</span>
+      <h3 class="step-title">Kostenloses Erstgespräch</h3>
+      <p class="step-desc">Pierre Friedrich ruft Sie innerhalb von 24h zurück. Kein Verkaufsdruck, nur ehrliche Einschätzung Ihres Hauses.</p>
+      <span class="step-tag">✓ Kostenlos · Innerhalb 24h</span>
+    </div>
+  </div>
+</div>
+
+<div class="step-connector conn-oe" id="conn-1">
+  <div class="connector-inner">
+    <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+      <path class="connector-path" id="cp-1" d="M 18 0 C 18 30, 82 30, 82 60"/>
+    </svg>
+  </div>
+</div>
+
+<div class="step-wrap even" id="wrap-2">
+  <div class="step-row">
+    <div class="step-panel" id="panel-2">
+      <span class="step-ghost">02</span>
+      <svg class="step-icon" viewBox="0 0 64 64" fill="none" stroke="#1B5E3B" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Haus-Icon -->
+        <path d="M8 34 L28 14 L48 34 V56 H8 Z"/>
+        <polyline points="18,56 18,44 38,44 38,56"/>
+        <circle cx="44" cy="18" r="12"/>
+        <line x1="53" y1="27" x2="60" y2="34"/>
+        <line x1="44" y1="10" x2="44" y2="26" stroke-width="1" opacity="0.45"/>
+        <line x1="36" y1="18" x2="52" y2="18" stroke-width="1" opacity="0.45"/>
+      </svg>
+    </div>
+    <div class="step-text" id="text-2">
+      <span class="step-label">Schritt 02</span>
+      <h3 class="step-title">Vor-Ort-Begehung</h3>
+      <p class="step-desc">Wir kommen zu Ihnen. Bestandsaufnahme, Fotos, Messung — kostenlos und unverbindlich.</p>
+      <span class="step-tag">✓ Kostenlos &amp; unverbindlich</span>
+    </div>
+  </div>
+</div>
+
+<div class="step-connector conn-eo" id="conn-2">
+  <div class="connector-inner">
+    <svg viewBox="0 0 100 60" preserveAspectRatio="none">
+      <path class="connector-path" id="cp-2" d="M 82 0 C 82 30, 18 30, 18 60"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Steps 3–6 analog: odd/even-Alternation, Connector-Path jeweils
+     M 18 0 C 18 30, 82 30, 82 60  (odd→even)
+     M 82 0 C 82 30, 18 30, 18 60  (even→odd)
+     Der letzte Step (06) hat KEINEN Connector danach.
+     Siehe uploads/website (1).html Zeilen 1639–1735 für die
+     vollständigen Original-Markup-Blöcke der Steps 03–06. -->
+
+<!-- ═══════════════════════════════════════════════════════════════
+     04 PROZESS — GSAP-Animation (kopierbares Snippet)
+════════════════════════════════════════════════════════════════ -->
+<script>
+  // Intro-Headline fade-in
+  gsap.fromTo('.intro-inner',
+    { opacity: 0, y: 10 },
+    { opacity: 1, y: 0, duration: 0.9, ease: 'power1.out',
+      scrollTrigger: { trigger: '.prozess-intro', start: 'top 92%', once: true } }
+  );
+
+  // S-Connector: stroke-dashoffset animiert beim Scrollen (scrub 0.8)
+  document.querySelectorAll('.connector-path').forEach(path => {
+    const len = path.getTotalLength();
+    gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+    gsap.to(path, {
+      strokeDashoffset: 0,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: path.closest('.step-connector'),
+        start: 'top 75%',
+        end: 'bottom 25%',
+        scrub: 0.8
+      }
+    });
+  });
+</script>
+
+<!--
+  === FARB-MAPPING FÜR KFZ-TEMPLATE ===
+  WendeBau (Tannengrün-Palette)    →   KFZ (Nachtblau-Palette)
+  #FAF9F6 (Sand-BG)                →   var(--color-neutral-cream)   [hellcremiger Section-BG]
+  #0A1A0F (Dark-Text)              →   var(--color-authority)       [Nachtblau #0B1220]
+  #1B5E3B (Jade-Accent)            →   var(--color-warm-accent)     [Messing #B8925A]
+  #C9A84C (Gold-Eyebrow)           →   var(--color-warm-accent)     [Messing — gleich wie Accent]
+  rgba(27,94,59,0.15) (Panel-Border) →   rgba(184,146,90,0.18)     [Messing-Border soft]
+  rgba(27,94,59,0.07) (Ghost-Fill) →   rgba(11,18,32,0.06)          [Nachtblau-Ghost soft]
+  'Archivo'                        →   'Fraunces' (bereits vorhanden, Display-Serif)
+  'IBM Plex Sans'                  →   'Inter' (bereits vorhanden, Body-Sans)
+-->
