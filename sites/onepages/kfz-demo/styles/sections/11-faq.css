@@ -136,3 +136,14 @@
   .faq__a { padding-left: 4px; }
 }
 
+/* 1.9 §A — Touch-Targets ≥ 44 px (Constitution §1.8). Filter-Buttons
+ * waren mit padding 8/14 + line-height ≈ 17 nur 37,8 px hoch. */
+@media (pointer: coarse) {
+  .faq__filter {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding-block: 10px;
+  }
+}
+

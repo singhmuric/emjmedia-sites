@@ -47,3 +47,15 @@
   .service-ribbon__grid { grid-template-columns: repeat(3, 1fr); gap: 30px; }
 }
 
+/* 1.9 §A — Inline-Tel-Link „04192 98 76 543" in der Pannenhilfe-Zeile
+ * war nur 109 × 17 px (Constitution §1.8 Hard-Fail). Tap-Padding auf
+ * Touch hochziehen, Inline-Block damit min-height greift. */
+@media (pointer: coarse) {
+  .service-ribbon__sub a {
+    display: inline-block;
+    padding: 12px 6px;
+    min-height: 44px;
+    line-height: 20px;
+  }
+}
+

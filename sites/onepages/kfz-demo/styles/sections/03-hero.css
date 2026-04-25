@@ -115,6 +115,19 @@
    * kein -webkit-text-stroke). Weiche Tiefentrennung auf hellem Foto. */
   text-shadow: 0 2px 12px rgba(11, 18, 32, 0.55);
 }
+/* 1.9 §C — Mobile-Override für Hero-H1.
+ * Diagnose 1.9 §3: clamp() greift @ 360 mit 48.2 px Font und produziert
+ * 3 Zeilen × 49.2 = 147.5 px (44 % der Fold). „Termin anfragen"-CTA
+ * verschwand unter der Falte. Erster Versuch (Clamp-Floor + Slope-Anker
+ * senken) hätte Desktop @ 960–1066 px um 5–8 px geändert → verletzt
+ * „Desktop unverändert". Saubere Lösung: harte Mobile-Override < 480 px,
+ * Clamp und damit Desktop bleiben pixelgleich. */
+@media (max-width: 480px) {
+  .hero__h1 {
+    font-size: 2.25rem;
+    line-height: 1.05;
+  }
+}
 .hero__h1-line { display: block; }
 .hero__h1 em { font-style: normal; color: var(--color-warm-accent); }
 

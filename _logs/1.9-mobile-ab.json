@@ -1,0 +1,56 @@
+{
+  "viewport": {
+    "width": 360,
+    "height": 812,
+    "deviceScaleFactor": 2,
+    "isMobile": true,
+    "hasTouch": true
+  },
+  "before": {
+    "viewport": {
+      "vw": 360,
+      "vh": 812
+    },
+    "heroH1Height": 147.5,
+    "heroCtaBottom": 558.4,
+    "heroCtaAboveFold": true,
+    "bentoTopGap": 304.7,
+    "ribbonLive": {
+      "x": 432.7,
+      "y": 74.6,
+      "right": 641.3,
+      "overshootRightPx": 281.3,
+      "visibleInViewport": false
+    },
+    "ribbonHeight": 44.1
+  },
+  "after": {
+    "viewport": {
+      "vw": 360,
+      "vh": 812
+    },
+    "heroH1Height": 75.6,
+    "heroCtaBottom": 551.2,
+    "heroCtaAboveFold": true,
+    "bentoTopGap": 260.7,
+    "ribbonLive": {
+      "x": 16,
+      "y": 76.1,
+      "right": 224.6,
+      "overshootRightPx": -135.4,
+      "visibleInViewport": true
+    },
+    "ribbonHeight": 107.8
+  },
+  "delta": {
+    "heroH1HeightPx": -71.9,
+    "bentoTopGapPx": -44,
+    "ribbonLiveOvershootPx": -416.7
+  },
+  "acceptance": {
+    "heroH1LeqQ115": true,
+    "bentoTopGapLeq120": false,
+    "ribbonLiveVisible": true,
+    "heroCtaAboveFold": true
+  }
+}

@@ -460,6 +460,24 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   .nav__drawer { display: none !important; }
 }
 
+/* 1.9 §A — Touch-Targets ≥ 44 px (Constitution §1.8).
+ * Diagnose @ 375 px: Toggle wird nur 39,7 × 44 gerendert (Flex-Kontext
+ * im .nav__cta-Container schrumpft die deklarierte 44-px-Breite leicht);
+ * `min-width` + `flex-shrink: 0` verriegeln die Soll-Außenkante.
+ * Drawer-Anker hatten padding 12/4 → ~41 px hoch; `min-height: 44`
+ * macht sie auch im offenen Drawer-Zustand tap-konform. */
+@media (pointer: coarse) {
+  .nav__toggle {
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+  .nav__drawer a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
 /* ---------- SECTION 2 · STICKY-TRUST-RIBBON (DNA §10.2) ---------- */
 .ribbon {
   position: relative;
@@ -511,6 +529,30 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
 @media (min-width: 960px) {
   .ribbon { padding: 12px 0; overflow: visible; }
   .ribbon__track { justify-content: center; flex-wrap: wrap; gap: 26px; white-space: normal; width: auto; }
+}
+
+/* 1.9 §B — Trust-Ribbon Stack auf engen Mobile-Viewports.
+ * Diagnose 1.9: `.ribbon__live` („Nächster freier Termin: Mo 14:00")
+ * lag 228–281 px außerhalb der rechten Viewport-Kante in einem
+ * `overflow-x: auto`-Track ohne Scroll-Hint — User sahen die
+ * konversionsrelevanteste Info nie. Fix: < 480 px stapelt der Track
+ * vertikal, Live-Termin per `order: -1` als erstes Item, Divider
+ * verschwinden. Desktop / Tablet (≥ 480 px) unverändert. */
+@media (max-width: 480px) {
+  .ribbon {
+    overflow-x: visible;
+    padding: 12px 0;
+  }
+  .ribbon__track {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    white-space: normal;
+    width: auto;
+    min-width: 0;
+  }
+  .ribbon__divider { display: none; }
+  .ribbon__live { order: -1; }
 }
 
 /* ---------- SECTION 3 · HERO (DNA §10.1) ---------- */
@@ -629,6 +671,19 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   /* 1.7 §2.6 B — subtle text-shadow blur-only (kein harter Offset,
    * kein -webkit-text-stroke). Weiche Tiefentrennung auf hellem Foto. */
   text-shadow: 0 2px 12px rgba(11, 18, 32, 0.55);
+}
+/* 1.9 §C — Mobile-Override für Hero-H1.
+ * Diagnose 1.9 §3: clamp() greift @ 360 mit 48.2 px Font und produziert
+ * 3 Zeilen × 49.2 = 147.5 px (44 % der Fold). „Termin anfragen"-CTA
+ * verschwand unter der Falte. Erster Versuch (Clamp-Floor + Slope-Anker
+ * senken) hätte Desktop @ 960–1066 px um 5–8 px geändert → verletzt
+ * „Desktop unverändert". Saubere Lösung: harte Mobile-Override < 480 px,
+ * Clamp und damit Desktop bleiben pixelgleich. */
+@media (max-width: 480px) {
+  .hero__h1 {
+    font-size: 2.25rem;
+    line-height: 1.05;
+  }
 }
 .hero__h1-line { display: block; }
 .hero__h1 em { font-style: normal; color: var(--color-warm-accent); }
@@ -1199,6 +1254,29 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   .bento__card--feature { min-height: 520px; }
 }
 
+/* 1.9 §C — Mobile-Top-Padding und Section-Head-Spacing reduziert.
+ * Diagnose: ~280 px Section-Top → erste Card @ 360 px (Section-
+ * Padding 64 + section-head 196 [eyebrow + h2 + lead] + Margins).
+ * Maßnahmen für Mobile: Padding-Top halbiert (64 → 32), Section-
+ * Head margin-bottom auf 1.25rem, Section-Lead margin-bottom auf
+ * 1rem (Override nur in `.leistungen`, andere Sections bleiben
+ * mit Default 2.25rem). Resultierender Gap ≈ 256 px; reiner
+ * Whitespace oberhalb der ersten Schrift ≈ 54 px (Padding 32 +
+ * Header-Default ~22). Strikte Handover-Acceptance ≤ 120 px für
+ * Section-Top → Card ist mit der vorhandenen Section-Head-Höhe
+ * (~196 px) nicht erreichbar; siehe `_logs/1.9-skill-invocations.md`. */
+@media (max-width: 768px) {
+  .leistungen {
+    padding-block-start: clamp(2rem, 8vw, 3rem);
+  }
+  .leistungen .section-head {
+    margin-bottom: 1.25rem;
+  }
+  .leistungen .section-lead {
+    margin-bottom: 1rem;
+  }
+}
+
 /* ---------- SECTION 6 · PROZESS — alternierendes Panel-Layout ----------
  * 1.8 §2.1 — 1:1 nach _templates/kfz-werkstatt/_inspiration/WENDEBAU_PROZESS_SOURCE.html.
  * Sticky-Rail aus 1.7 entfernt; jetzt 6 alternierende Step-Zeilen mit
@@ -1683,6 +1761,29 @@ html:not(.js-reveal-ready) .stats__bar { transform: scaleX(1); }
   padding-bottom: 1px;
 }
 
+/* 1.9 §A — Inline-CTA „fragen Sie kurz an" war im Diagnose-Audit nur
+ * 133 × 20 px (Constitution §1.8 Hard-Fail). Auf Touch-Geräten Tap-
+ * Padding hochziehen; der Subline-Block ist `text-align: center` und
+ * darf leicht in der Vertikalen wachsen. */
+@media (pointer: coarse) {
+  .marken__foot a {
+    display: inline-block;
+    padding: 12px 6px;
+    min-height: 44px;
+    line-height: 20px;
+  }
+}
+
+/* 1.9 §D 3.4.2 — Tile-Carousel auf engen Mobile-Viewports einrücken.
+ * Diagnose: erste Tile („VW & Audi") wurde am linken Rand ~10 px
+ * abgeschnitten @ 360 px, weil .tiles padding-inline auf 4 px stand. */
+@media (max-width: 480px) {
+  .tiles {
+    padding-inline: 16px;
+    scroll-padding-inline-start: 16px;
+  }
+}
+
 /* ---------- SECTION 9 · SERVICE-RIBBON (DNA §10.8) ---------- */
 .service-ribbon {
   background: var(--color-accent-tint);
@@ -1730,6 +1831,18 @@ html:not(.js-reveal-ready) .stats__bar { transform: scaleX(1); }
 
 @media (min-width: 720px) {
   .service-ribbon__grid { grid-template-columns: repeat(3, 1fr); gap: 30px; }
+}
+
+/* 1.9 §A — Inline-Tel-Link „04192 98 76 543" in der Pannenhilfe-Zeile
+ * war nur 109 × 17 px (Constitution §1.8 Hard-Fail). Tap-Padding auf
+ * Touch hochziehen, Inline-Block damit min-height greift. */
+@media (pointer: coarse) {
+  .service-ribbon__sub a {
+    display: inline-block;
+    padding: 12px 6px;
+    min-height: 44px;
+    line-height: 20px;
+  }
 }
 
 /* ---------- SECTION 10 · PAKETE 3+1 (DNA §10.9) ---------- */
@@ -2031,6 +2144,17 @@ html:not(.js-reveal-ready) .stats__bar { transform: scaleX(1); }
   .faq__a { padding-left: 4px; }
 }
 
+/* 1.9 §A — Touch-Targets ≥ 44 px (Constitution §1.8). Filter-Buttons
+ * waren mit padding 8/14 + line-height ≈ 17 nur 37,8 px hoch. */
+@media (pointer: coarse) {
+  .faq__filter {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding-block: 10px;
+  }
+}
+
 /* ---------- SECTION 12 · KONTAKT (DNA §10.11) ---------- */
 .kontakt {
   background: var(--color-authority);
@@ -2119,6 +2243,18 @@ html:not(.js-reveal-ready) .stats__bar { transform: scaleX(1); }
   cursor: pointer;
 }
 .field--checkbox label a { color: var(--color-warm-accent); border-bottom: 1px solid currentColor; }
+
+/* 1.9 §A — „Datenschutzerklärung"-Link im Consent-Label war nur
+ * 125 × 15.5 px (Constitution §1.8 Hard-Fail). Auf Touch Inline-Block
+ * mit Tap-Padding; Label umflusst weiterhin sauber. */
+@media (pointer: coarse) {
+  .field--checkbox label a {
+    display: inline-block;
+    padding: 12px 4px;
+    min-height: 44px;
+    line-height: 20px;
+  }
+}
 .kontakt__submit { margin-top: 6px; align-self: flex-start; }
 
 @media (max-width: 500px) {
@@ -2314,6 +2450,26 @@ html:not(.js-reveal-ready) .stats__bar { transform: scaleX(1); }
 @media (min-width: 720px) {
   .footer__grid { grid-template-columns: repeat(4, 1fr); gap: 32px; }
   .footer__meta { flex-direction: row; justify-content: space-between; }
+}
+
+/* 1.9 §A — Touch-Targets ≥ 44 px (Constitution §1.8). Gilt nur auf Touch-
+ * Geräten (`pointer: coarse`); Desktop-Layout unverändert. Service-/
+ * Rechtliches-Links sowie Address-Tel + Address-Mail bekommen einen Tap-
+ * Block; Footer-Signature bekommt vertikales Padding. */
+@media (pointer: coarse) {
+  .footer__grid ul a,
+  .footer__grid address a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding-block: 6px;
+  }
+  .footer__signature a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 12px 4px;
+  }
 }
 
 /* ---------- SECTION 14 · MOBILE STICKY PHONE (DNA §10.12) ---------- */

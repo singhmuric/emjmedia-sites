@@ -1,0 +1,170 @@
+[
+  {
+    "sel": ".nav__toggle",
+    "label": "Nav-Toggle",
+    "found": 1,
+    "outer": {
+      "width": 39.7,
+      "height": 44
+    },
+    "computed": {
+      "display": "flex",
+      "minHeight": "auto",
+      "minWidth": "auto",
+      "height": "44px",
+      "padding": "0px",
+      "fontSize": "16px",
+      "lineHeight": "26.4px",
+      "boxSizing": "border-box"
+    },
+    "classes": "nav__toggle",
+    "text": ""
+  },
+  {
+    "sel": ".nav__phone",
+    "label": "Nav-Tel-Anchor",
+    "found": 1,
+    "outer": {
+      "width": 147.9,
+      "height": 44
+    },
+    "computed": {
+      "display": "flex",
+      "minHeight": "44px",
+      "minWidth": "auto",
+      "height": "44px",
+      "padding": "8px 12px",
+      "fontSize": "13px",
+      "lineHeight": "21.45px",
+      "boxSizing": "border-box"
+    },
+    "classes": "btn btn-ghost nav__phone",
+    "text": "04192 98 76 543"
+  },
+  {
+    "sel": ".faq__filter",
+    "label": "FAQ-Filter (first)",
+    "found": 6,
+    "outer": {
+      "width": 52.6,
+      "height": 37.8
+    },
+    "computed": {
+      "display": "block",
+      "minHeight": "auto",
+      "minWidth": "auto",
+      "height": "37.7969px",
+      "padding": "8px 14px",
+      "fontSize": "12px",
+      "lineHeight": "19.8px",
+      "boxSizing": "border-box"
+    },
+    "classes": "faq__filter is-active",
+    "text": "Alle"
+  },
+  {
+    "sel": ".footer__grid ul a",
+    "label": "Footer-Service-Link (first)",
+    "found": 7,
+    "outer": {
+      "width": 70.4,
+      "height": 24.8
+    },
+    "computed": {
+      "display": "block",
+      "minHeight": "auto",
+      "minWidth": "auto",
+      "height": "24.75px",
+      "padding": "0px",
+      "fontSize": "14.4px",
+      "lineHeight": "23.76px",
+      "boxSizing": "border-box"
+    },
+    "classes": "",
+    "text": "Inspektion"
+  },
+  {
+    "sel": ".footer__grid address a",
+    "label": "Footer-Address-Anchor (first = Tel)",
+    "found": 2,
+    "outer": {
+      "width": 128.1,
+      "height": 20.5
+    },
+    "computed": {
+      "display": "inline",
+      "minHeight": "0px",
+      "minWidth": "0px",
+      "height": "auto",
+      "padding": "0px",
+      "fontSize": "16px",
+      "lineHeight": "26.4px",
+      "boxSizing": "border-box"
+    },
+    "classes": "",
+    "text": "04192 98 76 543"
+  },
+  {
+    "sel": ".footer__signature a",
+    "label": "Footer-Signature (EMJmedia)",
+    "found": 1,
+    "outer": {
+      "width": 59.4,
+      "height": 15.5
+    },
+    "computed": {
+      "display": "inline",
+      "minHeight": "0px",
+      "minWidth": "0px",
+      "height": "auto",
+      "padding": "0px",
+      "fontSize": "12px",
+      "lineHeight": "19.8px",
+      "boxSizing": "border-box"
+    },
+    "classes": "",
+    "text": "EMJmedia"
+  },
+  {
+    "sel": ".marken__foot a",
+    "label": "Marken-Foot-Inline-Link",
+    "found": 1,
+    "outer": {
+      "width": 133.3,
+      "height": 20
+    },
+    "computed": {
+      "display": "inline",
+      "minHeight": "0px",
+      "minWidth": "0px",
+      "height": "auto",
+      "padding": "0px 0px 1px",
+      "fontSize": "15.2px",
+      "lineHeight": "25.08px",
+      "boxSizing": "border-box"
+    },
+    "classes": "",
+    "text": "fragen Sie kurz an"
+  },
+  {
+    "sel": ".field--checkbox label a",
+    "label": "Consent-Datenschutz-Link",
+    "found": 1,
+    "outer": {
+      "width": 125,
+      "height": 15.5
+    },
+    "computed": {
+      "display": "inline",
+      "minHeight": "0px",
+      "minWidth": "0px",
+      "height": "auto",
+      "padding": "0px",
+      "fontSize": "12px",
+      "lineHeight": "18px",
+      "boxSizing": "border-box"
+    },
+    "classes": "",
+    "text": "Datenschutzerklärung"
+  }
+]

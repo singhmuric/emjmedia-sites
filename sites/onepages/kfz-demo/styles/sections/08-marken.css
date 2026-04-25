@@ -72,3 +72,26 @@
   padding-bottom: 1px;
 }
 
+/* 1.9 §A — Inline-CTA „fragen Sie kurz an" war im Diagnose-Audit nur
+ * 133 × 20 px (Constitution §1.8 Hard-Fail). Auf Touch-Geräten Tap-
+ * Padding hochziehen; der Subline-Block ist `text-align: center` und
+ * darf leicht in der Vertikalen wachsen. */
+@media (pointer: coarse) {
+  .marken__foot a {
+    display: inline-block;
+    padding: 12px 6px;
+    min-height: 44px;
+    line-height: 20px;
+  }
+}
+
+/* 1.9 §D 3.4.2 — Tile-Carousel auf engen Mobile-Viewports einrücken.
+ * Diagnose: erste Tile („VW & Audi") wurde am linken Rand ~10 px
+ * abgeschnitten @ 360 px, weil .tiles padding-inline auf 4 px stand. */
+@media (max-width: 480px) {
+  .tiles {
+    padding-inline: 16px;
+    scroll-padding-inline-start: 16px;
+  }
+}
+
