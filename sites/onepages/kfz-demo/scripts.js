@@ -274,18 +274,24 @@
     var updateCtaBorder = function () {
       var bbox = ctaBtn.getBoundingClientRect();
       if (!bbox.width || !bbox.height) return;
-      /* SVG ist 2px breiter als der Button (CSS inset:-1px), damit der
-       * 2px-Stroke des <rect> exakt auf der 1px-Border-Mittellinie sitzt
-       * und nichts vom Border-Glow-Sweep außerhalb der Box geclippt wird. */
-      var w = Math.round(bbox.width + 2);
-      var h = Math.round(bbox.height + 2);
+      /* 1.8.3 §A — Geometrie nachgezogen.
+       * SVG ist 4px breiter als der Button (CSS inset:-2px), damit
+       * stroke-width 2.5 + drop-shadow-Glow Platz nach außen haben.
+       * rect bei (1.5, 1.5) mit width/height = bbox - 3 → der 2.5px-
+       * Stroke sitzt zentriert auf der Button-Border-Linie.
+       * rx/ry: 14 = .hero__cta--secondary border-radius, exakter Match
+       * eliminiert die ~1px Ecken-Versätze aus 1.8.1. */
+      var w = Math.round(bbox.width + 4);
+      var h = Math.round(bbox.height + 4);
       ctaSvg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
       ctaSvg.setAttribute('width', String(w));
       ctaSvg.setAttribute('height', String(h));
-      ctaRect.setAttribute('x', '1');
-      ctaRect.setAttribute('y', '1');
-      ctaRect.setAttribute('width', String(w - 2));
-      ctaRect.setAttribute('height', String(h - 2));
+      ctaRect.setAttribute('x', '1.5');
+      ctaRect.setAttribute('y', '1.5');
+      ctaRect.setAttribute('width', String(w - 3));
+      ctaRect.setAttribute('height', String(h - 3));
+      ctaRect.setAttribute('rx', '14');
+      ctaRect.setAttribute('ry', '14');
       var len = ctaRect.getTotalLength();
       ctaRect.style.strokeDasharray = (len * 0.15) + ' ' + (len * 0.85);
       ctaRect.style.setProperty('--cta-len', String(len));

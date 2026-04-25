@@ -39,7 +39,13 @@
   content: "";
   position: absolute;
   inset: 0 0 auto 0;
-  height: 14%;
+  /* 1.8.3 §B — Reichweite halbiert (14% → 7%). User-Klarstellung:
+   * Bereich verkleinern, NICHT abdunkeln. Gradient-Stops bleiben
+   * identisch zu 1.8.2 (0.55 → 0.25 → 0), damit der Pegel der
+   * Abdunkelung am ganz oberen Rand unverändert ist; nur die Zone
+   * läuft jetzt schon bei ~7% Hero-Höhe aus. LEDs unterhalb dieser
+   * Zone werden wieder voll sichtbar (gewollt). */
+  height: 7%;
   background: linear-gradient(
     180deg,
     rgba(11, 18, 32, 0.55) 0%,
@@ -170,10 +176,12 @@
   -webkit-backdrop-filter: blur(6px);
 }
 .cta-border-loop {
+  /* 1.8.3 §A — inset -2px (vorher -1) damit der Glow-Drop-Shadow-Stack
+   * außerhalb der Button-Bbox Platz hat und nicht abgeschnitten wird. */
   position: absolute;
-  inset: -1px;
-  width: calc(100% + 2px);
-  height: calc(100% + 2px);
+  inset: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
   pointer-events: none;
   overflow: visible;
   z-index: 1;
@@ -182,8 +190,16 @@
 .cta-border-loop rect {
   fill: none;
   stroke: var(--color-warm-accent);
-  stroke-width: 2;
+  /* 1.8.3 §A — stroke-width 2 → 2.5 für mehr visuelles Gewicht;
+   * gestapelter Glow aus drei drop-shadows (zunehmender Blur,
+   * abnehmende Opacity) macht den Hot-Spot weich und lässt den
+   * 1px-Versatz an den Ecken visuell verschwinden. */
+  stroke-width: 2.5;
   stroke-linecap: round;
+  filter:
+    drop-shadow(0 0 2px var(--color-warm-accent))
+    drop-shadow(0 0 6px rgba(184, 146, 90, 0.55))
+    drop-shadow(0 0 12px rgba(184, 146, 90, 0.32));
   animation: cta-march 3.2s linear infinite;
 }
 /* Hot-Spot wandert die Rechteck-Kontur einmal pro 3.2s ab.
@@ -208,10 +224,14 @@
   opacity: 0;
 }
 @media (prefers-reduced-motion: reduce) {
-  .cta-border-loop rect { animation: none; }
-  .cta-border-loop      { opacity: 0; }
-  /* Bei reduced-motion bleibt der solide 1px-Messing-Border als
-   * Fallback sichtbar (siehe .hero__cta--secondary border:1px). */
+  .cta-border-loop rect {
+    animation: none;
+    /* 1.8.3 §A — Glow auch ausblenden bei reduced-motion (gilt als
+     * "Bewegung-naher" visueller Effekt). Solider 1px-Messing-Border-
+     * Fallback auf .hero__cta--secondary bleibt sichtbar. */
+    filter: none;
+  }
+  .cta-border-loop { opacity: 0; }
 }
 
 .hero__pills {
