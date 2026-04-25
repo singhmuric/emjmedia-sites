@@ -18,31 +18,50 @@
   object-position: center 35%;
   filter: contrast(1.04) saturate(0.9) brightness(0.78);
 }
-/* 1.7 Polish §2.6 — Gerichteter Scrim: starker Darken links (wo Text sitzt),
- * fade-out ab 72% nach rechts (Kennzahlen-Card bleibt offen, Werkstatt-Bild
- * bleibt als Werkstatt erkennbar). Addendum §2.6 A wörtlich.
- * Mobile: stärker bis ~60% (Text rutscht näher ans Bildzentrum). */
+/* 1.8 §2.2 — Hero-Scrim Diagnose + Fix.
+ *
+ * ROOT-CAUSE-Befund (Schritt 2 Pflicht-Ablauf, vorher Schritt 1
+ * dokumentiert in _logs/1.8-hero-before.json mit min-Kontrast 3.12:1):
+ * Vorher hatte .hero__scrim z-index:-1 INNERHALB des Containers
+ * .hero__media (selbst z-index:-2). Der lokale Stacking-Context von
+ * .hero__media rendert in-flow Children (das <picture>/<img>) ÜBER
+ * negative-z-index positioned Children. Der Scrim lag also hinter
+ * dem Foto und war seit 1.7 unsichtbar — die optische Aufhellung kam
+ * NUR vom hero__h1/hero__promise text-shadow, nicht vom Scrim.
+ * Beweis: Vorher 0.72->0 und Option A 0.88->0 ergaben identische
+ * Pixelwerte rgb(135,136,138) bei (172, 569) [siehe before.json /
+ * after-a.json bevor dieser Fix].
+ *
+ * FIX (Schritt 2 Pflicht-Ablauf): z-index entfernt. Damit liegt der
+ * Scrim als positioned-Element (auto z-index ≈ stacking-layer 6)
+ * über dem in-flow img (layer 3) im selben Stacking-Context und
+ * erscheint endlich sichtbar.
+ *
+ * SCRIM (Schritt 3 Option A): Verstärkt 0.88 → 0 entlang 105deg, damit
+ * die Subline-Breite voll abgedeckt ist. Kennzahlen-Card rechts vom
+ * 90%-Endpunkt → Foto bleibt als Foto erkennbar.
+ * Mobile: vertikal 0.88 → 0.30, Subline-Y-Bereich voll abgedeckt. */
 .hero__scrim {
   position: absolute;
   inset: 0;
   background: linear-gradient(
-    100deg,
-    rgba(11, 18, 32, 0.72) 0%,
-    rgba(11, 18, 32, 0.55) 28%,
-    rgba(11, 18, 32, 0.18) 55%,
-    rgba(11, 18, 32, 0) 72%
+    105deg,
+    rgba(11, 18, 32, 0.88) 0%,
+    rgba(11, 18, 32, 0.78) 30%,
+    rgba(11, 18, 32, 0.45) 55%,
+    rgba(11, 18, 32, 0.12) 75%,
+    rgba(11, 18, 32, 0)    90%
   );
   pointer-events: none;
-  z-index: -1;
 }
 @media (max-width: 720px) {
   .hero__scrim {
     background: linear-gradient(
       180deg,
-      rgba(11, 18, 32, 0.72) 0%,
-      rgba(11, 18, 32, 0.58) 40%,
-      rgba(11, 18, 32, 0.35) 70%,
-      rgba(11, 18, 32, 0.20) 100%
+      rgba(11, 18, 32, 0.88) 0%,
+      rgba(11, 18, 32, 0.78) 35%,
+      rgba(11, 18, 32, 0.55) 65%,
+      rgba(11, 18, 32, 0.30) 100%
     );
   }
 }
@@ -92,23 +111,77 @@
   gap: 12px;
   margin-bottom: 1.6rem;
 }
-/* 1.7 Polish §2.2 — Secondary-CTA aus Ghost-Outline zu solid.
- * Ghost-Variante war auf hellem Hero-Foto kaum als Button erkennbar.
- * Solid Nachtblau mit Messing-Border; Hover invertiert zu Messing-BG.
- * Hierarchie erhalten: Primär (solid Messing) schlägt Sekundär (Nachtblau+Messing-Border). */
+/* 1.8 §2.3 — Secondary-CTA solid-check.
+ * Vorher 0.90 Opacity auf hellem Foto immer noch leicht transparent.
+ * Jetzt 0.95 + box-shadow für klare Solid-Erscheinung und Separation
+ * vom Werkstatt-Foto. Hierarchie unverändert: Primär (solid Messing)
+ * schlägt Sekundär (Nachtblau).
+ *
+ * 1.8 §2.5 — Animierter Messing-Border via ::before (conic-gradient +
+ * mask-composite). Border kommt nicht mehr von 1px-CSS-Border, sondern
+ * von einem ::before-Pseudo, das einen 80°-Hot-Spot Messing über einen
+ * sonst transparenten conic-gradient legt und endlos rotiert (3.2s
+ * linear, emil-design-eng "constant motion → linear").
+ * border: none auf der Hauptregel, fallback-Border via ::before
+ * background bei prefers-reduced-motion.
+ */
 .hero__cta--secondary {
-  background: rgba(11, 18, 32, 0.90);
+  position: relative;
+  background: rgba(11, 18, 32, 0.95);
   color: var(--color-white);
-  border: 1px solid var(--color-warm-accent);
+  border: none;
+  box-shadow: 0 4px 18px rgba(11, 18, 32, 0.35);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+}
+/* ::before liegt INNERHALB der border-box (inset: 0) und wird durch
+ * den mask-composite-Trick nur am 2px-Rand sichtbar. Kein z-index, kein
+ * overflow:hidden — der Pseudo-Rand überlagert den Button-Background
+ * in der 2px-Lane, in der Mitte ist er durch mask transparent. So bleibt
+ * Inline-Content (Text + Pfeil) sichtbar. */
+.hero__cta--secondary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    transparent 280deg,
+    var(--color-warm-accent) 320deg,
+    rgba(245, 220, 170, 1) 340deg,
+    var(--color-warm-accent) 360deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: hero-cta-border-loop 3.2s linear infinite;
+  pointer-events: none;
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+@keyframes hero-cta-border-loop {
+  to { transform: rotate(1turn); }
 }
 .hero__cta--secondary:hover {
   background: var(--color-warm-accent);
   color: var(--color-authority);
-  border-color: var(--color-warm-accent);
   transform: translateY(-2px);
   box-shadow: 0 10px 24px rgba(184, 146, 90, 0.28);
+}
+.hero__cta--secondary:hover::before {
+  /* Bei Hover wird der Button komplett Messing — Border-Loop ausblenden,
+   * sonst erscheint er als doppelter Outline-Effekt auf gleicher Farbe. */
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero__cta--secondary::before {
+    animation: none;
+    /* Solider Messing-Border-Fallback (ersetzt die nicht-rotierende
+     * Loop-Animation für motion-empfindliche Nutzer). */
+    background: var(--color-warm-accent);
+  }
 }
 
 .hero__pills {

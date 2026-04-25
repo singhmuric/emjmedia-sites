@@ -74,64 +74,55 @@
     });
   }
 
-  /* -------- 4 · Prozess Progress-Sync (Sticky-Scroll + Travel-Dot) -------- */
-  var progressItems = document.querySelectorAll('[data-progress] [data-step]');
-  var stepEls = document.querySelectorAll('.prozess__step[data-step]');
-  if (progressItems.length && stepEls.length && 'IntersectionObserver' in window) {
-    var stepIo = new IntersectionObserver(function (entries) {
-      for (var i = 0; i < entries.length; i++) {
-        var e = entries[i];
-        if (!e.isIntersecting) continue;
-        var step = e.target.getAttribute('data-step');
-        progressItems.forEach(function (p) {
-          if (p.getAttribute('data-step') === step) p.classList.add('is-active');
-          else p.classList.remove('is-active');
-        });
-      }
-    }, { threshold: 0.5, rootMargin: '-20% 0px -30% 0px' });
-    stepEls.forEach(function (el) { stepIo.observe(el); });
-  }
+  /* -------- 4 · Prozess SVG-Connector Scroll-Animation (1.8 §2.1) --------
+   * Jeder .connector-path wird beim Scrollen progressiv "gezeichnet"
+   * via stroke-dashoffset (linear → smoothstep über scroll-progress).
+   * Skill: emil-design-eng §4 Easing-Decision — constant motion (scroll-bound)
+   * → linear-Mapping, geglättet mit smoothstep p*p*(3-2p) auf scroll-progress.
+   * Vanilla-JS (kein GSAP — Constitution §2.4 JS-Budget ≤30 KB).
+   *
+   * Fail-Safe (Constitution §12.5): CSS-Default zeigt den Pfad voll
+   * sichtbar (kein dasharray). JS schaltet erst auf "hidden initial"
+   * um, wenn IO/animation aktiv ist und prefers-reduced-motion inaktiv.
+   * Bei reduced-motion oder kein-IO: Pfad bleibt sichtbar wie im CSS. */
+  var connectorPaths = document.querySelectorAll('.connector-path');
+  if (connectorPaths.length && !reduced() && 'IntersectionObserver' in window) {
+    var connSpecs = [];
+    connectorPaths.forEach(function (path) {
+      var connectorEl = path.closest('.step-connector');
+      if (!connectorEl) return;
+      var length = path.getTotalLength();
+      path.style.strokeDasharray = length;
+      path.style.strokeDashoffset = length;
+      connSpecs.push({ path: path, el: connectorEl, length: length });
+    });
 
-  /* -------- 4b · Prozess Travel-Dot (1.7 Polish §2.3) --------
-   * Travel-Dot scrollt entlang der linken Rail synchron zum
-   * Section-Scroll-Progress. Vanilla rAF + getBoundingClientRect
-   * (keine GSAP-Dep — JS-Budget ≤30 KB). Custom-Ease-out-Scrub
-   * via quadratisches Easing der Rohprogress-Zahl (emil EM-1).
-   * Fail-Safe: bei reduced-motion bleibt Dot an Start-Position;
-   * bei fehlender Rail oder Section passiert nichts.
-   */
-  var railTravel = document.querySelector('[data-rail-travel]');
-  var railList = document.querySelector('.prozess__progress');
-  var prozessSection = document.querySelector('.prozess');
-  if (railTravel && railList && prozessSection && !reduced()) {
-    var railTicking = false;
-    var updateTravel = function () {
-      var sect = prozessSection.getBoundingClientRect();
-      var vh = window.innerHeight || document.documentElement.clientHeight;
-      /* Engagement range: von "Section-Top hits viewport-center"
-       * bis "Section-Bottom hits viewport-center". Gibt weichen Travel
-       * ueber die mittleren 50-100% des Scrollings durch die Section. */
-      var range = sect.height + vh * 0.5;
-      var raw = (vh * 0.75 - sect.top) / range;
-      var p = Math.max(0, Math.min(1, raw));
-      /* Scrub-Easing: smoothstep-approx. via p*p*(3-2p) — sanfter
-       * Start + Ende, nicht linear. emil-design-eng EM-2. */
-      var eased = p * p * (3 - 2 * p);
-      var travelRange = railList.clientHeight - 15; /* minus Dot-Höhe */
-      if (travelRange < 0) travelRange = 0;
-      var offsetTop = railList.offsetTop;
-      railTravel.style.transform = 'translateY(' + (offsetTop + eased * travelRange) + 'px)';
-    };
-    window.addEventListener('scroll', function () {
-      if (railTicking) return;
-      railTicking = true;
-      requestAnimationFrame(function () { updateTravel(); railTicking = false; });
-    }, { passive: true });
-    window.addEventListener('resize', updateTravel);
-    /* Initial + on load (fonts fertig). */
-    updateTravel();
-    if (document.readyState !== 'complete') {
-      window.addEventListener('load', updateTravel);
+    if (connSpecs.length) {
+      var connTicking = false;
+      var updateConnectors = function () {
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        for (var i = 0; i < connSpecs.length; i++) {
+          var spec = connSpecs[i];
+          var rect = spec.el.getBoundingClientRect();
+          /* Engagement-Range: top of element bei vh*0.75 (start)
+           * bis bottom of element bei vh*0.25 (end).
+           * → raw = (start_y - rect.top) / (start_y - end_y) */
+          var startY = vh * 0.75;
+          var endY = vh * 0.25 - rect.height;
+          var raw = (startY - rect.top) / (startY - endY);
+          var p = raw < 0 ? 0 : raw > 1 ? 1 : raw;
+          /* smoothstep für sanfte Lerp am Anfang + Ende. */
+          var eased = p * p * (3 - 2 * p);
+          spec.path.style.strokeDashoffset = String(spec.length * (1 - eased));
+        }
+      };
+      window.addEventListener('scroll', function () {
+        if (connTicking) return;
+        connTicking = true;
+        requestAnimationFrame(function () { updateConnectors(); connTicking = false; });
+      }, { passive: true });
+      window.addEventListener('resize', updateConnectors);
+      updateConnectors();
     }
   }
 
