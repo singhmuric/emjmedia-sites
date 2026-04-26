@@ -152,3 +152,21 @@
   .nav__drawer { display: none !important; }
 }
 
+/* 1.9 §A — Touch-Targets ≥ 44 px (Constitution §1.8).
+ * Diagnose @ 375 px: Toggle wird nur 39,7 × 44 gerendert (Flex-Kontext
+ * im .nav__cta-Container schrumpft die deklarierte 44-px-Breite leicht);
+ * `min-width` + `flex-shrink: 0` verriegeln die Soll-Außenkante.
+ * Drawer-Anker hatten padding 12/4 → ~41 px hoch; `min-height: 44`
+ * macht sie auch im offenen Drawer-Zustand tap-konform. */
+@media (pointer: coarse) {
+  .nav__toggle {
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+  .nav__drawer a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+

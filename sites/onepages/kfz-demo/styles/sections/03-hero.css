@@ -115,6 +115,20 @@
    * kein -webkit-text-stroke). Weiche Tiefentrennung auf hellem Foto. */
   text-shadow: 0 2px 12px rgba(11, 18, 32, 0.55);
 }
+/* 1.9 §C — Mobile-Override für Hero-H1.
+ * Diagnose 1.9 §3: clamp() greift @ 360 mit 48.2 px Font und produziert
+ * 3 Zeilen × 49.2 = 147.5 px (44 % der Fold). „Termin anfragen"-CTA
+ * verschwand unter der Falte. Erster Versuch (Clamp-Floor + Slope-Anker
+ * senken) hätte Desktop @ 960–1066 px um 5–8 px geändert → verletzt
+ * „Desktop unverändert". Saubere Lösung: harte Mobile-Override < 480 px,
+ * Clamp und damit Desktop bleiben pixelgleich. */
+@media (max-width: 480px) {
+  .hero__h1 {
+    font-size: 2.25rem;
+    line-height: 1.05;
+  }
+}
+
 .hero__h1-line { display: block; }
 .hero__h1 em { font-style: normal; color: var(--color-warm-accent); }
 
@@ -380,5 +394,28 @@
   .hero__decor { font-size: clamp(6rem, 30vw, 10rem); right: -5vw; bottom: -3vw; }
   .hero__scroll { display: none; }
   .hero__ctas .btn { flex: 1; min-width: 0; }
+}
+
+/* 1.9.1 — Hero-CTA „Termin anfragen" Mobile-Visibility (iPhone-Bug).
+ * Diagnose `_logs/1.9.1-acceptance.md` §1 FIX 1: auf iOS Safari verschmilzt
+ * die 95 %-opake Nachtblau-Variante visuell mit dem dunklen Werkstatt-
+ * Foto, so dass der Button als Button nicht mehr erkennbar ist. Headless
+ * Chrome rendert korrekt → kein JS-/Animation-Bug.
+ * Fix für Mobile: ehrliche Glas-Plate (rgba(.55) + backdrop-blur 8 px,
+ * Vendor-Prefix explizit für iOS) + statischer Messing-Border als
+ * Fallback, falls die SVG-Animation auf iOS-Render-Layer ausfällt.
+ *
+ * WICHTIG: Dieser Block MUSS am Ende des Files stehen, sonst greift
+ * das spätere `.hero__cta--secondary { background: rgba(...0.95) }`
+ * (Default-Declaration) cascade-mässig drüber. Erste 1.9.1-Iteration
+ * landete vor dem Default und war damit wirkungslos. */
+@media (max-width: 768px) {
+  .hero__cta--secondary {
+    background: rgba(11, 18, 32, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-color: rgba(184, 146, 90, 0.65);
+    box-shadow: 0 6px 20px rgba(11, 18, 32, 0.45);
+  }
 }
 

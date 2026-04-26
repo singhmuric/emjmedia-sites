@@ -206,3 +206,26 @@
   .bento__card--feature { min-height: 520px; }
 }
 
+/* 1.9 §C — Mobile-Top-Padding und Section-Head-Spacing reduziert.
+ * Diagnose: ~280 px Section-Top → erste Card @ 360 px (Section-
+ * Padding 64 + section-head 196 [eyebrow + h2 + lead] + Margins).
+ * Maßnahmen für Mobile: Padding-Top halbiert (64 → 32), Section-
+ * Head margin-bottom auf 1.25rem, Section-Lead margin-bottom auf
+ * 1rem (Override nur in `.leistungen`, andere Sections bleiben
+ * mit Default 2.25rem). Resultierender Gap ≈ 256 px; reiner
+ * Whitespace oberhalb der ersten Schrift ≈ 54 px (Padding 32 +
+ * Header-Default ~22). Strikte Handover-Acceptance ≤ 120 px für
+ * Section-Top → Card ist mit der vorhandenen Section-Head-Höhe
+ * (~196 px) nicht erreichbar; siehe `_logs/1.9-skill-invocations.md`. */
+@media (max-width: 768px) {
+  .leistungen {
+    padding-block-start: clamp(2rem, 8vw, 3rem);
+  }
+  .leistungen .section-head {
+    margin-bottom: 1.25rem;
+  }
+  .leistungen .section-lead {
+    margin-bottom: 1rem;
+  }
+}
+

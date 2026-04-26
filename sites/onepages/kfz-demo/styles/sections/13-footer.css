@@ -70,3 +70,23 @@
   .footer__meta { flex-direction: row; justify-content: space-between; }
 }
 
+/* 1.9 §A — Touch-Targets ≥ 44 px (Constitution §1.8). Gilt nur auf Touch-
+ * Geräten (`pointer: coarse`); Desktop-Layout unverändert. Service-/
+ * Rechtliches-Links sowie Address-Tel + Address-Mail bekommen einen Tap-
+ * Block; Footer-Signature bekommt vertikales Padding. */
+@media (pointer: coarse) {
+  .footer__grid ul a,
+  .footer__grid address a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding-block: 6px;
+  }
+  .footer__signature a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 12px 4px;
+  }
+}
+

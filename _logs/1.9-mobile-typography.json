@@ -1,0 +1,155 @@
+{
+  "360": {
+    ".hero__h1": {
+      "fontSize": "36px",
+      "lineHeight": "37.8px",
+      "width": 328,
+      "height": 75.6,
+      "textPreview": "Ihr Auto.\n        Unser Handwerk."
+    },
+    ".hero__promise": {
+      "fontSize": "16.3px",
+      "lineHeight": "25.265px",
+      "width": 328,
+      "height": 75.8,
+      "textPreview": "Seit 1998 kümmern wir uns um Autos aller Marken. Ehrliche Be"
+    },
+    ".section-title": {
+      "fontSize": "28px",
+      "lineHeight": "30.24px",
+      "width": 328,
+      "height": 60.5,
+      "textPreview": "Alle Fabrikate.Meister­qualität."
+    },
+    ".prozess__headline": {
+      "fontSize": "27.2px",
+      "lineHeight": "29.92px",
+      "width": 328,
+      "height": 59.8,
+      "textPreview": "Vom Anruf biszur Übergabe."
+    },
+    ".step-title": {
+      "fontSize": "20px",
+      "lineHeight": "24px",
+      "width": 328,
+      "height": 24,
+      "textPreview": "Anfrage"
+    },
+    ".bento__title": {
+      "fontSize": "22.4px",
+      "lineHeight": "26.88px",
+      "width": 270,
+      "height": 53.8,
+      "textPreview": "Inspektion mit Hersteller­vorgabe"
+    },
+    ".faq__q": {
+      "fontSize": "16px",
+      "lineHeight": "22.4px",
+      "width": 290,
+      "height": 22.4,
+      "textPreview": "Wie läuft der TÜV bei Ihnen ab?"
+    }
+  },
+  "375": {
+    ".hero__h1": {
+      "fontSize": "36px",
+      "lineHeight": "37.8px",
+      "width": 343,
+      "height": 75.6,
+      "textPreview": "Ihr Auto.\n        Unser Handwerk."
+    },
+    ".hero__promise": {
+      "fontSize": "16.3525px",
+      "lineHeight": "25.3464px",
+      "width": 343,
+      "height": 76,
+      "textPreview": "Seit 1998 kümmern wir uns um Autos aller Marken. Ehrliche Be"
+    },
+    ".section-title": {
+      "fontSize": "28.2px",
+      "lineHeight": "30.456px",
+      "width": 343,
+      "height": 60.9,
+      "textPreview": "Alle Fabrikate.Meister­qualität."
+    },
+    ".prozess__headline": {
+      "fontSize": "27.2px",
+      "lineHeight": "29.92px",
+      "width": 343,
+      "height": 59.8,
+      "textPreview": "Vom Anruf biszur Übergabe."
+    },
+    ".step-title": {
+      "fontSize": "20px",
+      "lineHeight": "24px",
+      "width": 343,
+      "height": 24,
+      "textPreview": "Anfrage"
+    },
+    ".bento__title": {
+      "fontSize": "22.4px",
+      "lineHeight": "26.88px",
+      "width": 285,
+      "height": 53.8,
+      "textPreview": "Inspektion mit Hersteller­vorgabe"
+    },
+    ".faq__q": {
+      "fontSize": "16px",
+      "lineHeight": "22.4px",
+      "width": 305,
+      "height": 22.4,
+      "textPreview": "Wie läuft der TÜV bei Ihnen ab?"
+    }
+  },
+  "414": {
+    ".hero__h1": {
+      "fontSize": "36px",
+      "lineHeight": "37.8px",
+      "width": 380.9,
+      "height": 75.6,
+      "textPreview": "Ihr Auto.\n        Unser Handwerk."
+    },
+    ".hero__promise": {
+      "fontSize": "16.489px",
+      "lineHeight": "25.558px",
+      "width": 380.9,
+      "height": 76.7,
+      "textPreview": "Seit 1998 kümmern wir uns um Autos aller Marken. Ehrliche Be"
+    },
+    ".section-title": {
+      "fontSize": "29.136px",
+      "lineHeight": "31.4669px",
+      "width": 363.4,
+      "height": 62.9,
+      "textPreview": "Alle Fabrikate.Meister­qualität."
+    },
+    ".prozess__headline": {
+      "fontSize": "27.2px",
+      "lineHeight": "29.92px",
+      "width": 380.9,
+      "height": 59.8,
+      "textPreview": "Vom Anruf biszur Übergabe."
+    },
+    ".step-title": {
+      "fontSize": "20px",
+      "lineHeight": "24px",
+      "width": 380.9,
+      "height": 24,
+      "textPreview": "Anfrage"
+    },
+    ".bento__title": {
+      "fontSize": "22.4px",
+      "lineHeight": "26.88px",
+      "width": 322.9,
+      "height": 53.8,
+      "textPreview": "Inspektion mit Hersteller­vorgabe"
+    },
+    ".faq__q": {
+      "fontSize": "16px",
+      "lineHeight": "22.4px",
+      "width": 342.9,
+      "height": 22.4,
+      "textPreview": "Wie läuft der TÜV bei Ihnen ab?"
+    }
+  }
+}
