@@ -1,0 +1,180 @@
+{
+  "viewport": {
+    "width": 375,
+    "height": 812,
+    "deviceScaleFactor": 2,
+    "isMobile": true,
+    "hasTouch": true
+  },
+  "heroCta": {
+    "found": true,
+    "bbox": {
+      "x": 193.5,
+      "y": 496.7,
+      "w": 165.5,
+      "h": 54.8
+    },
+    "computed": {
+      "background": "rgba(11, 18, 32, 0.95) none repeat scroll 0% 0% / auto padding-box border-box",
+      "backgroundColor": "rgba(11, 18, 32, 0.95)",
+      "backdropFilter": "blur(6px)",
+      "boxShadow": "rgba(11, 18, 32, 0.35) 0px 4px 18px 0px",
+      "borderColor": "rgba(0, 0, 0, 0)",
+      "borderWidth": "1px",
+      "color": "rgb(255, 255, 255)",
+      "opacity": "1",
+      "isolation": "isolate"
+    },
+    "svg": {
+      "present": true,
+      "bbox": {
+        "w": 163.5,
+        "h": 52.8
+      },
+      "opacity": "1",
+      "overflow": "visible",
+      "zIndex": "1",
+      "display": "block"
+    },
+    "rectEl": {
+      "present": true,
+      "rx": "14",
+      "ry": "14",
+      "x": "0",
+      "y": "0",
+      "width": "165.5",
+      "height": "55",
+      "stroke": "rgb(184, 146, 90)",
+      "strokeWidth": "2.5px",
+      "fill": "none",
+      "strokeDasharray": "62.4597px, 353.938px",
+      "strokeDashoffset": "265.668px",
+      "animation": "3.2s linear 0s infinite normal none running cta-march",
+      "bbox": {
+        "w": 163.5,
+        "h": 52.8
+      }
+    },
+    "ctaLenVar": null,
+    "jsInitFlag": true
+  },
+  "wartungsvertrag": {
+    "found": true,
+    "card": {
+      "bbox": {
+        "x": 16,
+        "y": 5528.9,
+        "w": 343,
+        "h": 718.8
+      },
+      "gridTemplateColumns": "193.875px 73.125px",
+      "gap": "20px",
+      "padding": "28px 28px 30px",
+      "gridTemplateRows": "593.75px 47.0938px"
+    },
+    "children": {
+      "icon": {
+        "bbox": {
+          "x": 44,
+          "y": 5821.8,
+          "w": 64,
+          "h": 64
+        },
+        "fontSize": "16px",
+        "lineHeight": "26.4px",
+        "textWrap": "wrap"
+      },
+      "copy": {
+        "bbox": {
+          "x": 257.9,
+          "y": 5556.9,
+          "w": 73.1,
+          "h": 593.8
+        },
+        "fontSize": "16px",
+        "lineHeight": "26.4px",
+        "textWrap": "wrap"
+      },
+      "title": {
+        "bbox": {
+          "x": 257.9,
+          "y": 5611.4,
+          "w": 73.1,
+          "h": 69
+        },
+        "fontSize": "20px",
+        "lineHeight": "23px",
+        "textWrap": "wrap"
+      },
+      "text": {
+        "bbox": {
+          "x": 257.9,
+          "y": 5690.4,
+          "w": 73.1,
+          "h": 456.3
+        },
+        "fontSize": "14.72px",
+        "lineHeight": "22.816px",
+        "textWrap": "wrap"
+      },
+      "cta": {
+        "bbox": {
+          "x": 44,
+          "y": 6170.7,
+          "w": 193.9,
+          "h": 47.1
+        },
+        "fontSize": "14px",
+        "lineHeight": "23.1px",
+        "textWrap": "nowrap"
+      }
+    },
+    "titleText": "Wartungsvertrag ab 19 €/Monat",
+    "ctaText": "Beratung anfragen→"
+  },
+  "stickyPhoneOverlap": {
+    "found": true,
+    "stickyPhone": {
+      "position": "fixed",
+      "bottom": "18px",
+      "right": "18px",
+      "zIndex": "80",
+      "display": "flex",
+      "opacity": "1",
+      "isVisible": true,
+      "bbox": {
+        "x": 301,
+        "y": 738,
+        "w": 56,
+        "h": 56,
+        "bottom": 794,
+        "right": 357
+      }
+    },
+    "wartungsvertragCta": {
+      "x": 44,
+      "y": 1067.7,
+      "w": 193.9,
+      "h": 47.1,
+      "bottom": 1114.8,
+      "right": 237.9
+    },
+    "paketeBbox": {
+      "x": 0,
+      "y": -1341.7,
+      "w": 375,
+      "h": 2538.4,
+      "bottom": 1196.8
+    },
+    "overlapVsCta": {
+      "ix": 0,
+      "iy": 0,
+      "area": 0
+    },
+    "overlapVsPaketeBottom": {
+      "spBottomVsPaketeBottom": -402.8,
+      "spOverlaysPakete": true
+    }
+  },
+  "ts": "2026-04-26T13:17:54.186Z"
+}

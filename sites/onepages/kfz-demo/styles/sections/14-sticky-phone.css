@@ -32,3 +32,18 @@
   .sticky-phone { display: none; }
 }
 
+/* 1.9.1 — Body-Padding-Bottom für Sticky-Phone-Atemraum (Cluster D 3.4.3
+ * aus 1.9 jetzt mitgenommen).
+ * Diagnose `_logs/1.9.1-acceptance.md` §1 FIX 3: bei Mobile-Viewports
+ * < 768 px schwebt die Sticky-Phone-CTA bottom-right 18 px vom Rand und
+ * verdeckt visuell den letzten Content (insbesondere die nach 1.9.1-FIX-2
+ * full-width Wartungsvertrag-CTA). Lösung: body bekommt einen
+ * Padding-Bottom-Spacer in Sticky-Phone-Höhe + safe-area, damit jeder
+ * Content unten Atemraum hat. Fixed-positioned Sticky-Phone schwebt
+ * wie gewohnt — der Spacer ist nur Inhalts-Schutz. */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: clamp(72px, 10vh, 96px);
+  }
+}
+

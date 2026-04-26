@@ -159,3 +159,45 @@
   .wartungsvertrag__cta { justify-self: end; }
 }
 
+/* 1.9.1 — Wartungsvertrag-Card Mobile-Layout (iPhone-Bug).
+ * Diagnose `_logs/1.9.1-acceptance.md` §1 FIX 2: Card hat 3 Children
+ * (icon, copy, cta) bei `grid-template-columns: auto 1fr` (2 Spalten).
+ * CTA „Beratung anfragen" landet in cell(1,0) und ist als 194 px breiter
+ * Button die längste Cell der linken Spalte → zwingt linke Spalte auf
+ * 194 px → Copy-Spalte schrumpft auf 73 px → Title bricht 3-zeilig
+ * mid-word.
+ * Fix: single-column-Stack (icon → copy → cta vertikal), Icon kleiner,
+ * Title mit text-wrap balance, CTA full-width als Block-Action. Desktop
+ * ≥ 900 px bleibt unverändert (3-spaltige Original-Variante oben). */
+@media (max-width: 768px) {
+  .wartungsvertrag {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 24px 22px 26px;
+  }
+  .wartungsvertrag::after {
+    width: 100%;
+    height: 50%;
+    top: -10%;
+    opacity: 0.6;
+  }
+  .wartungsvertrag__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+  .wartungsvertrag__title {
+    font-size: 1.35rem;
+    line-height: 1.2;
+    margin: 4px 0 8px;
+    text-wrap: balance;
+  }
+  .wartungsvertrag__text {
+    margin-bottom: 14px;
+  }
+  .wartungsvertrag__cta {
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+

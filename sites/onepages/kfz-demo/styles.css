@@ -685,6 +685,7 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
     line-height: 1.05;
   }
 }
+
 .hero__h1-line { display: block; }
 .hero__h1 em { font-style: normal; color: var(--color-warm-accent); }
 
@@ -950,6 +951,29 @@ html.js-reveal-ready [data-reveal-stagger].is-revealed > * {
   .hero__decor { font-size: clamp(6rem, 30vw, 10rem); right: -5vw; bottom: -3vw; }
   .hero__scroll { display: none; }
   .hero__ctas .btn { flex: 1; min-width: 0; }
+}
+
+/* 1.9.1 — Hero-CTA „Termin anfragen" Mobile-Visibility (iPhone-Bug).
+ * Diagnose `_logs/1.9.1-acceptance.md` §1 FIX 1: auf iOS Safari verschmilzt
+ * die 95 %-opake Nachtblau-Variante visuell mit dem dunklen Werkstatt-
+ * Foto, so dass der Button als Button nicht mehr erkennbar ist. Headless
+ * Chrome rendert korrekt → kein JS-/Animation-Bug.
+ * Fix für Mobile: ehrliche Glas-Plate (rgba(.55) + backdrop-blur 8 px,
+ * Vendor-Prefix explizit für iOS) + statischer Messing-Border als
+ * Fallback, falls die SVG-Animation auf iOS-Render-Layer ausfällt.
+ *
+ * WICHTIG: Dieser Block MUSS am Ende des Files stehen, sonst greift
+ * das spätere `.hero__cta--secondary { background: rgba(...0.95) }`
+ * (Default-Declaration) cascade-mässig drüber. Erste 1.9.1-Iteration
+ * landete vor dem Default und war damit wirkungslos. */
+@media (max-width: 768px) {
+  .hero__cta--secondary {
+    background: rgba(11, 18, 32, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-color: rgba(184, 146, 90, 0.65);
+    box-shadow: 0 6px 20px rgba(11, 18, 32, 0.45);
+  }
 }
 
 /* ---------- SECTION 4 · AUTHORITY MARQUEE (DNA §10.3) ---------- */
@@ -2006,6 +2030,48 @@ html:not(.js-reveal-ready) .stats__bar { transform: scaleX(1); }
   .wartungsvertrag__cta { justify-self: end; }
 }
 
+/* 1.9.1 — Wartungsvertrag-Card Mobile-Layout (iPhone-Bug).
+ * Diagnose `_logs/1.9.1-acceptance.md` §1 FIX 2: Card hat 3 Children
+ * (icon, copy, cta) bei `grid-template-columns: auto 1fr` (2 Spalten).
+ * CTA „Beratung anfragen" landet in cell(1,0) und ist als 194 px breiter
+ * Button die längste Cell der linken Spalte → zwingt linke Spalte auf
+ * 194 px → Copy-Spalte schrumpft auf 73 px → Title bricht 3-zeilig
+ * mid-word.
+ * Fix: single-column-Stack (icon → copy → cta vertikal), Icon kleiner,
+ * Title mit text-wrap balance, CTA full-width als Block-Action. Desktop
+ * ≥ 900 px bleibt unverändert (3-spaltige Original-Variante oben). */
+@media (max-width: 768px) {
+  .wartungsvertrag {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 24px 22px 26px;
+  }
+  .wartungsvertrag::after {
+    width: 100%;
+    height: 50%;
+    top: -10%;
+    opacity: 0.6;
+  }
+  .wartungsvertrag__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+  .wartungsvertrag__title {
+    font-size: 1.35rem;
+    line-height: 1.2;
+    margin: 4px 0 8px;
+    text-wrap: balance;
+  }
+  .wartungsvertrag__text {
+    margin-bottom: 14px;
+  }
+  .wartungsvertrag__cta {
+    justify-self: stretch;
+    width: 100%;
+  }
+}
+
 /* ---------- SECTION 11 · FAQ FILTER-LISTE (DNA §10.10) ---------- */
 .faq {
   background: var(--color-light);
@@ -2504,5 +2570,20 @@ html:not(.js-reveal-ready) .stats__bar { transform: scaleX(1); }
 
 @media (min-width: 768px) {
   .sticky-phone { display: none; }
+}
+
+/* 1.9.1 — Body-Padding-Bottom für Sticky-Phone-Atemraum (Cluster D 3.4.3
+ * aus 1.9 jetzt mitgenommen).
+ * Diagnose `_logs/1.9.1-acceptance.md` §1 FIX 3: bei Mobile-Viewports
+ * < 768 px schwebt die Sticky-Phone-CTA bottom-right 18 px vom Rand und
+ * verdeckt visuell den letzten Content (insbesondere die nach 1.9.1-FIX-2
+ * full-width Wartungsvertrag-CTA). Lösung: body bekommt einen
+ * Padding-Bottom-Spacer in Sticky-Phone-Höhe + safe-area, damit jeder
+ * Content unten Atemraum hat. Fixed-positioned Sticky-Phone schwebt
+ * wie gewohnt — der Spacer ist nur Inhalts-Schutz. */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: clamp(72px, 10vh, 96px);
+  }
 }
 

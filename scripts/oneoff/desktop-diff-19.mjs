@@ -8,6 +8,7 @@
 import puppeteer from 'puppeteer';
 
 const phase = process.argv[2] === 'after' ? 'after' : 'before';
+const verPrefix = process.argv[3] || '1.9';   // 1.9 oder 1.9.1 etc.
 const URL = 'http://localhost:4000/kfz-demo/?cb=' + Date.now();
 
 const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
@@ -27,8 +28,8 @@ try {
     }
   `});
   await new Promise(r => setTimeout(r, 600));
-  await page.screenshot({ path: `_logs/1.9-desktop-${phase}.png`, fullPage: true });
-  console.log(`Saved _logs/1.9-desktop-${phase}.png`);
+  await page.screenshot({ path: `_logs/${verPrefix}-desktop-${phase}.png`, fullPage: true });
+  console.log(`Saved _logs/${verPrefix}-desktop-${phase}.png`);
 } finally {
   await browser.close();
 }

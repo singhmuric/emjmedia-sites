@@ -7,8 +7,9 @@
 import sharp from 'sharp';
 import { writeFile } from 'node:fs/promises';
 
-const beforePath = '_logs/1.9-desktop-before.png';
-const afterPath  = '_logs/1.9-desktop-after.png';
+const verPrefix  = process.argv[2] || '1.9';
+const beforePath = `_logs/${verPrefix}-desktop-before.png`;
+const afterPath  = `_logs/${verPrefix}-desktop-after.png`;
 
 const [b, a] = await Promise.all([
   sharp(beforePath).raw().toBuffer({ resolveWithObject: true }),
@@ -41,7 +42,7 @@ const rmse = Math.sqrt(totalSqErr / (total * 3));
 await sharp(beforePath)
   .composite([{ input: afterPath, blend: 'difference' }])
   .modulate({ brightness: 4 })   // diff verstärken sichtbar
-  .toFile('_logs/1.9-desktop-diff.png');
+  .toFile(`_logs/${verPrefix}-desktop-diff.png`);
 
 const report = {
   size: { width: W, height: H, channels: ch },
@@ -55,7 +56,7 @@ const report = {
     ? 'Desktop pixel-perfect — no measurable change.'
     : `Diff present: ${diffPixels.toLocaleString()} px (${pctDiff.toFixed(3)} %). Inspect _logs/1.9-desktop-diff.png.`
 };
-await writeFile('_logs/1.9-desktop-diff.json', JSON.stringify(report, null, 2));
+await writeFile(`_logs/${verPrefix}-desktop-diff.json`, JSON.stringify(report, null, 2));
 
 console.log(`Desktop @ ${W}x${H}`);
 console.log(`Diff pixels (>8 RGB sum): ${diffPixels.toLocaleString()} / ${total.toLocaleString()} (${pctDiff.toFixed(3)} %)`);

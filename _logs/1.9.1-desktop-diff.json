@@ -1,0 +1,14 @@
+{
+  "size": {
+    "width": 1440,
+    "height": 11022,
+    "channels": 3
+  },
+  "diffPixels": 0,
+  "totalPixels": 15871680,
+  "pctDiff": 0,
+  "rmse": 0,
+  "threshold": "pixelDiff > 8 (sum across RGB)",
+  "pass": true,
+  "note": "Desktop pixel-perfect — no measurable change."
+}

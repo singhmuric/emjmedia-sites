@@ -7,86 +7,86 @@
       {
         "tag": "DIV",
         "cls": "marquee__track",
-        "right": 2986.1,
+        "right": 2986.4,
         "width": 3022.9,
-        "overshootPx": 2626.1
+        "overshootPx": 2626.4
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 432.5,
+        "right": 432.8,
         "width": 88.1,
-        "overshootPx": 72.5
+        "overshootPx": 72.8
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 526.4,
+        "right": 526.7,
         "width": 79.9,
-        "overshootPx": 166.4
+        "overshootPx": 166.7
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 704.7,
+        "right": 705,
         "width": 164.3,
-        "overshootPx": 344.7
+        "overshootPx": 345
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 799.8,
+        "right": 800.1,
         "width": 81.1,
-        "overshootPx": 439.8
+        "overshootPx": 440.1
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 894.4,
+        "right": 894.6,
         "width": 80.5,
-        "overshootPx": 534.4
+        "overshootPx": 534.6
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 1020.5,
+        "right": 1020.8,
         "width": 112.1,
-        "overshootPx": 660.5
+        "overshootPx": 660.8
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 1105.9,
+        "right": 1106.2,
         "width": 71.4,
-        "overshootPx": 745.9
+        "overshootPx": 746.2
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 1218.3,
+        "right": 1218.5,
         "width": 98.4,
-        "overshootPx": 858.3
+        "overshootPx": 858.5
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 1338.7,
+        "right": 1339,
         "width": 106.5,
-        "overshootPx": 978.7
+        "overshootPx": 979
       },
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 1460.7,
+        "right": 1461,
         "width": 108,
-        "overshootPx": 1100.7
+        "overshootPx": 1101
       },
       {
         "tag": "DIV",
         "cls": "marquee__track",
-        "right": 1687.9,
+        "right": 1687.6,
         "width": 3239.4,
-        "overshootPx": 1327.9
+        "overshootPx": 1327.6
       }
     ]
   },
@@ -98,9 +98,9 @@
       {
         "tag": "DIV",
         "cls": "marquee__track",
-        "right": 2986.1,
+        "right": 2986.2,
         "width": 3022.9,
-        "overshootPx": 2611.1
+        "overshootPx": 2611.2
       },
       {
         "tag": "SPAN",
@@ -133,9 +133,9 @@
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 894.3,
+        "right": 894.4,
         "width": 80.5,
-        "overshootPx": 519.3
+        "overshootPx": 519.4
       },
       {
         "tag": "SPAN",
@@ -175,9 +175,9 @@
       {
         "tag": "DIV",
         "cls": "marquee__track",
-        "right": 1687.9,
+        "right": 1687.8,
         "width": 3239.4,
-        "overshootPx": 1312.9
+        "overshootPx": 1312.8
       }
     ]
   },
@@ -245,9 +245,9 @@
       {
         "tag": "SPAN",
         "cls": "marquee__pill",
-        "right": 1218.1,
+        "right": 1218,
         "width": 98.4,
-        "overshootPx": 804.1
+        "overshootPx": 804
       },
       {
         "tag": "SPAN",
