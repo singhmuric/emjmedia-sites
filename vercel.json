@@ -4,6 +4,20 @@
     {
       "source": "/",
       "has": [
+        { "type": "host", "value": "^emj-media\\.de$" }
+      ],
+      "destination": "/sites/main/index.html"
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        { "type": "host", "value": "^emj-media\\.de$" }
+      ],
+      "destination": "/sites/main/:path*"
+    },
+    {
+      "source": "/",
+      "has": [
         { "type": "host", "value": "(?<subdomain>[^.]+)\\.emj-media\\.de" }
       ],
       "destination": "/sites/onepages/:subdomain/index.html"
