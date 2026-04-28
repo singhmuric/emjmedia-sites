@@ -1,0 +1,9 @@
+# robots.txt — emj-media.de (Apex)
+# Hauptseite ist offen für alle Crawler.
+# KFZ-Demo-Subdomains tragen <meta name="robots" content="noindex"> direkt im HTML
+# (Constitution §4 — Demo-Sites werden nicht indexiert).
+
+User-agent: *
+Allow: /
+
+Sitemap: https://emj-media.de/sitemap.xml
