@@ -1,0 +1,884 @@
+{
+  "name": "leadhunter_kfz_sh",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "errorWorkflow": "",
+    "timezone": "Europe/Berlin"
+  },
+  "tags": [
+    {
+      "name": "leadhunter"
+    },
+    {
+      "name": "kfz"
+    },
+    {
+      "name": "sh"
+    }
+  ],
+  "staticData": null,
+  "pinData": {},
+  "versionId": "1",
+  "nodes": [
+    {
+      "id": "node-01-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        200
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "node-02-cron",
+      "name": "Schedule Trigger (Mo 06:00)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 6,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-03-build-matrix",
+      "name": "Build Hub Query Matrix",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// 6 Hubs × 6 Queries = 36 Items für textSearch-Loop\n// Spec §3.1 + §3.2\nconst hubs = [\n  { name: 'Hamburg',    lat: 53.5528, lng: 10.0067 },\n  { name: 'Lübeck',     lat: 53.8654, lng: 10.6866 },\n  { name: 'Kiel',       lat: 54.3233, lng: 10.1228 },\n  { name: 'Flensburg',  lat: 54.7836, lng: 9.4321  },\n  { name: 'Neumünster', lat: 54.0732, lng: 9.9819  },\n  { name: 'Husum',      lat: 54.4750, lng: 9.0500  }\n];\nconst queryTemplates = [\n  'KFZ Werkstatt',\n  'Autowerkstatt',\n  'Reifenhandel',\n  'Karosseriebau',\n  'Autoglas',\n  'Auto Lackiererei'\n];\nconst RADIUS_M = 30000;\nconst items = [];\nfor (const hub of hubs) {\n  for (const qt of queryTemplates) {\n    items.push({\n      json: {\n        hub_name: hub.name,\n        hub_lat: hub.lat,\n        hub_lng: hub.lng,\n        radius_m: RADIUS_M,\n        base_query: qt,\n        query: qt + ' ' + hub.name\n      }\n    });\n  }\n}\nreturn items;\n"
+      }
+    },
+    {
+      "id": "node-04-places-textsearch",
+      "name": "HTTP Places textSearch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        600,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://maps.googleapis.com/maps/api/place/textsearch/json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ $json.query }}"
+            },
+            {
+              "name": "location",
+              "value": "={{ $json.hub_lat }},{{ $json.hub_lng }}"
+            },
+            {
+              "name": "radius",
+              "value": "={{ $json.radius_m }}"
+            },
+            {
+              "name": "language",
+              "value": "de"
+            },
+            {
+              "name": "region",
+              "value": "de"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "fullResponse": false,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "REPLACE_WITH_PLACES_QUERY_AUTH_ID",
+          "name": "Google Places (Query Auth: key)"
+        }
+      },
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "node-05-flatten-places",
+      "name": "Flatten Places + Inject Hub",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Korreliert API-Responses mit Hub-Context per Index — sicher solange\n// HTTP Request einmalig pro Input-Item ausgeführt hat (n8n-Default).\nconst responses = $input.all();\nconst matrix = $('Build Hub Query Matrix').all();\nconst flat = [];\nfor (let i = 0; i < responses.length; i++) {\n  const resp = responses[i].json || {};\n  const hubCtx = matrix[i] ? matrix[i].json : {};\n  if (resp.error_message) {\n    // Quota- oder Auth-Fehler — nicht silent durchwinken\n    throw new Error('Places textSearch error for hub=' + hubCtx.hub_name + ' query=' + hubCtx.query + ': ' + resp.error_message);\n  }\n  if (resp.status && resp.status !== 'OK' && resp.status !== 'ZERO_RESULTS') {\n    // OVER_QUERY_LIMIT, REQUEST_DENIED, INVALID_REQUEST — Workflow stoppen (Spec §5.2)\n    if (resp.status === 'OVER_QUERY_LIMIT') {\n      throw new Error('Google Places quota exhausted (OVER_QUERY_LIMIT). Workflow halted per Spec §5.2.');\n    }\n    throw new Error('Places textSearch unexpected status=' + resp.status + ' for query=' + hubCtx.query);\n  }\n  for (const place of (resp.results || [])) {\n    flat.push({\n      json: {\n        place_id: place.place_id,\n        name: place.name,\n        formatted_address: place.formatted_address || '',\n        rating: place.rating || null,\n        user_ratings_total: place.user_ratings_total || 0,\n        business_status: place.business_status || null,\n        geometry: place.geometry || null,\n        _hub_name: hubCtx.hub_name,\n        _hub_lat: hubCtx.hub_lat,\n        _hub_lng: hubCtx.hub_lng,\n        _query: hubCtx.query,\n        _base_query: hubCtx.base_query\n      }\n    });\n  }\n}\nreturn flat;\n"
+      }
+    },
+    {
+      "id": "node-06-pre-filter",
+      "name": "Pre-Filter (Bundesland · Chains · Distanz · Status)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Spec §3.4. Reihenfolge der Checks ist optimiert für Cheapest-First.\nconst CHAIN_BLOCKLIST = [\n  'atu', 'a.t.u', 'a t u',\n  'pit-stop', 'pitstop', 'pit stop',\n  'vergölst', 'vergoelst',\n  'euromaster',\n  'bosch service', 'bosch car service',\n  '1a autoservice', '1a-autoservice',\n  'autocrew',\n  'premio'\n];\nconst NON_SH_MARKERS = [\n  'niedersachsen', 'mecklenburg-vorpommern', 'mecklenburg vorpommern',\n  'bremen ', 'brandenburg', 'sachsen-anhalt', 'sachsen anhalt'\n];\nfunction haversineKm(lat1, lng1, lat2, lng2) {\n  const R = 6371;\n  const toRad = d => d * Math.PI / 180;\n  const dLat = toRad(lat2 - lat1);\n  const dLng = toRad(lng2 - lng1);\n  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;\n  return 2 * R * Math.asin(Math.sqrt(a));\n}\nconst kept = [];\nfor (const item of $input.all()) {\n  const p = item.json;\n  // 1. business_status\n  if (p.business_status && p.business_status !== 'OPERATIONAL') continue;\n  // 2. Filialketten\n  const nameLow = (p.name || '').toLowerCase();\n  if (CHAIN_BLOCKLIST.some(c => nameLow.includes(c))) continue;\n  // 3. Bundesland-Marker im address (Pre-Filter; finale Adresse kommt aus Details)\n  const addrLow = (p.formatted_address || '').toLowerCase();\n  if (NON_SH_MARKERS.some(m => addrLow.includes(m))) continue;\n  // 4. Distanz zum Hub\n  if (p.geometry && p.geometry.location) {\n    const d = haversineKm(p._hub_lat, p._hub_lng, p.geometry.location.lat, p.geometry.location.lng);\n    if (d > 30) continue;\n    p._dist_to_hub_km = Math.round(d * 10) / 10;\n  }\n  // (Website-Check erfolgt erst nach Places details, weil textSearch website nicht liefert)\n  kept.push({ json: p });\n}\n// Lokales Dedup (gleiche place_id durch verschiedene Hub-Queries) — höchstes user_ratings_total gewinnt\nconst byId = new Map();\nfor (const it of kept) {\n  const pid = it.json.place_id;\n  if (!pid) continue;\n  const existing = byId.get(pid);\n  if (!existing || (it.json.user_ratings_total || 0) > (existing.json.user_ratings_total || 0)) {\n    byId.set(pid, it);\n  }\n}\nreturn Array.from(byId.values());\n"
+      }
+    },
+    {
+      "id": "node-07-sheets-read-existing",
+      "name": "Sheets Read existing place_ids",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1200,
+        300
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_SHEETS_OAUTH_ID",
+          "name": "Google Sheets (info@emj-media.de)"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "id": "node-08-dedup-vs-sheet",
+      "name": "Dedup vs Sheet",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Existing place_ids aus Sheet (lead_id-Format: kfz-hh-{place_id_hash8}).\n// Spec §5.1 Node 7 erweitert: schon gescorte Leads NICHT erneut bewerten.\n// FNV-1a 32-bit (n8n Code-Sandbox erlaubt kein require('crypto');\n// Repo-Style aus scripts/lib/variant.mjs).\nfunction fnv1aHex8(s) {\n  let h = 0x811c9dc5;\n  const str = String(s);\n  for (let i = 0; i < str.length; i++) {\n    h ^= str.charCodeAt(i);\n    h = Math.imul(h, 0x01000193);\n  }\n  return (h >>> 0).toString(16).padStart(8, '0');\n}\nfunction leadIdFor(placeId) {\n  return 'kfz-hh-' + fnv1aHex8(placeId);\n}\nconst sheetRows = $input.all();\nconst existingLeadIds = new Set();\nfor (const row of sheetRows) {\n  if (row.json && row.json.lead_id) {\n    existingLeadIds.add(String(row.json.lead_id).trim());\n  }\n}\nconst candidates = $('Pre-Filter (Bundesland · Chains · Distanz · Status)').all();\nconst newLeads = [];\nfor (const c of candidates) {\n  const pid = c.json.place_id;\n  if (!pid) continue;\n  const lid = leadIdFor(pid);\n  if (existingLeadIds.has(lid)) continue;\n  newLeads.push({\n    json: {\n      ...c.json,\n      lead_id: lid\n    }\n  });\n}\nreturn newLeads;\n"
+      }
+    },
+    {
+      "id": "node-09-places-details",
+      "name": "HTTP Places details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1600,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "https://maps.googleapis.com/maps/api/place/details/json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "place_id",
+              "value": "={{ $json.place_id }}"
+            },
+            {
+              "name": "fields",
+              "value": "name,formatted_address,formatted_phone_number,international_phone_number,website,url,business_status,rating,user_ratings_total,address_components"
+            },
+            {
+              "name": "language",
+              "value": "de"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "REPLACE_WITH_PLACES_QUERY_AUTH_ID",
+          "name": "Google Places (Query Auth: key)"
+        }
+      },
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 1500
+    },
+    {
+      "id": "node-10-website-fetch",
+      "name": "HTTP Website Fetch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1800,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($json.result && $json.result.website) ? $json.result.website : 'https://example.invalid' }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 EMJmedia-Leadhunter/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "de-DE,de;q=0.9,en;q=0.8"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 5
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "text",
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "node-11-html-truncate",
+      "name": "HTML Truncate + Merge Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// HTML Truncate + Merge Context (rewritten 2026-04-30 für Email/Inhaber-Extraktion).\n// Field-Schema verifiziert via 16-Item-Dump: $json.{data,statusCode,headers}.\n// data ist string oder null bei Fehlern; statusCode 200 oder null bei ENOTFOUND.\n\nconst websiteItems = $('HTTP Website Fetch').all();\nconst impressumItems = $('HTTP Impressum Fetch').all();\nconst detailItems = $('HTTP Places details').all();\nconst dedupItems = $('Dedup vs Sheet').all();\n\n// === Helpers ===\n\nfunction isReachable(item) {\n  const j = (item && item.json) || {};\n  return j.statusCode === 200 && typeof j.data === 'string' && j.data.length > 0;\n}\n\nfunction htmlText(s) {\n  if (!s) return '';\n  return String(s)\n    .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')\n    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n    .replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, ' ')\n    .replace(/<br\\s*\\/?>/gi, '\\n')\n    .replace(/<\\/(p|div|li|h[1-6]|tr)>/gi, '\\n')\n    .replace(/<[^>]+>/g, ' ')\n    .replace(/&nbsp;/gi, ' ')\n    .replace(/&amp;/gi, '&')\n    .replace(/[ \\t]+/g, ' ');\n}\n\nfunction stripScriptStyleOnly(s) {\n  // Schwächeres Stripping für Email-Scan — behält href=\"mailto:...\"\n  if (!s) return '';\n  return String(s)\n    .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')\n    .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n    .replace(/<noscript[\\s\\S]*?<\\/noscript>/gi, ' ');\n}\n\nfunction truncateChars(s, n) {\n  if (!s) return '';\n  return s.length > n ? s.slice(0, n) : s;\n}\n\n// Email-Extraktion mit Filter + Domain-Match + Ranking\nconst EMAIL_BLOCKLIST_PREFIXES = ['webmaster@', 'postmaster@', 'no-reply@', 'noreply@', 'admin@', 'hostmaster@', 'abuse@', 'spam@'];\nconst EMAIL_KANZLEI_HINTS = ['kanzlei', 'rechtsanwalt', 'datenschutz-anwalt', 'datenschutz-beauftragter', 'dsb-'];\n\nfunction extractEmails(html) {\n  const found = new Set();\n  if (!html) return found;\n  // Pattern A: mailto-Links\n  const mailtoRe = /href=[\"']mailto:([^\"'?<>\\s]+)/gi;\n  let m;\n  while ((m = mailtoRe.exec(html)) !== null) {\n    let e = m[1].trim();\n    try { e = decodeURIComponent(e); } catch (err) { /* malformed encoding */ }\n    e = e.toLowerCase();\n    if (e.includes('@') && !e.includes('�')) found.add(e);\n  }\n  // Pattern B: Plain-Text-Mails\n  const plainRe = /\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b/g;\n  let p;\n  while ((p = plainRe.exec(html)) !== null) {\n    const e = p[0].toLowerCase();\n    if (!e.includes('�')) found.add(e);\n  }\n  return found;\n}\n\nfunction pickBestEmail(emails, websiteUrl) {\n  let candidates = Array.from(emails);\n  // Blocklist\n  candidates = candidates.filter(e => !EMAIL_BLOCKLIST_PREFIXES.some(b => e.startsWith(b)));\n  if (!candidates.length) return '';\n  // Domain-Match — eigene Domain bevorzugt\n  let ownHost = '';\n  try {\n    if (websiteUrl) ownHost = new URL(websiteUrl).hostname.replace(/^www\\./, '').toLowerCase();\n  } catch (e) { /* ignore */ }\n  const ownRoot = ownHost ? ownHost.split('.').slice(-2).join('.') : '';\n  const ownDomain = candidates.filter(e => {\n    const ed = (e.split('@')[1] || '').toLowerCase();\n    return ownRoot && ed.endsWith(ownRoot);\n  });\n  // Wenn keine eigene Domain → Kanzlei-Mails als Last-Resort, Rest bevorzugt\n  let pool;\n  if (ownDomain.length) {\n    pool = ownDomain;\n  } else {\n    const nonKanzlei = candidates.filter(e => !EMAIL_KANZLEI_HINTS.some(k => e.includes(k)));\n    pool = nonKanzlei.length ? nonKanzlei : candidates;\n  }\n  // Ranking\n  function emailScore(e) {\n    if (e.startsWith('info@')) return 100;\n    if (e.startsWith('kontakt@')) return 90;\n    if (e.startsWith('service@')) return 80;\n    if (e.startsWith('werkstatt@')) return 75;\n    if (e.startsWith('office@')) return 70;\n    if (EMAIL_KANZLEI_HINTS.some(k => e.includes(k))) return 5;\n    return 50;\n  }\n  pool.sort((a, b) => emailScore(b) - emailScore(a));\n  return pool[0] || '';\n}\n\n// Inhaber-Extraktion (Two-Pattern-Approach: Label CI, Name CS).\nconst NAME_WORD = '[A-ZÄÖÜ][a-zäöüß]+(?:-[A-ZÄÖÜ][a-zäöüß]+)*';\nconst NAME_RE = new RegExp('^(' + NAME_WORD + '\\\\s+' + NAME_WORD + ')');\nconst LABEL_RE = /(?:Vertretungsberechtigt(?:e[rn]?)?|Geschäftsführer(?:in)?|Inhaber(?:in)?)[^:]*:/i;\nconst TITLE_SKIP_RE = /^(?:(?:Dr|Prof|Dipl|Mag|MBA|M\\.?Sc|B\\.?Sc|M\\.?A|B\\.?A|RA|LL\\.?M)\\.?(?:-[A-Za-zäöüß]+\\.?)?\\s+)+/;\nconst ANREDE_SKIP_RE = /^\\s*(?:(?:Herr|Frau)\\s+)?/;\n\nfunction extractInhaber(text) {\n  if (!text) return '';\n  const labelMatch = text.match(LABEL_RE);\n  if (!labelMatch) return '';\n  let rest = text.slice(labelMatch.index + labelMatch[0].length);\n  rest = rest.replace(ANREDE_SKIP_RE, '');\n  rest = rest.replace(TITLE_SKIP_RE, '');\n  const nameMatch = rest.match(NAME_RE);\n  if (!nameMatch) return '';\n  const name = nameMatch[1];\n  // Mojibake-Schutz\n  if (name.includes('�')) return '';\n  return name;\n}\n\n// Charset-Detection (Phase 1: Annotation only)\nfunction detectCharsetCorruption(rawHtml) {\n  if (!rawHtml) return false;\n  const fffdCount = (String(rawHtml).match(/�/g) || []).length;\n  return fffdCount > 5;\n}\n\n// === Main ===\n\nconst NON_SH = ['niedersachsen', 'mecklenburg-vorpommern', 'mecklenburg vorpommern', 'bremen ', 'brandenburg'];\nconst out = [];\n\nfor (let i = 0; i < dedupItems.length; i++) {\n  const lead = (dedupItems[i] && dedupItems[i].json) || {};\n  const det = ((detailItems[i] && detailItems[i].json) || {}).result || {};\n  const web = (websiteItems[i] && websiteItems[i].json) || {};\n  const imp = (impressumItems[i] && impressumItems[i].json) || {};\n\n  const websiteReachable = isReachable(websiteItems[i]);\n  const impressumReachable = isReachable(impressumItems[i]);\n  const websiteHtml = websiteReachable ? web.data : '';\n  const impressumHtml = impressumReachable ? imp.data : '';\n  const website_unreachable = !websiteReachable;\n\n  const websiteCorrupt = detectCharsetCorruption(websiteHtml);\n  const impressumCorrupt = detectCharsetCorruption(impressumHtml);\n\n  // Places-details-Felder\n  const phone = det.formatted_phone_number || det.international_phone_number || '';\n  const websiteUrl = det.website || '';\n  const websiteUrlNorm = websiteUrl ? websiteUrl.replace(/\\/+$/, '').replace(/^http:/, 'https:') : '';\n  const address = det.formatted_address || lead.formatted_address || '';\n  const rating = det.rating != null ? det.rating : (lead.rating != null ? lead.rating : null);\n  const reviewCount = det.user_ratings_total != null ? det.user_ratings_total : (lead.user_ratings_total || 0);\n\n  // Bundesland-Recheck\n  const addrLow = address.toLowerCase();\n  const outsideSH = NON_SH.some(m => addrLow.includes(m));\n\n  // Email-Extraktion: aus Startseite + Impressum\n  const emailScanHtml = stripScriptStyleOnly(websiteHtml) + '\\n' + stripScriptStyleOnly(impressumHtml);\n  const emails = extractEmails(emailScanHtml);\n  const bestEmail = pickBestEmail(emails, websiteUrlNorm || websiteUrl);\n\n  // Inhaber-Extraktion: primär Impressum, Fallback Startseite\n  const impressumPlain = htmlText(impressumHtml);\n  const websitePlain = htmlText(websiteHtml);\n  const inhaber = extractInhaber(impressumPlain) || extractInhaber(websitePlain);\n\n  // HTML-Snippet für Haiku — Startseite, gestripped, 3000 chars\n  const htmlSnippet = website_unreachable ? '' : truncateChars(htmlText(websiteHtml), 3000);\n\n  out.push({\n    json: {\n      lead_id: lead.lead_id,\n      place_id: lead.place_id,\n      business_name: det.name || lead.name || '',\n      address: address,\n      phone: phone,\n      website_url: websiteUrlNorm,\n      google_rating: rating,\n      review_count: reviewCount,\n      _hub_name: lead._hub_name,\n      _outside_sh: outsideSH,\n      _website_unreachable: website_unreachable,\n      _website_corrupt: websiteCorrupt,\n      _impressum_corrupt: impressumCorrupt,\n      _impressum_reachable: impressumReachable,\n      _email: bestEmail,\n      _inhaber: inhaber,\n      _email_candidate_count: emails.size,\n      _html_snippet: htmlSnippet,\n      _places_json: { name: det.name, address, phone, website: websiteUrlNorm, rating, user_ratings_total: reviewCount, business_status: det.business_status || null }\n    }\n  });\n}\n\nreturn out.filter(it => !it.json._outside_sh);\n"
+      }
+    },
+    {
+      "id": "node-12-anthropic-haiku",
+      "name": "HTTP Anthropic Haiku (Signal Extract)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2400,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: 'claude-haiku-4-5-20251001',\n  max_tokens: 500,\n  system: 'Du bist ein Signal-Extractor. ABSOLUTE OUTPUT-REGEL: Deine Antwort beginnt mit \"{\" und endet mit \"}\". Keine Vorrede, keine Schlussbemerkung, keine Markdown-Codefences, kein Fließtext, keine Erklärungen. NUR das JSON-Objekt selbst. Bei Unsicherheit über ein Signal: false oder null setzen, NICHT erklären.',\n  messages: [{\n    role: 'user',\n    content: 'Extrahiere aus HTML + Places-JSON die Signale als reines JSON-Objekt. Keine Erklärung. Schema:\\n{\"no_ssl\":bool,\"mobile_broken\":bool,\"no_impressum_link\":bool,\"stale_copyright\":string|null,\"generic_stock_look\":bool,\"no_clear_cta\":bool,\"review_response_rate_low\":bool|null,\"no_phone_in_header\":bool,\"load_time_slow\":bool,\"no_meta_description\":bool,\"summary\":string}\\n\\nRegeln:\\n- Konservativ: Signal NUR true bei klarem Beleg im HTML\\n- summary: kommasepariert, max 80 Zeichen, in Kebab-Form (z.B. \"kein-ssl, mobile-broken, copyright-2019\")\\n- load_time_slow nur true wenn HTML-Größe oder Render-Komplexität klar Performance-Problem indiziert; sonst false\\n- no_ssl nur true wenn URL http:// statt https://\\n\\nWebsite-Status: ' + ($json._website_unreachable ? 'UNREACHABLE — antworte exakt {\"no_ssl\":false,\"mobile_broken\":false,\"no_impressum_link\":false,\"stale_copyright\":null,\"generic_stock_look\":false,\"no_clear_cta\":false,\"review_response_rate_low\":null,\"no_phone_in_header\":false,\"load_time_slow\":false,\"no_meta_description\":false,\"summary\":\"website-unreachable\"}' : 'REACHABLE — analysiere HTML') + '\\n\\nHTML:\\n' + ($json._html_snippet || '(kein HTML)') + '\\n\\nPlaces:\\n' + JSON.stringify($json._places_json)\n  }]\n}) }}",
+        "options": {
+          "timeout": 30000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1500
+            }
+          }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_ANTHROPIC_HEADER_AUTH_ID",
+          "name": "Anthropic (Header: x-api-key)"
+        }
+      },
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "executeOnce": false
+    },
+    {
+      "id": "node-13-score-calc",
+      "name": "Score Calc + Build Sheet Row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2600,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Score Calc + Build Sheet Row (rewritten 2026-04-30).\n// Email kommt jetzt direkt aus ctx._email (HTML Truncate Node) — Haiku liefert kein extracted_email mehr.\n// notes-Feld bekommt \"inhaber:Vorname Nachname\" wenn Pattern hit, sonst leer.\nconst leadCtxAll = $('HTML Truncate + Merge Context').all();\nconst haikuAll = $input.all();\n\nfunction parseHaikuJson(content) {\n  if (!content || typeof content !== 'string') return null;\n  let s = content.trim();\n  s = s.replace(/^```(?:json)?\\s*/i, '').replace(/```\\s*$/, '').trim();\n  try { return JSON.parse(s); } catch (e) { /* fallthrough */ }\n  const m = s.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { return JSON.parse(m[0]); } catch (e) { /* fallthrough */ } }\n  return null;\n}\nfunction clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }\nfunction haikuErrorReason(haikuItem) {\n  if (!haikuItem) return 'no_item';\n  if (haikuItem.error) {\n    const msg = (typeof haikuItem.error === 'string' ? haikuItem.error : (haikuItem.error.message || JSON.stringify(haikuItem.error)));\n    return 'http_err:' + String(msg).slice(0, 40);\n  }\n  if (haikuItem.type === 'error' && haikuItem.error) {\n    return 'api_err:' + String(haikuItem.error.type || haikuItem.error.message || 'unknown').slice(0, 40);\n  }\n  if (!haikuItem.content || !Array.isArray(haikuItem.content) || !haikuItem.content[0]) {\n    return 'no_content';\n  }\n  const t = haikuItem.content[0].text;\n  if (!t) return 'empty_text';\n  return 'parse_fail:' + String(t).replace(/[\\n\\r\\t]/g, ' ').slice(0, 40);\n}\n\nconst out = [];\nfor (let i = 0; i < leadCtxAll.length; i++) {\n  const ctx = leadCtxAll[i].json;\n  const haikuItem = haikuAll[i] && haikuAll[i].json;\n  let signals = null;\n  let haikuError = false;\n  let errReason = '';\n  if (!haikuItem || haikuItem.error || haikuItem.type === 'error') {\n    haikuError = true;\n    errReason = haikuErrorReason(haikuItem);\n  } else if (haikuItem.content && Array.isArray(haikuItem.content) && haikuItem.content[0] && haikuItem.content[0].text) {\n    signals = parseHaikuJson(haikuItem.content[0].text);\n    if (!signals) {\n      haikuError = true;\n      errReason = haikuErrorReason(haikuItem);\n    }\n  } else {\n    haikuError = true;\n    errReason = haikuErrorReason(haikuItem);\n  }\n  let score = 0;\n  let summary = '';\n  if (haikuError) {\n    summary = ('HAIKU_ERR ' + errReason).slice(0, 80);\n  } else {\n    if (ctx._website_unreachable) {\n      score += 30;\n    } else {\n      if (signals.no_ssl) score += 25;\n      if (signals.mobile_broken) score += 20;\n      if (signals.stale_copyright) {\n        const yr = parseInt(String(signals.stale_copyright).match(/\\d{4}/)?.[0] || '0', 10);\n        if (yr && yr <= 2020) score += 15;\n      }\n      if (signals.generic_stock_look) score += 10;\n      if (signals.load_time_slow) score += 10;\n      if (signals.no_clear_cta) score += 8;\n      if (signals.no_impressum_link) score += 6;\n      if (signals.no_phone_in_header) score += 5;\n      if (signals.no_meta_description) score += 3;\n    }\n    const rc = Number(ctx.review_count) || 0;\n    if (rc < 10) score -= 10;\n    if (rc > 100) score += 5;\n    const gr = Number(ctx.google_rating) || 0;\n    if (gr && gr < 3.5) score -= 15;\n    score = clamp(score, 0, 100);\n    summary = (signals.summary || '').slice(0, 80);\n  }\n\n  // Email + Inhaber kommen vom HTML-Truncate-Node (lokale Extraktion, keine Haiku-Abhängigkeit)\n  const email = ctx._email || '';\n  const notes = ctx._inhaber ? ('inhaber:' + ctx._inhaber) : '';\n\n  out.push({\n    json: {\n      lead_id: ctx.lead_id,\n      business_name: ctx.business_name,\n      address: ctx.address,\n      phone: ctx.phone,\n      email: email,\n      website_url: ctx.website_url,\n      google_rating: ctx.google_rating != null ? ctx.google_rating : '',\n      review_count: ctx.review_count != null ? ctx.review_count : '',\n      score: score,\n      signal_summary: summary,\n      status: haikuError ? 'new' : 'scored',\n      pitch_date: '',\n      notes: notes\n    }\n  });\n}\nreturn out;\n"
+      }
+    },
+    {
+      "id": "node-14-sheets-append",
+      "name": "Sheets Append Lead",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2800,
+        300
+      ],
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $json.lead_id }}",
+            "business_name": "={{ $json.business_name }}",
+            "address": "={{ $json.address }}",
+            "phone": "={{ $json.phone }}",
+            "email": "={{ $json.email }}",
+            "website_url": "={{ $json.website_url }}",
+            "google_rating": "={{ $json.google_rating }}",
+            "review_count": "={{ $json.review_count }}",
+            "score": "={{ $json.score }}",
+            "signal_summary": "={{ $json.signal_summary }}",
+            "status": "={{ $json.status }}",
+            "pitch_date": "={{ $json.pitch_date }}",
+            "notes": "={{ $json.notes }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "lead_id",
+              "displayName": "lead_id",
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "required": true
+            },
+            {
+              "id": "business_name",
+              "displayName": "business_name",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "address",
+              "displayName": "address",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "website_url",
+              "displayName": "website_url",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "google_rating",
+              "displayName": "google_rating",
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "review_count",
+              "displayName": "review_count",
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "type": "number",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "signal_summary",
+              "displayName": "signal_summary",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "pitch_date",
+              "displayName": "pitch_date",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            }
+          ]
+        },
+        "options": {
+          "useAppend": true,
+          "cellFormat": "USER_ENTERED"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_SHEETS_OAUTH_ID",
+          "name": "Google Sheets (info@emj-media.de)"
+        }
+      },
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "node-15-sheets-read-all",
+      "name": "Sheets Read All (post-append)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3000,
+        300
+      ],
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "options": {
+          "returnFirstMatch": false
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_SHEETS_OAUTH_ID",
+          "name": "Google Sheets (info@emj-media.de)"
+        }
+      },
+      "executeOnce": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "node-16-top10-selektor",
+      "name": "Top 10 Selector",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3200,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Spec §5.5 Selektor-Logik.\nconst rows = $input.all().map(r => r.json).filter(r => r && r.lead_id);\nconst scored = rows.filter(r => String(r.status).trim() === 'scored');\nscored.sort((a, b) => Number(b.score || 0) - Number(a.score || 0));\nconst top = scored.slice(0, 10);\n// Aggregat-Counts\nconst countByStatus = (st) => rows.filter(r => String(r.status).trim() === st).length;\nconst summary = {\n  total_scored: scored.length,\n  total_pitched: countByStatus('pitched'),\n  total_replied: countByStatus('replied'),\n  total_won: countByStatus('won'),\n  total_disqualified: countByStatus('disqualified'),\n  max_score: top.length ? Number(top[0].score || 0) : 0,\n  pipeline_empty: scored.length === 0,\n  pipeline_thin: scored.length > 0 && scored.length < 10\n};\n// Single output item (briefing-stage erwartet aggregates)\nreturn [{\n  json: {\n    leads: top,\n    summary: summary,\n    count: top.length\n  }\n}];\n"
+      }
+    },
+    {
+      "id": "node-17-briefing-md",
+      "name": "Briefing Markdown Generator",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Spec §5.5 Briefing-Template.\nconst input = $input.first().json;\nconst { leads, summary, count } = input;\nconst now = new Date();\nconst pad = n => String(n).padStart(2, '0');\nconst datum = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate());\nconst runTs = datum + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());\nfunction slugify(s) {\n  return String(s || '').toLowerCase()\n    .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')\n    .replace(/ß/g, 'ss').replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')\n    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 32);\n}\nlet md = '';\nif (summary.pipeline_empty) {\n  md = '# EMJmedia Leads — Briefing ' + datum + '\\n\\n' +\n       '**Pipeline:** Leer. Alle gescorten Leads wurden gepitcht.\\n\\n' +\n       '**Empfehlung:** Branche/Region rotieren (KFZ → Heizung, oder SH → andere Region) und neue Spec-Variante starten.\\n';\n} else {\n  md += '# EMJmedia Leads — Briefing ' + datum + '\\n\\n';\n  md += '**Pipeline-Status:** ' + summary.total_scored + ' ungepitchte Leads im Sheet · Top-Score heute: ' + summary.max_score;\n  if (summary.pipeline_thin) md += ' · ⚠️ Pipeline wird dünn — neuer Run bald nötig';\n  md += '\\n\\n---\\n\\n## Top ' + count + ' ungepitchte Leads (nach Score)\\n\\n';\n  leads.forEach((lead, idx) => {\n    const rank = idx + 1;\n    const slug = slugify(lead.business_name);\n    md += '### ' + rank + '. ' + lead.business_name + ' — Score ' + lead.score + '/100\\n\\n';\n    md += '**Adresse:** ' + (lead.address || '—') + '  \\n';\n    md += '**Tel:** ' + (lead.phone || '—') + ' · **Mail:** ' + (lead.email || '—') + ' · **Web:** ' + (lead.website_url ? '[' + lead.website_url + '](' + lead.website_url + ')' : '—') + '  \\n';\n    md += '**Google:** ⭐ ' + (lead.google_rating || '—') + ' (' + (lead.review_count || 0) + ' Bewertungen)  \\n';\n    md += '**Signale:** `' + (lead.signal_summary || '—') + '`\\n\\n';\n    md += '**Pitch-Vorbereitung:**\\n';\n    md += '- [ ] Demo-Site bauen: `kfz-' + slug + '.emj-media.de` (KFZ-Template kopieren, 5–8 Felder austauschen)\\n';\n    md += '- [ ] Mail aus `MAIL_TEMPLATE_KFZ_V1.md` mit Variablen befüllen\\n';\n    md += '- [ ] Versenden via Gmail (`info@emj-media.de`) → Sheet-Status auf `pitched`, Datum eintragen\\n\\n';\n    md += '**Lead-ID:** `' + lead.lead_id + '` (für Sheet-Update)\\n\\n---\\n\\n';\n  });\n  md += '## Status-Schnellübersicht\\n\\n';\n  md += '| Status | Anzahl |\\n|--------|--------|\\n';\n  md += '| scored (offen) | ' + summary.total_scored + ' |\\n';\n  md += '| pitched | ' + summary.total_pitched + ' |\\n';\n  md += '| replied | ' + summary.total_replied + ' |\\n';\n  md += '| won | ' + summary.total_won + ' |\\n';\n  md += '| disqualified | ' + summary.total_disqualified + ' |\\n\\n';\n  md += '---\\n\\n## Workflow-Run\\n\\n';\n  md += '**Datum:** ' + runTs + '  \\n';\n  md += '**Workflow:** `leadhunter_kfz_sh`\\n';\n}\nreturn [{\n  json: {\n    datum: datum,\n    path: '/pulse/' + datum + '/EMJMEDIA_LEADS_BRIEFING.md',\n    content: md\n  }\n}];\n"
+      }
+    },
+    {
+      "id": "node-18-filewriter",
+      "name": "HTTP Filewriter (Vault Briefing)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3600,
+        300
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "http://wendebau_filewriter:5679/write",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ path: $json.path, content: $json.content }) }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "continueOnFail": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "node-10b-impressum-fetch",
+      "name": "HTTP Impressum Fetch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2000,
+        300
+      ],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ ($('HTTP Places details').item.json.result && typeof $('HTTP Places details').item.json.result.website === 'string' && $('HTTP Places details').item.json.result.website.length > 0) ? $('HTTP Places details').item.json.result.website.replace(/\\/+$/, '') + '/impressum' : 'https://example.invalid' }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36 EMJmedia-Leadhunter/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "de-DE,de;q=0.9,en;q=0.8"
+            },
+            {
+              "name": "Accept-Encoding",
+              "value": "gzip, deflate, br"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 20000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": true,
+              "maxRedirects": 5
+            }
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "text",
+              "neverError": true
+            }
+          }
+        }
+      },
+      "continueOnFail": true,
+      "alwaysOutputData": true
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Build Hub Query Matrix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger (Mo 06:00)": {
+      "main": [
+        [
+          {
+            "node": "Build Hub Query Matrix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Hub Query Matrix": {
+      "main": [
+        [
+          {
+            "node": "HTTP Places textSearch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Places textSearch": {
+      "main": [
+        [
+          {
+            "node": "Flatten Places + Inject Hub",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flatten Places + Inject Hub": {
+      "main": [
+        [
+          {
+            "node": "Pre-Filter (Bundesland · Chains · Distanz · Status)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pre-Filter (Bundesland · Chains · Distanz · Status)": {
+      "main": [
+        [
+          {
+            "node": "Sheets Read existing place_ids",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Read existing place_ids": {
+      "main": [
+        [
+          {
+            "node": "Dedup vs Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedup vs Sheet": {
+      "main": [
+        [
+          {
+            "node": "HTTP Places details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Places details": {
+      "main": [
+        [
+          {
+            "node": "HTTP Website Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Website Fetch": {
+      "main": [
+        [
+          {
+            "node": "HTTP Impressum Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Truncate + Merge Context": {
+      "main": [
+        [
+          {
+            "node": "HTTP Anthropic Haiku (Signal Extract)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Anthropic Haiku (Signal Extract)": {
+      "main": [
+        [
+          {
+            "node": "Score Calc + Build Sheet Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Calc + Build Sheet Row": {
+      "main": [
+        [
+          {
+            "node": "Sheets Append Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Append Lead": {
+      "main": [
+        [
+          {
+            "node": "Sheets Read All (post-append)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets Read All (post-append)": {
+      "main": [
+        [
+          {
+            "node": "Top 10 Selector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top 10 Selector": {
+      "main": [
+        [
+          {
+            "node": "Briefing Markdown Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Briefing Markdown Generator": {
+      "main": [
+        [
+          {
+            "node": "HTTP Filewriter (Vault Briefing)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Impressum Fetch": {
+      "main": [
+        [
+          {
+            "node": "HTML Truncate + Merge Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
