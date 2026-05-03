@@ -1,0 +1,13 @@
+{
+  "name": "@emjmedia-sites/auto-pilot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Auto-Pilot-Helper-Scripts (Sheet-Read via OAuth-Refresh-Token, Lead-Profile-Build, Sheet-Update, Briefing-MD-Patcher) — orchestriert von scripts/auto-pilot-morning.sh.",
+  "engines": {
+    "node": ">=20.12"
+  },
+  "dependencies": {
+    "googleapis": "^144.0.0"
+  }
+}
