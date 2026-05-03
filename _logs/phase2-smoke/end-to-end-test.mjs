@@ -209,16 +209,23 @@ expect(byId['kfz-hh-mock-gollnick']._inhaber === 'Frank Gollnick', 'P1: Gollnick
 expect(byId['kfz-hh-mock-stelling']._inhaber === 'Klaus Stelling', 'P1: Stelling — neuer Hit (Eigentümer-Label)');
 expect(byId['kfz-hh-mock-klausschmidt']._inhaber === 'Torsten Schmidt', 'P1: Klaus Schmidt Inhaber bleibt');
 
-// Patch 2 — Domain-Filter-Strict
-expect(byId['kfz-hh-mock-autopro']._email === '', 'P2: autoPRO — leer (Konkurrenz-Domain blockiert)');
-expect(byId['kfz-hh-mock-autopro']._email_domain_mismatch === true, 'P2: autoPRO — Mismatch-Flag gesetzt');
-expect(byId['kfz-hh-mock-mycardesign']._email === '', 'P2: MyCarDesign — leer (online.de)');
-expect(byId['kfz-hh-mock-mycardesign']._email_domain_mismatch === true, 'P2: MyCarDesign — Mismatch-Flag');
-expect(byId['kfz-hh-mock-klausschmidt']._email === '', 'P2: Klaus Schmidt — leer (gmx.de)');
-expect(byId['kfz-hh-mock-klausschmidt']._email_domain_mismatch === true, 'P2: Klaus Schmidt — Mismatch-Flag');
-expect(byId['kfz-hh-mock-eitner']._email === 'info@eitner-kfz.de', 'P2: Eitner Domain-Match bleibt');
-expect(byId['kfz-hh-mock-eitner']._email_domain_mismatch === false, 'P2: Eitner kein Mismatch');
-expect(byId['kfz-hh-mock-verbund1']._email === 'info@freiewerkstatthamburg.de', 'P2: Verbund Domain-Match bleibt');
+// Patch 2 — Domain-Filter-Strict mit Webhoster-Fallback (2026-05-03)
+// T1: Eitner/Verbund — eigene Domain matched
+// T2: MyCarDesign/Klaus-Schmidt — online.de/gmx.de = Webhoster-Fallback
+// T3: autoPRO — Konkurrenz-Mail (kfz-hartung.de ist KEIN Webhoster) → leer + mismatch
+expect(byId['kfz-hh-mock-autopro']._email === '', 'P2-T3: autoPRO — leer (Konkurrenz-Domain ohne Webhoster)');
+expect(byId['kfz-hh-mock-autopro']._email_domain_mismatch === true, 'P2-T3: autoPRO — Mismatch-Flag gesetzt');
+expect(byId['kfz-hh-mock-autopro']._email_webhoster === false, 'P2-T3: autoPRO — webhoster=false');
+expect(byId['kfz-hh-mock-mycardesign']._email === 'kfz-meisterbetrieb@online.de', 'P2-T2: MyCarDesign — online.de Webhoster-Fallback durchgelassen');
+expect(byId['kfz-hh-mock-mycardesign']._email_domain_mismatch === false, 'P2-T2: MyCarDesign — kein Mismatch');
+expect(byId['kfz-hh-mock-mycardesign']._email_webhoster === true, 'P2-T2: MyCarDesign — webhoster-Flag');
+expect(byId['kfz-hh-mock-klausschmidt']._email === 'kfz-schmidt64@gmx.de', 'P2-T2: Klaus Schmidt — gmx.de Webhoster-Fallback durchgelassen');
+expect(byId['kfz-hh-mock-klausschmidt']._email_domain_mismatch === false, 'P2-T2: Klaus Schmidt — kein Mismatch');
+expect(byId['kfz-hh-mock-klausschmidt']._email_webhoster === true, 'P2-T2: Klaus Schmidt — webhoster-Flag');
+expect(byId['kfz-hh-mock-eitner']._email === 'info@eitner-kfz.de', 'P2-T1: Eitner Domain-Match bleibt');
+expect(byId['kfz-hh-mock-eitner']._email_domain_mismatch === false, 'P2-T1: Eitner kein Mismatch');
+expect(byId['kfz-hh-mock-eitner']._email_webhoster === false, 'P2-T1: Eitner kein Webhoster-Tag');
+expect(byId['kfz-hh-mock-verbund1']._email === 'info@freiewerkstatthamburg.de', 'P2-T1: Verbund Domain-Match bleibt');
 
 // Patch 3 — Charset-Phase-2
 expect(byId['kfz-hh-mock-verbund1']._website_corrupt === false, 'P3: Verbund-Latin-1 — kein Mojibake mehr');
@@ -261,11 +268,17 @@ for (const it of scoreOut) {
   console.log('    notes: ' + JSON.stringify(it.json.notes));
 }
 
-// P2: Mismatch-Penalty + Tag
+// P2: Mismatch (T3) vs Webhoster-Fallback (T2) — mutually exclusive
 expect(scoreById['kfz-hh-mock-autopro'].signal_summary.includes('email-domain-mismatch'),
-  'P2: autoPRO signal_summary enthält email-domain-mismatch');
-expect(scoreById['kfz-hh-mock-mycardesign'].signal_summary.includes('email-domain-mismatch'),
-  'P2: MyCarDesign signal_summary enthält email-domain-mismatch');
+  'P2-T3: autoPRO signal_summary enthält email-domain-mismatch');
+expect(!scoreById['kfz-hh-mock-autopro'].signal_summary.includes('email-webhoster-fallback'),
+  'P2-T3: autoPRO signal_summary KEIN webhoster-Tag (mutually exclusive)');
+expect(scoreById['kfz-hh-mock-mycardesign'].signal_summary.includes('email-webhoster-fallback'),
+  'P2-T2: MyCarDesign signal_summary enthält email-webhoster-fallback');
+expect(!scoreById['kfz-hh-mock-mycardesign'].signal_summary.includes('email-domain-mismatch'),
+  'P2-T2: MyCarDesign signal_summary KEIN mismatch-Tag');
+expect(scoreById['kfz-hh-mock-klausschmidt'].signal_summary.includes('email-webhoster-fallback'),
+  'P2-T2: Klaus Schmidt signal_summary enthält email-webhoster-fallback');
 
 // P4: no-ssl-Tag + Score-Boost
 expect(scoreById['kfz-hh-mock-klausschmidt'].signal_summary.includes('no-ssl'),

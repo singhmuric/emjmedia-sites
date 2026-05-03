@@ -54,11 +54,22 @@ export function extractInhaber(rawText) {
   return name;
 }
 
-// === Patch 2 — Domain-Filter-Strict ===
-// Bei keinem Domain-Match-Hit: bestEmail bleibt leer, mismatch-Flag wird gesetzt.
+// === Patch 2 — Domain-Filter-Strict mit Webhoster-Fallback (2026-05-03) ===
+// 3-Tier-Fallback nach Phase-2-Re-Run-Befund (Email-Quote 0/16 → Phase-1-Niveau zurück):
+//   T1: Domain-Match → mismatch=false, webhoster=false
+//   T2: Webhoster-Mail (T-Online, GMX, Web.de, Strato, ...) → webhoster=true
+//   T3: Sonst (Konkurrenz/Kanzlei) → leer + mismatch=true
 
 const EMAIL_BLOCKLIST_PREFIXES = ['webmaster@', 'postmaster@', 'no-reply@', 'noreply@', 'admin@', 'hostmaster@', 'abuse@', 'spam@'];
 const EMAIL_KANZLEI_HINTS = ['kanzlei', 'rechtsanwalt', 'datenschutz-anwalt', 'datenschutz-beauftragter', 'dsb-'];
+export const WEBHOSTER_DOMAINS = [
+  't-online.de', 'gmx.de', 'gmx.net', 'gmx.at', 'gmx.ch', 'web.de',
+  '1und1.de', 'einsundeins.de', 'strato.de', 'vodafone.de', 'arcor.de',
+  'telekom.de', 'freenet.de', 'mail.de', 'online.de',
+  'outlook.de', 'outlook.com', 'hotmail.de', 'hotmail.com', 'live.de',
+  'yahoo.de', 'yahoo.com', 'aol.de', 'aol.com', 'icloud.com', 'me.com',
+  'gmail.com', 'googlemail.com'
+];
 
 function stripScriptStyleOnly(s) {
   if (!s) return '';
@@ -91,7 +102,7 @@ export function extractEmails(html) {
 export function pickBestEmail(emails, websiteUrl) {
   let candidates = Array.from(emails);
   candidates = candidates.filter(e => !EMAIL_BLOCKLIST_PREFIXES.some(b => e.startsWith(b)));
-  if (!candidates.length) return { email: '', mismatch: false };
+  if (!candidates.length) return { email: '', mismatch: false, webhoster: false };
 
   let ownHost = '';
   try {
@@ -103,12 +114,6 @@ export function pickBestEmail(emails, websiteUrl) {
     return ownRoot && ed.endsWith(ownRoot);
   });
 
-  // Patch 2: Wenn keine eigene Domain matched, kein Fallback —
-  // email bleibt leer, mismatch-Flag = true (Score-Penalty + signal-Tag).
-  if (!ownDomain.length) {
-    return { email: '', mismatch: true };
-  }
-
   function emailScore(e) {
     if (e.startsWith('info@')) return 100;
     if (e.startsWith('kontakt@')) return 90;
@@ -118,8 +123,26 @@ export function pickBestEmail(emails, websiteUrl) {
     if (EMAIL_KANZLEI_HINTS.some(k => e.includes(k))) return 5;
     return 50;
   }
-  ownDomain.sort((a, b) => emailScore(b) - emailScore(a));
-  return { email: ownDomain[0] || '', mismatch: false };
+
+  // T1: Domain-Match
+  if (ownDomain.length) {
+    ownDomain.sort((a, b) => emailScore(b) - emailScore(a));
+    return { email: ownDomain[0] || '', mismatch: false, webhoster: false };
+  }
+
+  // T2: Webhoster-Mail (T-Online, GMX, ...) — Kanzlei bleibt strikt geblockt
+  const nonKanzlei = candidates.filter(e => !EMAIL_KANZLEI_HINTS.some(k => e.includes(k)));
+  const webhoster = nonKanzlei.filter(e => {
+    const ed = (e.split('@')[1] || '').toLowerCase();
+    return WEBHOSTER_DOMAINS.indexOf(ed) !== -1;
+  });
+  if (webhoster.length) {
+    webhoster.sort((a, b) => emailScore(b) - emailScore(a));
+    return { email: webhoster[0], mismatch: false, webhoster: true };
+  }
+
+  // T3: Konkurrenz-Domain ohne Webhoster-Hit → leer + mismatch
+  return { email: '', mismatch: true, webhoster: false };
 }
 
 // === Patch 3 — Charset-Phase-2 ===
