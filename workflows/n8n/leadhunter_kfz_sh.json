@@ -23,7 +23,7 @@
   ],
   "staticData": null,
   "pinData": {},
-  "versionId": "2",
+  "versionId": "3",
   "nodes": [
     {
       "id": "node-01-manual",
@@ -407,12 +407,26 @@
       }
     },
     {
+      "id": "node-13b-prequal",
+      "name": "Pre-Qualifizierung",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2700,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Pre-Qualifizierungs-Node — füllt Sheet-Spalten N-X (Spec §3 v2 + §4 Decision-Tree).\n// Reads:\n//   $input — Score Calc + Build Sheet Row (13 Felder)\n//   $('HTML Truncate + Merge Context').all() — _inhaber, _no_ssl, _website_unreachable, place_id, _hub_name\n//   $('Sheets Read existing place_ids').all() — existing slugs für Kollisions-Lookup\n// Index-Korrelation: Score Calc iteriert HTML Truncate per Index, also bleibt\n// $input[i] und $('HTML Truncate + Merge Context').all()[i] aligned.\n\nfunction slugify(s) {\n  if (!s) return '';\n  return String(s)\n    .replace(/ß/g, 'ss')\n    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')\n    .replace(/Ä/g, 'ae').replace(/Ö/g, 'oe').replace(/Ü/g, 'ue')\n    .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')\n    .toLowerCase()\n    .replace(/&/g, ' und ')\n    .replace(/[^a-z0-9]+/g, '-')\n    .replace(/^-+|-+$/g, '')\n    .slice(0, 30)\n    .replace(/-+$/g, '');\n}\n\nfunction ensureUniqueSlug(baseSlug, existingSlugs) {\n  if (!baseSlug) return baseSlug;\n  if (!existingSlugs.has(baseSlug)) {\n    existingSlugs.add(baseSlug);\n    return baseSlug;\n  }\n  for (var i = 2; i <= 99; i++) {\n    var candidate = (baseSlug + '-' + i).slice(0, 30).replace(/-+$/g, '');\n    if (!existingSlugs.has(candidate)) {\n      existingSlugs.add(candidate);\n      return candidate;\n    }\n  }\n  var fallback = (baseSlug + '-x' + Date.now().toString(36)).slice(0, 30);\n  existingSlugs.add(fallback);\n  return fallback;\n}\n\nfunction phoneE164(raw) {\n  if (!raw) return '';\n  var p = String(raw).trim();\n  if (/^\\+\\d/.test(p)) return p.replace(/[^\\d+ ()/-]/g, '').trim();\n  if (/^0\\d/.test(p)) {\n    var digits = p.replace(/[^\\d]/g, '').replace(/^0/, '');\n    if (digits.length < 6) return '';\n    return '+49 ' + digits;\n  }\n  var digits2 = p.replace(/[^\\d]/g, '');\n  if (digits2.length < 6) return '';\n  if (digits2.indexOf('49') === 0) return '+' + digits2;\n  return '+49 ' + digits2;\n}\n\nfunction extractDistrict(address, hubName) {\n  if (!address) return hubName || '';\n  var m = String(address).match(/\\b\\d{5}\\s+([A-Za-zÄÖÜäöüß][\\wÄÖÜäöüß.\\- ]+?)(?:\\s*,|$)/);\n  if (m) {\n    return m[1].trim().replace(/\\s+(Germany|Deutschland)$/i, '').replace(/[,;]+$/, '').trim();\n  }\n  return hubName || '';\n}\n\nfunction buildAnrede(ownerNameRaw) {\n  if (!ownerNameRaw) return 'Hallo zusammen,';\n  var owner = String(ownerNameRaw).trim();\n  if (!owner) return 'Hallo zusammen,';\n  var tokens = owner.split(/\\s+/).filter(Boolean);\n  if (tokens.length === 0) return 'Hallo zusammen,';\n  var lastName = tokens[tokens.length - 1];\n  if (!lastName || lastName.length < 2) return 'Hallo zusammen,';\n  return 'Herr ' + lastName;\n}\n\nfunction pickMailVariant(websiteUrl, signalSummary) {\n  if (!websiteUrl || String(websiteUrl).trim() === '') return 'B';\n  if (String(signalSummary || '').indexOf('website-unreachable') !== -1) return 'B';\n  return 'A';\n}\n\nfunction pickSubjectVariant(businessName) {\n  var name = String(businessName || '');\n  if (name.length === 0 || name.length > 20) return 'B';\n  if (name.indexOf('&') !== -1) return 'B';\n  if (/\\bGmbH\\b|\\bKG\\b|\\bOHG\\b|\\bUG\\b|\\be\\.K\\.\\b/i.test(name)) return 'B';\n  return 'A';\n}\n\nfunction pickObservation(mailVariant, isHttpsBool, signalSummary, websiteUnreachable) {\n  if (mailVariant === 'B') return 'VARIANT_B';\n  if (websiteUnreachable) return 'VARIANT_B';\n  var sig = String(signalSummary || '').toLowerCase();\n  if (isHttpsBool === false || sig.indexOf('no-ssl') !== -1 || sig.indexOf('kein-ssl') !== -1) {\n    return 'Ihre Seite läuft noch ohne SSL — Google zeigt Besuchern eine Sicherheits-Warnung in der Adressleiste, was viele direkt zur Konkurrenz schickt';\n  }\n  if (sig.indexOf('kein-impressum') !== -1 || sig.indexOf('no-impressum') !== -1 || sig.indexOf('no_impressum') !== -1) {\n    return 'Auf Ihrer Seite fehlt ein klares Impressum — Pflicht-Angaben sind oft schwer auffindbar';\n  }\n  if (sig.indexOf('telefon-nicht-prominent') !== -1 || sig.indexOf('no-phone') !== -1 || sig.indexOf('no_phone') !== -1) {\n    return 'Ihre Telefonnummer ist auf der Startseite nicht direkt sichtbar — viele Anrufe gehen so verloren';\n  }\n  if (sig.indexOf('kein-meta') !== -1 || sig.indexOf('no-meta') !== -1 || sig.indexOf('no_meta') !== -1) {\n    return 'bei Google-Suchergebnissen fehlt eine ansprechende Beschreibung Ihrer Werkstatt — viele Klicks gehen so verloren';\n  }\n  return 'Ihre Website könnte mobilfreundlicher sein — viele potenzielle Kunden schauen kurz vom Handy und springen ab';\n}\n\nfunction googleMapsUrl(placeId) {\n  if (!placeId) return '';\n  return 'https://www.google.com/maps/place/?q=place_id:' + encodeURIComponent(placeId);\n}\n\nfunction ratingDisplay(rating) {\n  if (rating == null || rating === '') return '';\n  var n = Number(rating);\n  if (isNaN(n)) return String(rating);\n  return n.toFixed(1).replace('.', ',');\n}\n\n// Sheet-Read für slug-Kollision (Phase-1-Sheet hat noch keine slugs, Phase-2 schon)\nvar existingSlugs = new Set();\ntry {\n  var sheetRows = $('Sheets Read existing place_ids').all();\n  for (var r = 0; r < sheetRows.length; r++) {\n    var rj = sheetRows[r] && sheetRows[r].json;\n    if (rj && rj.slug) existingSlugs.add(String(rj.slug).trim());\n  }\n} catch (e) { /* node nicht erreichbar im Manual-Test? — leer fortfahren */ }\n\nvar leads = $input.all();\nvar ctxAll = $('HTML Truncate + Merge Context').all();\nvar out = [];\n\nfor (var i = 0; i < leads.length; i++) {\n  var lead = leads[i].json || {};\n  var htmlCtx = (ctxAll[i] && ctxAll[i].json) || {};\n\n  var businessName = lead.business_name || '';\n  var slug = ensureUniqueSlug(slugify(businessName), existingSlugs);\n\n  var address = lead.address || htmlCtx.address || '';\n  var hubName = htmlCtx._hub_name || '';\n  var district = extractDistrict(address, hubName);\n\n  var phoneRaw = lead.phone || htmlCtx.phone || '';\n  var phone_e164 = phoneE164(phoneRaw);\n\n  var google_rating = ratingDisplay(lead.google_rating);\n  var review_count = (lead.review_count != null && lead.review_count !== '') ? String(lead.review_count) : '';\n\n  var placeId = htmlCtx.place_id || '';\n  var google_maps_url = googleMapsUrl(placeId);\n\n  var websiteUrl = lead.website_url || htmlCtx.website_url || '';\n  var is_https = !websiteUrl ? '' : (String(websiteUrl).toLowerCase().indexOf('https://') === 0 ? 'true' : 'false');\n\n  var websiteUnreachable = !!htmlCtx._website_unreachable;\n  var noSslStatic = !!htmlCtx._no_ssl;\n  var signalSummary = lead.signal_summary || '';\n\n  var mail_variant = pickMailVariant(websiteUrl, signalSummary);\n  var subject_variant = pickSubjectVariant(businessName);\n\n  var ownerName = htmlCtx._inhaber || '';\n  if (!ownerName && lead.notes) {\n    var nm = String(lead.notes).match(/inhaber:\\s*(.+?)(?:[;,]|$)/i);\n    if (nm) ownerName = nm[1].trim();\n  }\n  var anrede = buildAnrede(ownerName);\n\n  var isHttpsBool = is_https === 'true' ? true : (is_https === 'false' ? false : null);\n  var sigForObs = noSslStatic ? (signalSummary + ', no-ssl') : signalSummary;\n  var observation = pickObservation(mail_variant, isHttpsBool, sigForObs, websiteUnreachable);\n\n  out.push({\n    json: Object.assign({}, lead, {\n      slug: slug,\n      district: district,\n      phone_e164: phone_e164,\n      google_rating: google_rating,\n      review_count: review_count,\n      google_maps_url: google_maps_url,\n      is_https: is_https,\n      mail_variant: mail_variant,\n      subject_variant: subject_variant,\n      anrede: anrede,\n      observation: observation,\n      _owner_name_resolved: ownerName\n    })\n  });\n}\n\nreturn out;\n"
+      }
+    },
+    {
       "id": "node-14-sheets-append",
       "name": "Sheets Append Lead",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        2800,
+        2900,
         300
       ],
       "parameters": {
@@ -442,7 +456,16 @@
             "signal_summary": "={{ $json.signal_summary }}",
             "status": "={{ $json.status }}",
             "pitch_date": "={{ $json.pitch_date }}",
-            "notes": "={{ $json.notes }}"
+            "notes": "={{ $json.notes }}",
+            "slug": "={{ $json.slug }}",
+            "district": "={{ $json.district }}",
+            "phone_e164": "={{ $json.phone_e164 }}",
+            "google_maps_url": "={{ $json.google_maps_url }}",
+            "is_https": "={{ $json.is_https }}",
+            "mail_variant": "={{ $json.mail_variant }}",
+            "subject_variant": "={{ $json.subject_variant }}",
+            "anrede": "={{ $json.anrede }}",
+            "observation": "={{ $json.observation }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -491,14 +514,14 @@
             {
               "id": "google_rating",
               "displayName": "google_rating",
-              "type": "number",
+              "type": "string",
               "canBeUsedToMatch": false,
               "required": false
             },
             {
               "id": "review_count",
               "displayName": "review_count",
-              "type": "number",
+              "type": "string",
               "canBeUsedToMatch": false,
               "required": false
             },
@@ -536,6 +559,69 @@
               "type": "string",
               "canBeUsedToMatch": false,
               "required": false
+            },
+            {
+              "id": "slug",
+              "displayName": "slug",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "district",
+              "displayName": "district",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "phone_e164",
+              "displayName": "phone_e164",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "google_maps_url",
+              "displayName": "google_maps_url",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "is_https",
+              "displayName": "is_https",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "mail_variant",
+              "displayName": "mail_variant",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "subject_variant",
+              "displayName": "subject_variant",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "anrede",
+              "displayName": "anrede",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
+            },
+            {
+              "id": "observation",
+              "displayName": "observation",
+              "type": "string",
+              "canBeUsedToMatch": false,
+              "required": false
             }
           ]
         },
@@ -561,7 +647,7 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
       "position": [
-        3000,
+        3100,
         300
       ],
       "parameters": {
@@ -595,7 +681,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3200,
+        3300,
         300
       ],
       "parameters": {
@@ -609,12 +695,12 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3400,
+        3500,
         300
       ],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Spec §5.5 Briefing-Template.\nconst input = $input.first().json;\nconst { leads, summary, count } = input;\nconst now = new Date();\nconst pad = n => String(n).padStart(2, '0');\nconst datum = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate());\nconst runTs = datum + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());\nfunction slugify(s) {\n  return String(s || '').toLowerCase()\n    .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')\n    .replace(/ß/g, 'ss').replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')\n    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 32);\n}\nlet md = '';\nif (summary.pipeline_empty) {\n  md = '# EMJmedia Leads — Briefing ' + datum + '\\n\\n' +\n       '**Pipeline:** Leer. Alle gescorten Leads wurden gepitcht.\\n\\n' +\n       '**Empfehlung:** Branche/Region rotieren (KFZ → Heizung, oder SH → andere Region) und neue Spec-Variante starten.\\n';\n} else {\n  md += '# EMJmedia Leads — Briefing ' + datum + '\\n\\n';\n  md += '**Pipeline-Status:** ' + summary.total_scored + ' ungepitchte Leads im Sheet · Top-Score heute: ' + summary.max_score;\n  if (summary.pipeline_thin) md += ' · ⚠️ Pipeline wird dünn — neuer Run bald nötig';\n  md += '\\n\\n---\\n\\n## Top ' + count + ' ungepitchte Leads (nach Score)\\n\\n';\n  leads.forEach((lead, idx) => {\n    const rank = idx + 1;\n    const slug = slugify(lead.business_name);\n    md += '### ' + rank + '. ' + lead.business_name + ' — Score ' + lead.score + '/100\\n\\n';\n    md += '**Adresse:** ' + (lead.address || '—') + '  \\n';\n    md += '**Tel:** ' + (lead.phone || '—') + ' · **Mail:** ' + (lead.email || '—') + ' · **Web:** ' + (lead.website_url ? '[' + lead.website_url + '](' + lead.website_url + ')' : '—') + '  \\n';\n    md += '**Google:** ⭐ ' + (lead.google_rating || '—') + ' (' + (lead.review_count || 0) + ' Bewertungen)  \\n';\n    md += '**Signale:** `' + (lead.signal_summary || '—') + '`\\n\\n';\n    md += '**Pitch-Vorbereitung:**\\n';\n    md += '- [ ] Demo-Site bauen: `kfz-' + slug + '.emj-media.de` (KFZ-Template kopieren, 5–8 Felder austauschen)\\n';\n    md += '- [ ] Mail aus `MAIL_TEMPLATE_KFZ_V1.md` mit Variablen befüllen\\n';\n    md += '- [ ] Versenden via Gmail (`info@emj-media.de`) → Sheet-Status auf `pitched`, Datum eintragen\\n\\n';\n    md += '**Lead-ID:** `' + lead.lead_id + '` (für Sheet-Update)\\n\\n---\\n\\n';\n  });\n  md += '## Status-Schnellübersicht\\n\\n';\n  md += '| Status | Anzahl |\\n|--------|--------|\\n';\n  md += '| scored (offen) | ' + summary.total_scored + ' |\\n';\n  md += '| pitched | ' + summary.total_pitched + ' |\\n';\n  md += '| replied | ' + summary.total_replied + ' |\\n';\n  md += '| won | ' + summary.total_won + ' |\\n';\n  md += '| disqualified | ' + summary.total_disqualified + ' |\\n\\n';\n  md += '---\\n\\n## Workflow-Run\\n\\n';\n  md += '**Datum:** ' + runTs + '  \\n';\n  md += '**Workflow:** `leadhunter_kfz_sh`\\n';\n}\nreturn [{\n  json: {\n    datum: datum,\n    path: '/pulse/' + datum + '/EMJMEDIA_LEADS_BRIEFING.md',\n    content: md\n  }\n}];\n"
+        "jsCode": "// Briefing-MD-Generator v2 — Format gemäß MORNING_FLOW_SPEC §6.\n// Input: 1 Item aus Top 10 Selector mit { leads, summary, count }.\n// Output: { datum, path, content } für Filewriter.\n//\n// Wichtig:\n//   - Mailto subject + body durch encodeURIComponent (nicht manuelles \\n→%0A,\n//     weil Umlaute + EM-Dashes sonst kaputt gehen)\n//   - Demo-URL im Body trägt UTM (lead, utm_source, utm_campaign=kfz-{KW})\n//   - Mailto-Wrapper selbst trägt KEINE UTMs\n\nfunction slugify(s) {\n  if (!s) return '';\n  return String(s)\n    .replace(/ß/g, 'ss')\n    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue')\n    .replace(/Ä/g, 'ae').replace(/Ö/g, 'oe').replace(/Ü/g, 'ue')\n    .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')\n    .toLowerCase()\n    .replace(/&/g, ' und ')\n    .replace(/[^a-z0-9]+/g, '-')\n    .replace(/^-+|-+$/g, '')\n    .slice(0, 30)\n    .replace(/-+$/g, '');\n}\n\nfunction isoWeek(date) {\n  var d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));\n  var dayNum = d.getUTCDay() || 7;\n  d.setUTCDate(d.getUTCDate() + 4 - dayNum);\n  var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));\n  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);\n}\n\nfunction greetingLine(anrede) {\n  if (!anrede || anrede === 'Hallo zusammen,') return 'Hallo zusammen,';\n  return 'Hallo ' + anrede + ',';\n}\n\nfunction buildSubject(lead) {\n  if (lead.subject_variant === 'A' && lead.business_name) {\n    return 'kurze idee für ' + lead.business_name;\n  }\n  return 'kurze idee für ihre werkstatt';\n}\n\nfunction buildMailBody(lead, demoUrlForMail) {\n  var greeting = greetingLine(lead.anrede || 'Hallo zusammen,');\n  var district = lead.district || '';\n  var rating = lead.google_rating || '';\n  var reviews = lead.review_count || '';\n  var obs = lead.observation || '';\n  if (lead.mail_variant === 'B') {\n    return [\n      greeting,\n      '',\n      'bin auf Ihre Werkstatt in ' + district + ' gestoßen — ' + rating + ' Sterne bei ' + reviews + ' Bewertungen, ohne Website. Das ist eigentlich Verschwendung.',\n      '',\n      'Werkstätten ohne Website verlieren heute fast alle jüngeren Kunden, die vor dem ersten Termin kurz googeln und dann ohne Vertrauensanker bei der Konkurrenz landen. Hab Ihnen mal gezeigt wie das für Sie aussehen könnte (öffnet direkt im Browser, kein Login):',\n      '',\n      demoUrlForMail,\n      '',\n      'Wenn das was für Sie ist, schreiben Sie mir kurz zurück. Wenn nicht, ignorieren Sie die Mail einfach — ich verfolge nicht weiter.',\n      '',\n      'Beste Grüße',\n      'Emin Muric',\n      'EMJmedia',\n      '',\n      'P.S. Falls Sie sich fragen wer dahintersteht: Singh/Muric GbR aus Kaltenkirchen, mehr unter emj-media.de.'\n    ].join('\\n');\n  }\n  return [\n    greeting,\n    '',\n    'bin auf Ihre Werkstatt in ' + district + ' gestoßen — ' + rating + ' Sterne bei ' + reviews + ' Bewertungen, das ist stark.',\n    '',\n    'Eine Sache ist mir aufgefallen: ' + obs + '. Hab Ihnen mal kurz eine Demo gebaut, wie das aussehen könnte (öffnet direkt im Browser, kein Login):',\n    '',\n    demoUrlForMail,\n    '',\n    'Wenn das was für Sie ist, schreiben Sie mir kurz zurück. Wenn nicht, ignorieren Sie die Mail einfach — ich verfolge nicht weiter.',\n    '',\n    'Beste Grüße',\n    'Emin Muric',\n    'EMJmedia',\n    '',\n    'P.S. Falls Sie sich fragen wer dahintersteht: Singh/Muric GbR aus Kaltenkirchen, mehr unter emj-media.de.'\n  ].join('\\n');\n}\n\nfunction buildMailto(lead, demoUrlForMail) {\n  var email = lead.email || '';\n  if (!email) return '';\n  return 'mailto:' + email +\n    '?subject=' + encodeURIComponent(buildSubject(lead)) +\n    '&body=' + encodeURIComponent(buildMailBody(lead, demoUrlForMail));\n}\n\nfunction shortHook(lead) {\n  var obs = lead.observation || '';\n  if (obs === 'VARIANT_B') return 'ohne Website';\n  if (obs.indexOf('SSL') !== -1) return 'SSL fehlt';\n  if (obs.indexOf('Impressum') !== -1) return 'Impressum unklar';\n  if (obs.indexOf('Telefonnummer') !== -1) return 'Telefon nicht prominent';\n  if (obs.indexOf('Beschreibung') !== -1 || obs.indexOf('Google-Suchergebnissen') !== -1) return 'Meta-Description fehlt';\n  if (obs.indexOf('mobilfreundlicher') !== -1) return 'Mobile-Optimierung';\n  return 'Performance-Lift';\n}\n\nvar SHEET_ID = 'REPLACE_WITH_SHEET_ID';\nvar BASE_DOMAIN = 'emj-media.de';\nvar REPLY_LABEL = 'EMJmedia-Reply';\n\nvar input = $input.first().json;\nvar leads = (input && input.leads) || [];\nvar summary = (input && input.summary) || {};\nvar count = (input && input.count) || leads.length;\n\nvar now = new Date();\nvar pad = function(n) { return String(n).padStart(2, '0'); };\nvar datum = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());\nvar runTs = datum + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());\nvar kw = String(isoWeek(now)).padStart(2, '0');\n\nvar md = '';\nmd += '# EMJmedia Pitch-Briefing — ' + datum + '\\n';\nmd += '**Cron-Run:** ' + runTs + '\\n';\n\nif (summary.pipeline_empty) {\n  md += '**Pipeline:** Leer. Branche/Region rotieren.\\n';\n  return [{ json: { datum: datum, path: '/pulse/' + datum + '/EMJMEDIA_LEADS_BRIEFING.md', content: md } }];\n}\n\nmd += '**Top ' + count + ' Leads** aus ' + (summary.total_scored || count) + ' gescorten · Score ≥ 60\\n\\n';\nmd += '> Routine: Pro Lead 1× \"Mail in Gmail öffnen\" klicken → Gmail öffnet → Send.\\n';\nmd += '> Nach Versand: am Ende der Liste den Bulk-Mark-Link klicken.\\n\\n';\nmd += '---\\n\\n';\n\nfor (var idx = 0; idx < leads.length; idx++) {\n  var lead = leads[idx];\n  var rank = (idx + 1) + '/' + count;\n  var slug = lead.slug || slugify(lead.business_name || '');\n  var district = lead.district || '';\n  var demoUrl = 'https://' + slug + '.' + BASE_DOMAIN;\n  var demoUrlForMail = demoUrl + '/?lead=' + encodeURIComponent(lead.lead_id || '') +\n    '&utm_source=cold-email&utm_campaign=kfz-' + kw;\n  var ratingDisp = lead.google_rating || '—';\n  var reviewsDisp = lead.review_count || '0';\n  var phoneDisp = lead.phone || '—';\n  var ownerDisp = lead._owner_name_resolved || '—';\n  if ((!ownerDisp || ownerDisp === '—') && lead.notes && /inhaber:/i.test(lead.notes)) {\n    ownerDisp = String(lead.notes).replace(/.*inhaber:\\s*/i, '').replace(/[;,].*$/, '').trim() || '—';\n  }\n  var hook = shortHook(lead);\n\n  md += '## Lead ' + rank + ' — ' + (lead.business_name || '—') + ' · Score ' + (lead.score != null ? lead.score : '—') + ' · ' + (district || '—') + '\\n\\n';\n  md += '**Demo:** [' + slug + '.' + BASE_DOMAIN + '](' + demoUrl + ')  \\n';\n  md += '**Telefon:** ' + phoneDisp + '  \\n';\n  md += '**Owner:** ' + ownerDisp + '  \\n';\n  md += '**Bewertungen:** ' + ratingDisp + ' ⭐ (' + reviewsDisp + ')  \\n';\n  md += '**Hook:** ' + hook + '\\n\\n';\n\n  var mailto = buildMailto(lead, demoUrlForMail);\n  if (mailto) {\n    md += '📧 [**Mail in Gmail öffnen**](' + mailto + ')\\n\\n';\n  } else {\n    md += '⚠️ Keine Email — Pitch via Telefon: ' + phoneDisp + '\\n\\n';\n  }\n\n  md += '<details><summary>Mail-Vorschau (falls Mailto nicht funktioniert)</summary>\\n\\n';\n  md += '\\`\\`\\`\\n';\n  md += 'Subject: ' + buildSubject(lead) + '\\n\\n';\n  md += buildMailBody(lead, demoUrlForMail) + '\\n';\n  md += '\\`\\`\\`\\n\\n';\n  md += '</details>\\n\\n';\n  md += '---\\n\\n';\n}\n\nmd += '## Nach Versand\\n\\n';\nmd += '🔄 [**Bulk-Mark gepitcht**](https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/edit#gid=0&range=K2:K' + (count + 1) + ')\\n';\nmd += '   (öffnet Sheet — Spalte K Status auf \"pitched\" setzen, Spalte L heutiges Datum)\\n\\n';\nmd += '📊 [**Antwort-Tracker (Gmail-Filter)**](https://mail.google.com/mail/u/0/#label/' + encodeURIComponent(REPLY_LABEL) + ')\\n';\nmd += '   Replies werden automatisch gefiltert auf Subject \"kurze idee\" oder \"nachgefragt\".\\n';\n\nreturn [{ json: { datum: datum, path: '/pulse/' + datum + '/EMJMEDIA_LEADS_BRIEFING.md', content: md } }];\n"
       }
     },
     {
@@ -623,7 +709,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        3600,
+        3700,
         300
       ],
       "parameters": {
@@ -845,7 +931,7 @@
       "main": [
         [
           {
-            "node": "Sheets Append Lead",
+            "node": "Pre-Qualifizierung",
             "type": "main",
             "index": 0
           }
@@ -901,6 +987,17 @@
         [
           {
             "node": "HTML Truncate + Merge Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pre-Qualifizierung": {
+      "main": [
+        [
+          {
+            "node": "Sheets Append Lead",
             "type": "main",
             "index": 0
           }
