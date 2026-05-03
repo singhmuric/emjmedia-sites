@@ -1,0 +1,14 @@
+{
+  "name": "@emjmedia-sites/mini-generator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Mini-Generator-Skript fuer KFZ-Demo-Sites (Baustein 4 aus MORNING_FLOW_SPEC §5).",
+  "scripts": {
+    "generate": "node generate-demo-site.mjs",
+    "verify": "node verify-render.mjs"
+  },
+  "engines": {
+    "node": ">=20.12"
+  }
+}
