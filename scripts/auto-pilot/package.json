@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Auto-Pilot-Helper-Scripts (Sheet-Read, Lead-Profile-Build, Sheet-Update, Briefing-MD-Patcher) — orchestriert von scripts/auto-pilot-morning.sh.",
+  "description": "Auto-Pilot-Helper-Scripts (Sheet-Read via OAuth-Refresh-Token, Lead-Profile-Build, Sheet-Update, Briefing-MD-Patcher) — orchestriert von scripts/auto-pilot-morning.sh.",
   "engines": {
     "node": ">=20.12"
   },

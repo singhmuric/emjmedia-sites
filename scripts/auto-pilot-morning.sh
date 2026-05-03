@@ -9,9 +9,10 @@
 # Voraussetzung — ENV (typisch in /etc/auto-pilot.env via systemd EnvironmentFile
 # oder im Crontab gesetzt):
 #
-#   GOOGLE_SERVICE_ACCOUNT_JSON  Pfad zur Service-Account-JSON (chmod 600)
-#   GITHUB_PAT                   Personal-Access-Token (origin remote benutzt
-#                                bereits oauth2:${GITHUB_PAT}@... im git-clone)
+#   GOOGLE_OAUTH_CLIENT_FILE   Pfad zur OAuth-Client-JSON (client_id+secret)
+#   GOOGLE_OAUTH_REFRESH_FILE  Pfad zur Refresh-Token-JSON (refresh_token)
+#   GITHUB_PAT                 Personal-Access-Token (origin remote benutzt
+#                              bereits oauth2:${GITHUB_PAT}@... im git-clone)
 #   SHEET_ID                     optional — default ist KFZ-Lead-Sheet
 #   SHEET_NAME                   optional — default "Leads"
 #   LEAD_LIMIT                   optional — default 10
@@ -56,16 +57,18 @@ log_md "**Started:** $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 log_md ""
 
 # --- ENV-Checks ---------------------------------------------------------------
-if [[ -z "${GOOGLE_SERVICE_ACCOUNT_JSON:-}" ]]; then
-  fail_marker "GOOGLE_SERVICE_ACCOUNT_JSON nicht gesetzt"
-  log_md "**FAIL:** ENV GOOGLE_SERVICE_ACCOUNT_JSON nicht gesetzt"
-  exit 1
-fi
-if [[ ! -r "$GOOGLE_SERVICE_ACCOUNT_JSON" ]]; then
-  fail_marker "Service-Account-JSON nicht lesbar: $GOOGLE_SERVICE_ACCOUNT_JSON"
-  log_md "**FAIL:** Service-Account-JSON nicht lesbar"
-  exit 1
-fi
+for VAR in GOOGLE_OAUTH_CLIENT_FILE GOOGLE_OAUTH_REFRESH_FILE; do
+  if [[ -z "${!VAR:-}" ]]; then
+    fail_marker "$VAR nicht gesetzt"
+    log_md "**FAIL:** ENV $VAR nicht gesetzt"
+    exit 1
+  fi
+  if [[ ! -r "${!VAR}" ]]; then
+    fail_marker "$VAR-Datei nicht lesbar: ${!VAR}"
+    log_md "**FAIL:** $VAR-Datei nicht lesbar (${!VAR})"
+    exit 1
+  fi
+done
 
 cd "$REPO_ROOT"
 

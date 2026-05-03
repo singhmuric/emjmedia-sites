@@ -39,11 +39,13 @@ async function main() {
   const args = parseCli();
   const { headerMap, rows } = await readSheet(args['sheet-id'], args['sheet-name']);
 
-  // Pflicht-Spalten — fehlende davon = harter Abbruch (ohne demo_built keine Idempotenz).
+  // Pflicht-Spalten — minimal nötiges Set. Pre-Qual-Felder (slug, district,
+  // phone_e164, is_https, mail_variant, subject_variant) werden im lead-mapper
+  // abgeleitet wenn nicht im Sheet — siehe lib/prequal-derive.mjs.
   requireColumns(headerMap, [
-    'lead_id', 'business_name', 'address', 'city', 'phone', 'email',
-    'slug', 'district', 'phone_e164', 'google_rating', 'review_count',
-    'google_maps_url', 'is_https', 'pre_qual_status', 'demo_built',
+    'lead_id', 'business_name', 'address', 'phone', 'email', 'website_url',
+    'google_rating', 'review_count',
+    'pre_qual_status', 'demo_built', 'demo_url',
   ]);
 
   const filtered = rows.filter((r) => {

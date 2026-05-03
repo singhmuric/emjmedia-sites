@@ -3,25 +3,57 @@ import { google } from 'googleapis';
 
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 
-function getServiceAccountKeyPath() {
-  const path = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (!path) {
-    throw new Error(
-      'ENV GOOGLE_SERVICE_ACCOUNT_JSON ist nicht gesetzt. ' +
-      'Erwartet: absoluter Pfad zur Service-Account-JSON.'
-    );
+function envOrThrow(name) {
+  const v = process.env[name];
+  if (!v) throw new Error(`ENV ${name} ist nicht gesetzt.`);
+  return v;
+}
+
+function loadJson(path, label) {
+  let raw;
+  try {
+    raw = readFileSync(path, 'utf8');
+  } catch (e) {
+    throw new Error(`${label}-Datei nicht lesbar (${path}): ${e.message}`);
   }
-  return path;
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    throw new Error(`${label}-Datei ist kein gültiges JSON (${path}): ${e.message}`);
+  }
 }
 
 let _sheetsClient = null;
 async function getSheets() {
   if (_sheetsClient) return _sheetsClient;
-  const keyPath = getServiceAccountKeyPath();
-  const credentials = JSON.parse(readFileSync(keyPath, 'utf8'));
-  const auth = new google.auth.GoogleAuth({ credentials, scopes: SCOPES });
-  const client = await auth.getClient();
-  _sheetsClient = google.sheets({ version: 'v4', auth: client });
+
+  const clientFile = envOrThrow('GOOGLE_OAUTH_CLIENT_FILE');
+  const refreshFile = envOrThrow('GOOGLE_OAUTH_REFRESH_FILE');
+
+  const clientRaw = loadJson(clientFile, 'OAuth-Client');
+  const inner = clientRaw.installed ?? clientRaw.web ?? clientRaw;
+  const client_id = inner.client_id;
+  const client_secret = inner.client_secret;
+  if (!client_id || !client_secret) {
+    throw new Error(
+      `OAuth-Client-Datei (${clientFile}) hat keine client_id/client_secret.`
+    );
+  }
+
+  const refreshRaw = loadJson(refreshFile, 'OAuth-Refresh');
+  const refresh_token = refreshRaw.refresh_token;
+  if (!refresh_token) {
+    throw new Error(
+      `OAuth-Refresh-Datei (${refreshFile}) hat kein refresh_token. ` +
+      `Konsent-Flow nochmal laufen lassen: node scripts/auto-pilot/setup-oauth.mjs`
+    );
+  }
+
+  const oauth2 = new google.auth.OAuth2(client_id, client_secret);
+  oauth2.setCredentials({ refresh_token, scope: SCOPES.join(' ') });
+  // googleapis tauscht refresh_token bei Bedarf gegen access_token automatisch.
+
+  _sheetsClient = google.sheets({ version: 'v4', auth: oauth2 });
   return _sheetsClient;
 }
 
