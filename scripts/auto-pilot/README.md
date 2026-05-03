@@ -46,9 +46,11 @@ GCP-Org-Policy verbietet Service-Accounts → Desktop-App-OAuth + langlebiger Re
 ### Setup auf VPS
 
 ```bash
-# Im Repo-Root
-npm install                          # Mini-Generator-Deps (puppeteer, etc.)
-cd scripts/auto-pilot && npm install # googleapis
+# Im Repo-Root (Cron-Use-Case → --omit=dev spart puppeteer/lighthouse)
+npm install --omit=dev --no-audit --no-fund
+
+# Sheet-Helpers
+cd scripts/auto-pilot && npm install --omit=dev --no-audit --no-fund
 ```
 
 ENV-Variablen (in `/etc/auto-pilot.env` auf VPS, chmod 600):
@@ -57,7 +59,16 @@ GOOGLE_OAUTH_CLIENT_FILE=/root/.config/secrets/oauth-client.json
 GOOGLE_OAUTH_REFRESH_FILE=/root/.config/secrets/oauth-refresh-token.json
 SHEET_ID=1ZXkM4BVnqYQjVV406-y1QzAnz4hM7111-MRrdx2Tqqk
 SHEET_NAME=Leads
+GIT_BRANCH=main   # während Test: feat-Branch-Name
 ```
+
+GitHub-PAT — Token-Datei kann Header-Kommentare haben. Korrektes Extract:
+```bash
+GH_PAT=$(grep -oE '(ghp_[A-Za-z0-9_-]{36,}|github_pat_[A-Za-z0-9_-]+)' \
+         /root/.config/secrets/github-pat.txt | head -1)
+git remote set-url origin "https://oauth2:${GH_PAT}@github.com/singhmuric/emjmedia-sites"
+```
+*Lessons-learned (Sonnet-6 E2E 03.05.):* Naive `grep -v '^#' | head -1` schluckt Token-Prefixe wie `Token: ghp_...` und liefert eine kaputte Auth-URL. Lieber direkt das `ghp_*`-Pattern matchen.
 
 ---
 
