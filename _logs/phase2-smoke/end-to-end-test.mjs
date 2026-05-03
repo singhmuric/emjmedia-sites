@@ -8,6 +8,7 @@ import { readFileSync } from 'node:fs';
 const wf = JSON.parse(readFileSync('./workflows/n8n/leadhunter_kfz_sh.json', 'utf8'));
 const truncateBody = wf.nodes.find(n => n.name === 'HTML Truncate + Merge Context').parameters.jsCode;
 const scoreBody = wf.nodes.find(n => n.name === 'Score Calc + Build Sheet Row').parameters.jsCode;
+const decodeWebsiteBody = wf.nodes.find(n => n.name === 'Decode Website Binary').parameters.jsCode;
 
 // Latin-1-Encoder (für Patch-3-Test)
 function latin1Encode(str) {
@@ -16,19 +17,47 @@ function latin1Encode(str) {
   return buf;
 }
 
-function makeWebsiteItem({ html, statusCode = 200, contentType = 'text/html; charset=utf-8', latin1 = false }) {
+// Bug-Fix 2026-05-03: Mock-Item simuliert n8n-VPS filesystem-v2-Mode.
+// Real-Shape (verifiziert via n8n-API execution 66 am 2026-05-01):
+//   binary.data = { bytes, data: 'filesystem-v2', fileExtension, fileName,
+//                   fileSize, id: 'filesystem-v2:workflows/.../binary_data/UUID',
+//                   mimeType }
+// Der Buffer-Inhalt liegt auf Disk — über `helpers.getBinaryDataBuffer(idx, 'data')`
+// per Disk-Read materialisiert. Im Mock unten lagern wir den Buffer in einer Side-Map
+// und liefern ihn aus dem Mock-Helper.
+const filesystemBuffers = new Map(); // key: `${nodeName}:${itemIndex}` → Buffer
+
+function makeWebsiteItem({ html, statusCode = 200, contentType = 'text/html; charset=utf-8', latin1 = false, mode = 'filesystem-v2', nodeName = null, itemIndex = null }) {
   const buf = latin1 ? latin1Encode(html) : Buffer.from(html, 'utf-8');
+  const json = {
+    statusCode: statusCode,
+    statusMessage: statusCode === 200 ? 'OK' : 'ERR',
+    headers: { 'content-type': contentType }
+  };
+  if (mode === 'memory') {
+    return {
+      json,
+      binary: {
+        data: {
+          mimeType: 'text/html', fileName: 'index.html',
+          bytes: buf.length, fileSize: buf.length + ' B', fileExtension: 'html',
+          data: buf.toString('base64')
+        }
+      }
+    };
+  }
+  // filesystem-v2 mode: data ist Marker-String, echter Buffer kommt via helper.
+  if (nodeName && itemIndex != null) {
+    filesystemBuffers.set(`${nodeName}:${itemIndex}`, buf);
+  }
   return {
-    json: {
-      statusCode: statusCode,
-      statusMessage: statusCode === 200 ? 'OK' : 'ERR',
-      headers: { 'content-type': contentType }
-    },
+    json,
     binary: {
       data: {
-        mimeType: 'text/html',
-        fileName: 'index.html',
-        data: buf.toString('base64')
+        mimeType: 'text/html', fileName: 'index.html',
+        bytes: buf.length, fileSize: buf.length + ' B', fileExtension: 'html',
+        data: 'filesystem-v2',
+        id: `filesystem-v2:workflows/test/executions/0/binary_data/${nodeName || 'x'}-${itemIndex || 0}`
       }
     }
   };
@@ -59,23 +88,24 @@ const details = [
   { result: { name: 'Stellingen-Werkstatt', formatted_address: 'Stellingen, 22525 Hamburg', formatted_phone_number: '040-77', website: 'https://www.stellingen-werkstatt.de', business_status: 'OPERATIONAL', rating: 4.3, user_ratings_total: 24 } },
 ];
 
+// ALL Website-Items im filesystem-v2-Mode (real-shape von n8n-VPS execution 66).
 const websiteItems = [
-  makeWebsiteItem({ html: '<html>Eitner-KFZ Hamburg<br><a href="mailto:info@eitner-kfz.de">Mail</a></html>' }),
-  makeWebsiteItem({ html: '<html>autoPRO Hamburg</html>' }),
-  makeWebsiteItem({ html: '<html>MyCarDesign</html>' }),
-  makeWebsiteItem({ html: '<html>Klaus Schmidt KFZ</html>' }),
-  // Verbund: Latin-1 ohne Charset-Header
-  makeWebsiteItem({ html: 'Freie Werkstatt Hamburg, Inhaber: Stefan Müller', latin1: true, contentType: 'text/html' }),
-  makeWebsiteItem({ html: '<html>Gollnick KFZ-Meister</html>' }),
-  makeWebsiteItem({ html: '<html>Stellingen-Werkstatt</html>' }),
+  makeWebsiteItem({ html: '<html>Eitner-KFZ Hamburg<br><a href="mailto:info@eitner-kfz.de">Mail</a></html>', nodeName: 'website', itemIndex: 0 }),
+  makeWebsiteItem({ html: '<html>autoPRO Hamburg</html>', nodeName: 'website', itemIndex: 1 }),
+  makeWebsiteItem({ html: '<html>MyCarDesign</html>', nodeName: 'website', itemIndex: 2 }),
+  makeWebsiteItem({ html: '<html>Klaus Schmidt KFZ</html>', nodeName: 'website', itemIndex: 3 }),
+  // Verbund: Latin-1 ohne Charset-Header — Disk-Buffer-Decode-Pfad muss greifen
+  makeWebsiteItem({ html: 'Freie Werkstatt Hamburg, Inhaber: Stefan Müller', latin1: true, contentType: 'text/html', nodeName: 'website', itemIndex: 4 }),
+  makeWebsiteItem({ html: '<html>Gollnick KFZ-Meister</html>', nodeName: 'website', itemIndex: 5 }),
+  makeWebsiteItem({ html: '<html>Stellingen-Werkstatt</html>', nodeName: 'website', itemIndex: 6 }),
 ];
 
 const impressumItems = [
-  makeWebsiteItem({ html: '<h2>Impressum</h2><p><b>Inhaber:</b> Olaf Eitner</p><p>Mail: <a href="mailto:info@eitner-kfz.de">info@eitner-kfz.de</a></p>' }),
+  makeWebsiteItem({ html: '<h2>Impressum</h2><p><b>Inhaber:</b> Olaf Eitner</p><p>Mail: <a href="mailto:info@eitner-kfz.de">info@eitner-kfz.de</a></p>', nodeName: 'impressum', itemIndex: 0 }),
   // autoPRO: Impressum referenziert Hartung-Domain (der Phase-1-Bug)
-  makeWebsiteItem({ html: '<p>Mail: service@kfz-hartung.de · kontakt@kfz-hartung.de</p>' }),
-  makeWebsiteItem({ html: '<p>Kontakt: kfz-meisterbetrieb@online.de</p>' }),
-  makeWebsiteItem({ html: '<p>Inhaber: Torsten Schmidt</p><p>Mail: kfz-schmidt64@gmx.de</p>' }),
+  makeWebsiteItem({ html: '<p>Mail: service@kfz-hartung.de · kontakt@kfz-hartung.de</p>', nodeName: 'impressum', itemIndex: 1 }),
+  makeWebsiteItem({ html: '<p>Kontakt: kfz-meisterbetrieb@online.de</p>', nodeName: 'impressum', itemIndex: 2 }),
+  makeWebsiteItem({ html: '<p>Inhaber: Torsten Schmidt</p><p>Mail: kfz-schmidt64@gmx.de</p>', nodeName: 'impressum', itemIndex: 3 }),
   // Verbund Impressum: Latin-1, eigene Domain-Mail (ASCII).
   // Realistischer Body mit ~10+ Umlauten — produziert genug Replacement-Chars
   // im UTF-8-Decode (jeder Umlaut = 1 Mojibake) um die >5-Schwelle zu treffen.
@@ -83,10 +113,10 @@ const impressumItems = [
     html: 'Inhaber: Stefan Müller, Geschäftsführer für Hamburger Werkstätten. ' +
           'Adresse: Hamburger Straße 47, 20099 Hamburg. Außerdem: ä ö ü ß Ä Ö Ü. ' +
           'Mail: info@freiewerkstatthamburg.de. Schönen Gruß.',
-    latin1: true, contentType: 'text/html'
+    latin1: true, contentType: 'text/html', nodeName: 'impressum', itemIndex: 4
   }),
-  makeWebsiteItem({ html: '<p><strong>Inhaber:</strong> Frank Gollnick</p><p>Mail: info@kfz-meister-betrieb.de</p>' }),
-  makeWebsiteItem({ html: '<p>Eigentümer: Klaus Stelling</p><p>Mail: info@stellingen-werkstatt.de</p>' }),
+  makeWebsiteItem({ html: '<p><strong>Inhaber:</strong> Frank Gollnick</p><p>Mail: info@kfz-meister-betrieb.de</p>', nodeName: 'impressum', itemIndex: 5 }),
+  makeWebsiteItem({ html: '<p>Eigentümer: Klaus Stelling</p><p>Mail: info@stellingen-werkstatt.de</p>', nodeName: 'impressum', itemIndex: 6 }),
 ];
 
 // $-Function-Mock + $input-Mock
@@ -102,11 +132,43 @@ function mkAccessor(map) {
   };
 }
 
+// Mock-Helper für n8n filesystem-v2-Mode: bedient `getBinaryDataBuffer(itemIndex, propertyName)`
+// indem er den per nodeName/itemIndex hinterlegten echten Buffer aus der Side-Map liefert.
+// Der `nodeName`-Bezug wird via Closure auf das aktive Helper-Set gesetzt (für Website vs Impressum).
+function mkHelpers(nodeName) {
+  return {
+    getBinaryDataBuffer: async (itemIndex, propertyName) => {
+      if (propertyName !== 'data') throw new Error('mock helper only supports propertyName=data');
+      const buf = filesystemBuffers.get(`${nodeName}:${itemIndex}`);
+      if (!buf) throw new Error('no buffer for ' + nodeName + ':' + itemIndex);
+      return buf;
+    }
+  };
+}
+
 const dedupItems = leads.map(l => ({ json: l }));
 const detailItems = details.map(d => ({ json: d }));
 
+// Schritt 1: Decode Website Binary — runOnceForEachItem, async.
+// Body wird per Item ausgeführt. Wir wrappen in async-IIFE und bauen die
+// Output-Items damit für `$('Decode Website Binary').all()` verfügbar sind.
+const decodeWebsiteOut = [];
+for (let i = 0; i < websiteItems.length; i++) {
+  const item = websiteItems[i];
+  const $itemIndex = i;
+  const $json = item.json;
+  const $binary = item.binary;
+  const ctx = { helpers: mkHelpers('website') };
+  // Body verwendet `await this.helpers.getBinaryDataBuffer(...)` — daher async-Function-Wrapping.
+  const fn = new Function('$itemIndex', '$json', '$binary', 'Buffer', 'TextDecoder', 'URL',
+    '"use strict"; return (async () => { ' + decodeWebsiteBody + ' })();');
+  const out = await fn.call(ctx, $itemIndex, $json, $binary, Buffer, TextDecoder, URL);
+  decodeWebsiteOut.push(out);
+}
+
 const accessorMap = new Map();
 accessorMap.set('HTTP Website Fetch', websiteItems);
+accessorMap.set('Decode Website Binary', decodeWebsiteOut);
 accessorMap.set('HTTP Impressum Fetch', impressumItems);
 accessorMap.set('HTTP Places details', detailItems);
 accessorMap.set('Dedup vs Sheet', dedupItems);
@@ -114,9 +176,11 @@ accessorMap.set('Dedup vs Sheet', dedupItems);
 const $ = mkAccessor(accessorMap);
 const $input = { all: () => [] };
 
-// Truncate-Body ausführen
-const truncateFn = new Function('$', '$input', '$json', 'Buffer', 'TextDecoder', 'URL', 'Set', 'Array', truncateBody);
-const truncateOut = truncateFn($, $input, null, Buffer, TextDecoder, URL, Set, Array);
+// Schritt 2: HTML Truncate — runOnceForAllItems, async (await readImpressum).
+const truncateCtx = { helpers: mkHelpers('impressum') };
+const truncateFn = new Function('$', '$input', '$json', 'Buffer', 'TextDecoder', 'URL', 'Set', 'Array',
+  '"use strict"; return (async () => { ' + truncateBody + ' })();');
+const truncateOut = await truncateFn.call(truncateCtx, $, $input, null, Buffer, TextDecoder, URL, Set, Array);
 
 console.log('═'.repeat(70));
 console.log('Truncate Output (' + truncateOut.length + ' items)');
