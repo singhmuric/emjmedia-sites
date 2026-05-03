@@ -86,6 +86,16 @@ export function rowToLeadProfile(row) {
   else if (sheetIsHttps === 'false' || sheetIsHttps === '0') isHttps = false;
   else isHttps = isHttpsFromUrl(row.website_url);
 
+  // google_maps_url: Sheet-Wert > Derived. Phase-1-Sheet hat die Spalte aktuell
+  // nicht — Fallback ist eine Google-Maps-Search-URL aus business_name + city.
+  // Nicht so präzise wie ein cid-Link, aber funktional und Mini-Generator-
+  // Validator schluckt's. Sobald Phase-1-Append google_maps_url schreibt,
+  // hat Sheet automatisch Vorrang.
+  const mapsSearchFallback =
+    `https://www.google.com/maps/search/?api=1&query=` +
+    encodeURIComponent(`${businessName} ${city}`.trim());
+  const googleMapsUrl = pickFirstNonEmpty(row.google_maps_url, mapsSearchFallback);
+
   return {
     lead_id: leadId,
     demo_site: {
@@ -99,7 +109,7 @@ export function rowToLeadProfile(row) {
       email: String(row.email ?? '').trim(),
       google_rating: normalizeRating(row.google_rating),
       review_count: String(row.review_count ?? '').trim(),
-      google_maps_url: String(row.google_maps_url ?? '').trim(),
+      google_maps_url: googleMapsUrl,
       is_https: isHttps,
     },
     build_meta: {
