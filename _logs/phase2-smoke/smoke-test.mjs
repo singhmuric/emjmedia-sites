@@ -290,71 +290,60 @@ if (hamburgV2 >= 6) {
 // ─────────────────────────────────────────────────────────────────────
 header('PATCH 2 — Domain-Filter-Strict');
 
-// Reproduziert die drei Pitch-blocking Bugs aus Phase-1-Log §10.1 + Re-Run-Befund 2026-05-03:
-// Webhoster-Fallback (T2) für T-Online/GMX/etc., Konkurrenz-Domain bleibt T3-Block.
+// P2 ENTFERNT 2026-05-03 Sa abend — zurück zu Phase-1-Soft-Fallback.
+// Begründung: Webhoster-Tier ergab 1/16 Email-Quote (Sheet-Verifikation), strict 0/16,
+// Phase-1-Soft 14/16. Mail wird IMMER gefüllt wenn Kandidat vorhanden; mismatch
+// dient nur als Warning-Tag. Konkurrenz/Kanzlei werden NICHT mehr blockiert —
+// User reviewt vor Versand.
 const domainCases = [
   {
-    label: 'autoPRO — Konkurrenz-Mail Hartung (T3 mismatch)',
+    label: 'autoPRO — Konkurrenz-Mail Hartung (Soft-Fallback füllt, kontakt@ score 90 > service@ score 80, mismatch=true)',
     websiteUrl: 'https://www.autowerkstatt-eimsbüttel.de',
     emails: new Set(['service@kfz-hartung.de', 'kontakt@kfz-hartung.de', 'datenschutz@anwalt-mueller.de']),
-    expectV1: 'service@kfz-hartung.de',
-    expectV2: { email: '', mismatch: true, webhoster: false },
+    expectV1: 'kontakt@kfz-hartung.de',
+    expectV2: { email: 'kontakt@kfz-hartung.de', mismatch: true },
   },
   {
-    label: 'MyCarDesign — @online.de Webhoster-Fallback (T2)',
+    label: 'MyCarDesign — @online.de (Soft-Fallback füllt, mismatch=true)',
     websiteUrl: 'https://www.mycardesign-kfzwerkstatt.de',
     emails: new Set(['kfz-meisterbetrieb@online.de']),
     expectV1: 'kfz-meisterbetrieb@online.de',
-    expectV2: { email: 'kfz-meisterbetrieb@online.de', mismatch: false, webhoster: true },
+    expectV2: { email: 'kfz-meisterbetrieb@online.de', mismatch: true },
   },
   {
-    label: 'Klaus Schmidt — @gmx.de Webhoster-Fallback (T2)',
+    label: 'Klaus Schmidt — @gmx.de (Soft-Fallback füllt, mismatch=true)',
     websiteUrl: 'https://www.kfz-reparatur-schmidt.de',
     emails: new Set(['kfz-schmidt64@gmx.de']),
     expectV1: 'kfz-schmidt64@gmx.de',
-    expectV2: { email: 'kfz-schmidt64@gmx.de', mismatch: false, webhoster: true },
+    expectV2: { email: 'kfz-schmidt64@gmx.de', mismatch: true },
   },
   {
-    label: 'Werkstatt-T — @t-online.de Webhoster-Fallback (T2)',
-    websiteUrl: 'https://www.werkstatt-t.de',
-    emails: new Set(['kfz-werkstatt-t@t-online.de']),
-    expectV1: 'kfz-werkstatt-t@t-online.de',
-    expectV2: { email: 'kfz-werkstatt-t@t-online.de', mismatch: false, webhoster: true },
-  },
-  {
-    label: 'Webhoster + Kanzlei gemischt — Webhoster gewinnt, Kanzlei geblockt',
-    websiteUrl: 'https://www.kfz-test.de',
-    emails: new Set(['kfz-test@gmx.de', 'datenschutz@kanzlei-mueller.de']),
-    expectV1: 'kfz-test@gmx.de',
-    expectV2: { email: 'kfz-test@gmx.de', mismatch: false, webhoster: true },
-  },
-  {
-    label: 'Nur Kanzlei + Konkurrenz — kein Webhoster → T3 mismatch',
-    websiteUrl: 'https://www.kfz-test.de',
-    emails: new Set(['datenschutz@kanzlei-mueller.de', 'service@konkurrenz.de']),
-    expectV1: 'service@konkurrenz.de',
-    expectV2: { email: '', mismatch: true, webhoster: false },
-  },
-  {
-    label: 'Eitner-KFZ — eigene Domain matched (T1)',
+    label: 'Eitner-KFZ — eigene Domain matched (mismatch=false)',
     websiteUrl: 'https://www.eitner-kfz.de',
     emails: new Set(['info@eitner-kfz.de']),
     expectV1: 'info@eitner-kfz.de',
-    expectV2: { email: 'info@eitner-kfz.de', mismatch: false, webhoster: false },
+    expectV2: { email: 'info@eitner-kfz.de', mismatch: false },
   },
   {
-    label: 'Verbund-Site mit eigener Domain (T1 — Webhoster wird nicht geprüft)',
+    label: 'Verbund-Site mit eigener Domain (Domain-Match bevorzugt)',
     websiteUrl: 'https://www.freiewerkstatthamburg.de',
     emails: new Set(['info@freiewerkstatthamburg.de', 'kontakt@gmx.de']),
     expectV1: 'info@freiewerkstatthamburg.de',
-    expectV2: { email: 'info@freiewerkstatthamburg.de', mismatch: false, webhoster: false },
+    expectV2: { email: 'info@freiewerkstatthamburg.de', mismatch: false },
+  },
+  {
+    label: 'Kanzlei-Hint senkt Score — info@firma gewinnt vor datenschutz@kanzlei',
+    websiteUrl: 'https://www.firma.de',
+    emails: new Set(['info@firma.de', 'datenschutz@kanzlei-mueller.de']),
+    expectV1: 'info@firma.de',
+    expectV2: { email: 'info@firma.de', mismatch: false },
   },
   {
     label: 'Empty emails-Set',
     websiteUrl: 'https://www.beispiel.de',
     emails: new Set(),
     expectV1: '',
-    expectV2: { email: '', mismatch: false, webhoster: false },
+    expectV2: { email: '', mismatch: false },
   },
 ];
 
@@ -363,15 +352,15 @@ for (const c of domainCases) {
   const v1 = v1_pickBestEmail(c.emails, c.websiteUrl);
   const v2 = pickBestEmail(c.emails, c.websiteUrl);
   const v1Ok = v1 === c.expectV1;
-  const v2Ok = v2.email === c.expectV2.email && v2.mismatch === c.expectV2.mismatch && v2.webhoster === c.expectV2.webhoster;
+  const v2Ok = v2.email === c.expectV2.email && v2.mismatch === c.expectV2.mismatch;
   if (v2Ok) p2pass++;
   console.log((v2Ok ? '✓' : '✗') + '  ' + c.label);
-  console.log('    V1: ' + JSON.stringify(v1) + (v1Ok ? ' (matches V1-Bug-Behavior)' : ' (DIFFERS)'));
+  console.log('    V1: ' + JSON.stringify(v1) + (v1Ok ? ' (matches V1-Behavior — soft-fallback)' : ' (DIFFERS)'));
   console.log('    V2: ' + JSON.stringify(v2) + '  want=' + JSON.stringify(c.expectV2));
 }
 console.log('\n  Pass: ' + p2pass + '/' + domainCases.length);
 if (p2pass === domainCases.length) {
-  console.log('  ✓ Akzeptanz erfüllt (T1/T2/T3-Tier-Logik korrekt; Webhoster-Mails durchgelassen, Konkurrenz/Kanzlei blockiert)');
+  console.log('  ✓ Akzeptanz erfüllt (Phase-1-Soft-Fallback wiederhergestellt; mismatch nur als Warning-Tag)');
   totalPass++;
 } else {
   totalFail++;

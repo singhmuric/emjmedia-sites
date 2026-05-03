@@ -54,22 +54,13 @@ export function extractInhaber(rawText) {
   return name;
 }
 
-// === Patch 2 — Domain-Filter-Strict mit Webhoster-Fallback (2026-05-03) ===
-// 3-Tier-Fallback nach Phase-2-Re-Run-Befund (Email-Quote 0/16 → Phase-1-Niveau zurück):
-//   T1: Domain-Match → mismatch=false, webhoster=false
-//   T2: Webhoster-Mail (T-Online, GMX, Web.de, Strato, ...) → webhoster=true
-//   T3: Sonst (Konkurrenz/Kanzlei) → leer + mismatch=true
+// === Patch 2 ENTFERNT (2026-05-03 Sa abend) — zurück zu Phase-1-Soft-Fallback ===
+// Begründung: Webhoster-Tier lieferte 1/16, 3-Tier-Strict 0/16 (Sheet-Verifikation).
+// Phase-1-Soft-Fallback hatte 14/16. Mail wird gefüllt egal was, mismatch dient
+// nur als Soft-Warning-Tag (User reviewt vor Versand).
 
 const EMAIL_BLOCKLIST_PREFIXES = ['webmaster@', 'postmaster@', 'no-reply@', 'noreply@', 'admin@', 'hostmaster@', 'abuse@', 'spam@'];
 const EMAIL_KANZLEI_HINTS = ['kanzlei', 'rechtsanwalt', 'datenschutz-anwalt', 'datenschutz-beauftragter', 'dsb-'];
-export const WEBHOSTER_DOMAINS = [
-  't-online.de', 'gmx.de', 'gmx.net', 'gmx.at', 'gmx.ch', 'web.de',
-  '1und1.de', 'einsundeins.de', 'strato.de', 'vodafone.de', 'arcor.de',
-  'telekom.de', 'freenet.de', 'mail.de', 'online.de',
-  'outlook.de', 'outlook.com', 'hotmail.de', 'hotmail.com', 'live.de',
-  'yahoo.de', 'yahoo.com', 'aol.de', 'aol.com', 'icloud.com', 'me.com',
-  'gmail.com', 'googlemail.com'
-];
 
 function stripScriptStyleOnly(s) {
   if (!s) return '';
@@ -102,17 +93,13 @@ export function extractEmails(html) {
 export function pickBestEmail(emails, websiteUrl) {
   let candidates = Array.from(emails);
   candidates = candidates.filter(e => !EMAIL_BLOCKLIST_PREFIXES.some(b => e.startsWith(b)));
-  if (!candidates.length) return { email: '', mismatch: false, webhoster: false };
+  if (!candidates.length) return { email: '', mismatch: false };
 
   let ownHost = '';
   try {
     if (websiteUrl) ownHost = new URL(websiteUrl).hostname.replace(/^www\./, '').toLowerCase();
   } catch (e) { /* ignore */ }
   const ownRoot = ownHost ? ownHost.split('.').slice(-2).join('.') : '';
-  const ownDomain = candidates.filter(e => {
-    const ed = (e.split('@')[1] || '').toLowerCase();
-    return ownRoot && ed.endsWith(ownRoot);
-  });
 
   function emailScore(e) {
     if (e.startsWith('info@')) return 100;
@@ -124,25 +111,15 @@ export function pickBestEmail(emails, websiteUrl) {
     return 50;
   }
 
-  // T1: Domain-Match
-  if (ownDomain.length) {
-    ownDomain.sort((a, b) => emailScore(b) - emailScore(a));
-    return { email: ownDomain[0] || '', mismatch: false, webhoster: false };
-  }
-
-  // T2: Webhoster-Mail (T-Online, GMX, ...) — Kanzlei bleibt strikt geblockt
-  const nonKanzlei = candidates.filter(e => !EMAIL_KANZLEI_HINTS.some(k => e.includes(k)));
-  const webhoster = nonKanzlei.filter(e => {
+  // Domain-Match BEVORZUGEN, aber kein hard-Block — sonst irgendeine erlaubte Mail.
+  // Soft-Fallback: User reviewt vor Versand, mismatch=true dient als Warnung.
+  const ownDomain = candidates.filter(e => {
     const ed = (e.split('@')[1] || '').toLowerCase();
-    return WEBHOSTER_DOMAINS.indexOf(ed) !== -1;
+    return ownRoot && ed.endsWith(ownRoot);
   });
-  if (webhoster.length) {
-    webhoster.sort((a, b) => emailScore(b) - emailScore(a));
-    return { email: webhoster[0], mismatch: false, webhoster: true };
-  }
-
-  // T3: Konkurrenz-Domain ohne Webhoster-Hit → leer + mismatch
-  return { email: '', mismatch: true, webhoster: false };
+  const pool = ownDomain.length ? ownDomain : candidates;
+  pool.sort((a, b) => emailScore(b) - emailScore(a));
+  return { email: pool[0] || '', mismatch: ownDomain.length === 0 && pool.length > 0 };
 }
 
 // === Patch 3 — Charset-Phase-2 ===
