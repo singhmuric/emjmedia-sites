@@ -31,6 +31,10 @@ ausgeführt. Lokal lauffähig zum End-to-End-Test (mit `AUTO_PILOT_DATE_OVERRIDE
 | `lib/reply-classifier.mjs` | Reply-Klassifikation in positiv/negativ/oof/unklar via Regex (deutsch B2B-Patterns) + optionaler Haiku-Fallback |
 | `evaluate-welle.mjs` | CLI: Welle-Performance-Bilanz (Reply/Bounce-Rate × Branche × Variant × Hook), Markdown ins Vault — Cron Fr 17:00 (Wochen-Bilanz lt. templates/REGISTRY.md) |
 | `weekly-discrepancy-audit.mjs` | CLI: 7-Tage-Audit Sent vs Sheet-Status, Drift > 5% → Exit 1 (Cron-Wrapper kann alarmieren) |
+| `classify-pending-replies.mjs` | CLI: Klassifiziert Sheet-Rows mit `reply_text` gefüllt + `reply_classification` leer via reply-classifier-Lib. Pre-Hook in briefing-cron 08:00. |
+| `test-reply-classifier.mjs` | Dev-Test-Suite: 51 deutsche Cold-Mail-Reply-Beispiele × Confusion-Matrix + Accuracy-Threshold 90%. Aktuell 98% (Regex-only). |
+| `backup-sheet.mjs` | CLI: CSV-Snapshot des Sheets ins Vault unter `_logs/sheet-backups/`, Pre-Hook in triage-cron + Auto-Cleanup > 30 Tage. |
+| `validate-sheet-schema.mjs` | CLI: Sheet-Schema-Validator (16 Pflicht-Spalten, 14 Optional-Spalten). Hard-Fail bei fehlenden Pflicht-Spalten. Pre-Hook für Cron-Robustheit. |
 
 ---
 
