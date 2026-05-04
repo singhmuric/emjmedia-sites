@@ -26,6 +26,10 @@ ausgeführt. Lokal lauffähig zum End-to-End-Test (mit `AUTO_PILOT_DATE_OVERRIDE
 
 GCP-Org-Policy verbietet Service-Accounts → Desktop-App-OAuth + langlebiger Refresh-Token.
 
+**Aktive Scopes (seit 05.05.2026):**
+- `https://www.googleapis.com/auth/spreadsheets` — Lead-Sheet R/W
+- `https://www.googleapis.com/auth/gmail.readonly` — Reply/Bounce/Sent-Sync (kein Schreiben)
+
 ### Einmaliger Konsent-Flow (vom Mac)
 
 1. OAuth-Client-JSON in der GCP-Console anlegen (Application Type: Desktop App), JSON downloaden.
@@ -35,13 +39,33 @@ GCP-Org-Policy verbietet Service-Accounts → Desktop-App-OAuth + langlebiger Re
    npm install
    node setup-oauth.mjs \
      --client-file ~/BUSINESS/SinghMuric/_Strategie/secrets/oauth-client-2026-05-03.json \
-     --output      ~/BUSINESS/SinghMuric/_Strategie/secrets/oauth-refresh-token.json
+     --output      ~/BUSINESS/SinghMuric/_Strategie/secrets/oauth-refresh-token-2026-05-05.json
    ```
-3. Browser öffnet sich → Google-Account auswählen → Sheets-Scope erteilen → Browser-Tab schließt.
+3. Browser öffnet sich → Google-Account auswählen → **Sheets + Gmail-Readonly** Scopes erteilen → Browser-Tab schließt.
 4. Refresh-Token landet als JSON in `--output`-Pfad mit `chmod 600`.
-5. Beide Dateien (`oauth-client-...json` + `oauth-refresh-token.json`) auf VPS spiegeln (scp).
+5. Beide Dateien (`oauth-client-...json` + `oauth-refresh-token-...json`) auf VPS spiegeln (scp).
 
 **Wichtig:** Bei Konsent-Wiederholung an gleichem User-Account wird `refresh_token` nur zurückgegeben wenn `prompt=consent` gesetzt ist (macht das Skript). Falls trotzdem leer: bestehenden Konsent unter https://myaccount.google.com/permissions widerrufen, neu starten.
+
+### Re-Konsent bei Scope-Erweiterung (05.05.2026: + Gmail-Readonly)
+
+Wenn neue Scopes dazukommen, gibt Google den existierenden Token NICHT mehr automatisch erweitert zurück — der alte Token bleibt scope-begrenzt. Pflicht-Schritte:
+
+1. **Bestehenden Konsent widerrufen:** https://myaccount.google.com/permissions → Drittanbieter-App "EMJmedia Auto-Pilot" (oder wie der GCP-OAuth-Client heißt) → "Zugriff entfernen". Erst dann gibt Google bei nächster Konsent-Erteilung wieder ein refresh_token zurück.
+2. **Konsent-Flow neu durchlaufen** (siehe oben), mit neuem Output-Datei-Namen damit der alte Token erhalten bleibt (z. B. `oauth-refresh-token-2026-05-05.json`).
+3. **VPS-Spiegelung** (Datei auf VPS bleibt unter dem gleichen Namen `oauth-refresh-token.json`, damit `/etc/auto-pilot.env` nicht angefasst werden muss):
+   ```bash
+   scp ~/BUSINESS/SinghMuric/_Strategie/secrets/oauth-refresh-token-2026-05-05.json \
+       root@187.124.171.59:/root/.config/secrets/oauth-refresh-token.json
+   ssh root@187.124.171.59 "chmod 600 /root/.config/secrets/oauth-refresh-token.json"
+   ```
+4. **Smoke-Test auf VPS:**
+   ```bash
+   ssh root@187.124.171.59 "cd /opt/emjmedia-sites && \
+     set -a && . /etc/auto-pilot.env && set +a && \
+     node scripts/auto-pilot/read-leads.mjs --dry-run | head -20"
+   ```
+   Wenn das Sheet sauber gelesen wird, ist Sheets-Scope live (Backwards-Compat-Check). Gmail-Scope wird durch das künftige `gmail-sync.mjs` validiert.
 
 ### Setup auf VPS
 

@@ -1,7 +1,11 @@
 #!/usr/bin/env node
-// Einmaliger OAuth-Konsent-Flow für Sheets-API (Desktop-App-Client).
+// Einmaliger OAuth-Konsent-Flow für Sheets-API + Gmail-Readonly (Desktop-App-Client).
 // Läuft vom Mac aus (User-Account-Konsent), nicht vom VPS. Resultat:
 // oauth-refresh-token.json → wird via scp auf VPS spiegeln.
+//
+// Scopes:
+//   - https://www.googleapis.com/auth/spreadsheets   (Lead-Sheet R/W)
+//   - https://www.googleapis.com/auth/gmail.readonly (Reply/Bounce/Sent-Sync, kein Schreiben)
 //
 // Usage:
 //   node scripts/auto-pilot/setup-oauth.mjs \
@@ -12,6 +16,10 @@
 // oauth-client.json: { "client_id": "...", "client_secret": "..." }
 // (so wie Google-Cloud-Console "Download JSON" für Desktop-App liefert —
 // ggf. die installed-Wrapper-Ebene entfernen oder Tool akzeptiert beides.)
+//
+// Token-Erneuerung: Wenn Scopes erweitert werden (wie hier um gmail.readonly),
+// muss der bestehende Konsent in https://myaccount.google.com/permissions
+// vorher widerrufen werden — sonst gibt Google kein refresh_token zurück.
 
 import { readFileSync, writeFileSync, chmodSync } from 'node:fs';
 import { createServer } from 'node:http';
@@ -21,7 +29,10 @@ import { parseArgs } from 'node:util';
 
 import { google } from 'googleapis';
 
-const SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
+const SCOPES = [
+  'https://www.googleapis.com/auth/spreadsheets',
+  'https://www.googleapis.com/auth/gmail.readonly',
+];
 
 function parseCli() {
   const { values } = parseArgs({
@@ -67,7 +78,7 @@ async function main() {
   const authUrl = oauth2.generateAuthUrl({
     access_type: 'offline',
     prompt: 'consent',
-    scope: [SCOPE],
+    scope: SCOPES,
   });
 
   // Loopback-Server: nimmt den Authorization-Code entgegen.
@@ -108,7 +119,10 @@ async function main() {
   });
 
   console.error('');
-  console.error('=== OAuth Konsent für Google Sheets ===');
+  console.error('=== OAuth Konsent für Google Sheets + Gmail (readonly) ===');
+  console.error('');
+  console.error('Scopes:');
+  for (const s of SCOPES) console.error(`  - ${s}`);
   console.error('');
   console.error('Browser sollte sich gleich öffnen. Falls nicht, kopiere diese URL:');
   console.error('');
@@ -142,7 +156,8 @@ async function main() {
 
   console.error('');
   console.error(`✅ Refresh-Token gespeichert: ${args.output} (chmod 600)`);
-  console.error('Sheet-API ist jetzt einsatzbereit.');
+  console.error(`Erteilte Scopes laut Google: ${tokens.scope ?? '(keine zurückgegeben)'}`);
+  console.error('Sheets-API + Gmail-Readonly sind jetzt einsatzbereit.');
 }
 
 main().catch((err) => {
