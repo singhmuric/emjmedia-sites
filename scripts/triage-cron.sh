@@ -30,6 +30,13 @@ echo "[$TS_START] triage-cron: start pitch-limit=$PITCH_LIMIT"
 
 cd "$REPO_ROOT"
 
+# Pre-Hook: Sheet-Backup bevor wir schreiben (Sicherheits-Layer)
+echo "[$(date -u +'%FT%TZ')] triage-cron: pre-hook backup-sheet"
+if ! node scripts/auto-pilot/backup-sheet.mjs --keep-days 30; then
+  echo "[$(date -u +'%FT%TZ')] triage-cron: backup FAILED — abort triage (kein Schreib-Risiko ohne Backup)"
+  exit 2
+fi
+
 if node scripts/auto-pilot/triage-leads.mjs --apply --pitch-limit "$PITCH_LIMIT"; then
   TS_END="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
   echo "[$TS_END] triage-cron: done"

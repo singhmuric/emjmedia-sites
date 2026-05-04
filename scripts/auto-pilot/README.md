@@ -27,6 +27,10 @@ ausgeführt. Lokal lauffähig zum End-to-End-Test (mit `AUTO_PILOT_DATE_OVERRIDE
 | `sunset-demos.mjs` | CLI: löscht Demo-Folders > 30d (mit `keep_until`-Schutz), commit + optional push |
 | `lib/gmail-client.mjs` | googleapis-Wrapper für Gmail v1, OAuth2-Refresh-Token-Auth, Header- + Body-Helpers |
 | `gmail-sync.mjs` | CLI: Sent/Reply/Bounce-Sync ins Lead-Sheet (4×/Tag Cron, idempotent) |
+| `lib/mail-composer.mjs` | Pitch-Mail-Body-Generator: Variants A_inhaber/A_generic/B_no_website × Hooks × Branchen (KFZ/Friseure/Ärzte/Restaurants) mit Akkusativ/Genitiv/Plural-Map |
+| `lib/reply-classifier.mjs` | Reply-Klassifikation in positiv/negativ/oof/unklar via Regex (deutsch B2B-Patterns) + optionaler Haiku-Fallback |
+| `evaluate-welle.mjs` | CLI: Welle-Performance-Bilanz (Reply/Bounce-Rate × Branche × Variant × Hook), Markdown ins Vault — Cron Fr 17:00 (Wochen-Bilanz lt. templates/REGISTRY.md) |
+| `weekly-discrepancy-audit.mjs` | CLI: 7-Tage-Audit Sent vs Sheet-Status, Drift > 5% → Exit 1 (Cron-Wrapper kann alarmieren) |
 
 ---
 
