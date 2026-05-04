@@ -1,0 +1,172 @@
+/* ---------- SECTION 1 · NAV (1.8.5 §A — solid Nachtblau + Messing-Trennlinie) ----------
+ * Cowork-Diagnose 1.8.5 §0 (Beleg: `_logs/1.8.5-header-diagnose.md`):
+ * Initial-State `.nav` mit `rgba(11, 18, 32, 0.65)` + `backdrop-filter:
+ * blur(8px)` mischt das darunterliegende Hero-Foto durch — Pixel-Sample
+ * in der Top-Bar war rgb(98, 102, 108) statt rgb(11, 18, 32). Das ist
+ * der "weiße verschwommene Effekt", den der User die ganze Zeit gemeint
+ * hat (drei Hotfix-Iterationen waren am Hero-Foto am falschen Element).
+ *
+ * Fix: Header dauerhaft solid Nachtblau, kein backdrop-blur. 1px-Messing-
+ * border-bottom als Designs-Akzent zur Trust-Ribbon. is-scrolled-State
+ * verkleinert nur noch Padding, ändert kein Background mehr (war ohnehin
+ * praktisch identisch). */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 60;
+  padding: 14px 0;
+  background: var(--color-authority);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid rgba(184, 146, 90, 0.55);
+  transition: padding var(--dur-med) var(--ease-out);
+  color: var(--color-white);
+}
+.nav.is-scrolled {
+  padding: 10px 0;
+}
+.nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.nav__logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: var(--color-white);
+}
+.nav__logo-mark {
+  width: 26px; height: 26px;
+  color: var(--color-warm-accent);
+  flex-shrink: 0;
+}
+.nav__logo-text {
+  font-size: 14px;
+  line-height: 1.15;
+  display: inline-flex;
+  flex-direction: column;
+}
+.nav__logo-text strong {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  color: var(--color-white);
+}
+.nav__logo-text span {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-white-55);
+  margin-top: 2px;
+}
+.nav__links {
+  display: none;
+  gap: 28px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.nav__links a {
+  position: relative;
+  padding: 6px 0;
+  color: var(--color-white-70);
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.nav__links a::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 2px;
+  width: 100%; height: 1px;
+  background: var(--color-warm-accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-med) var(--ease-out);
+}
+.nav__links a:hover { color: var(--color-white); }
+.nav__links a:hover::after { transform: scaleX(1); }
+
+.nav__cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav__phone { color: var(--color-white); padding: 8px 12px; font-size: 13px; }
+.nav__phone .btn__icon { color: var(--color-warm-accent); }
+.nav__phone:hover { background: var(--color-white-10); }
+.nav__book { display: none; }
+.nav__toggle {
+  width: 44px; height: 44px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--color-white-18);
+  border-radius: 8px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease-out);
+}
+.nav__toggle:hover { border-color: var(--color-warm-accent); }
+.nav__toggle-bar {
+  width: 18px; height: 1.5px;
+  background: var(--color-white);
+  transition: transform var(--dur-med) var(--ease-out), opacity var(--dur-fast) var(--ease-out);
+}
+.nav__toggle[aria-expanded="true"] .nav__toggle-bar:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.nav__toggle[aria-expanded="true"] .nav__toggle-bar:nth-child(2) { opacity: 0; }
+.nav__toggle[aria-expanded="true"] .nav__toggle-bar:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+.nav__drawer {
+  position: fixed;
+  top: 64px; left: 0; right: 0;
+  background: var(--color-authority-95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--color-deep-accent-20);
+  padding: 18px var(--container-gutter) 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 55;
+}
+.nav__drawer[hidden] { display: none; }
+.nav__drawer a {
+  padding: 12px 4px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-white);
+  border-bottom: 1px solid var(--color-white-06);
+}
+.nav__drawer a.btn { margin-top: 10px; border-bottom: none; justify-content: center; }
+
+@media (min-width: 960px) {
+  .nav__links { display: inline-flex; }
+  .nav__book { display: inline-flex; }
+  .nav__toggle { display: none; }
+  .nav__drawer { display: none !important; }
+}
+
+/* 1.9 §A — Touch-Targets ≥ 44 px (Constitution §1.8).
+ * Diagnose @ 375 px: Toggle wird nur 39,7 × 44 gerendert (Flex-Kontext
+ * im .nav__cta-Container schrumpft die deklarierte 44-px-Breite leicht);
+ * `min-width` + `flex-shrink: 0` verriegeln die Soll-Außenkante.
+ * Drawer-Anker hatten padding 12/4 → ~41 px hoch; `min-height: 44`
+ * macht sie auch im offenen Drawer-Zustand tap-konform. */
+@media (pointer: coarse) {
+  .nav__toggle {
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+  .nav__drawer a {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
