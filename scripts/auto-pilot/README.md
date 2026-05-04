@@ -12,13 +12,19 @@ ausgeführt. Lokal lauffähig zum End-to-End-Test (mit `AUTO_PILOT_DATE_OVERRIDE
 
 | Datei | Zweck |
 |---|---|
-| `setup-oauth.mjs` | **Einmaliger** Konsent-Flow auf Mac: client.json → refresh-token.json |
+| `setup-oauth.mjs` | **Einmaliger** Konsent-Flow auf Mac: client.json → refresh-token.json (Sheets + Gmail-Readonly) |
 | `lib/sheets-client.mjs` | googleapis-Wrapper, OAuth2-Refresh-Token-Auth, Header-Lookup |
 | `lib/lead-mapper.mjs` | Sheet-Row → Lead-Profile-JSON für Mini-Generator |
 | `lib/prequal-derive.mjs` | Port von `_logs/sonnet-4-build/prequal-logic.cjs` (slugify, phoneE164, …) |
+| `lib/dns-mx.mjs` | DNS-MX-Lookup mit RFC-5321-A-Fallback, Timeout, Concurrency (Pre-Qual-Hardening) |
+| `lib/triage.mjs` | Binäre Lead-Klassifikation (Score + Email + DNS-MX + Phone + Verbund-Dedup + Pacing) |
 | `read-leads.mjs` | CLI: filter pitch_ready/demo_built=leer, schreibt JSON + LEAD_PROFILES.md |
 | `mark-demo-built.mjs` | CLI: setzt `demo_built` + `demo_url` für eine Lead-ID im Sheet |
 | `patch-briefing-md.mjs` | CLI: patcht EMJMEDIA_LEADS_BRIEFING.md mit `**Status:** ✅/⚠️`-Markern (idempotent) |
+| `dns-mx-check.mjs` | CLI: Single-Email-Check oder Sheet-Scan auf Bounce-Risiken |
+| `triage-leads.mjs` | CLI: Auto-Klassifikation aller `scored`-Rows in pitch_ready/disqualified mit Verify-Step |
+| `briefing-generator.mjs` | CLI: schreibt Daily-Briefing-MD ins Vault (`_PULSE/{date}/EMJMEDIA_BRIEFING.md`) |
+| `sunset-demos.mjs` | CLI: löscht Demo-Folders > 30d (mit `keep_until`-Schutz), commit + optional push |
 
 ---
 
