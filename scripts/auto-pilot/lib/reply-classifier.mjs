@@ -41,6 +41,9 @@ const POSITIVE_PATTERNS = [
   // Mehr-Information-Anfrage
   /\b(mehr\s+info|näheres|details|unterlagen|preisliste|angebot)/i,
   /\b(was\s+würde|was\s+kostet|preis|kosten)/i,
+  /\bmehr\s+zu\s+erfahren\b/i,
+  /\bwürden\s+uns\s+freuen\b/i,
+  /\bfreuen\s+uns\s+(auf|über)\b/i,
 
   // Demo-Reaktion
   /\b(gefällt|gefallen|klasse|super|stark|nicht schlecht|sieht gut aus)/i,
@@ -63,7 +66,8 @@ const NEGATIVE_PATTERNS = [
   /\bnicht\s+(weiter|nochmal|mehr)\s+(anschreiben|mailen|kontaktieren)/i,
 
   // Vertraulichkeit / DSGVO / Spam-Beschwerde
-  /\b(spam|unerwünscht|unaufgefordert|datenschutz|dsgvo|abmahnung)\b/i,
+  /\b(spam|unerwünscht|unaufgefordert(e)?|datenschutz|dsgvo|abmahnung)\b/i,
+  /\bdatenschutzbeschwerde\b/i,
   /\bwarum\s+haben\s+sie\s+meine\b/i,
   /\bwoher\s+haben\s+sie\b/i,
 
