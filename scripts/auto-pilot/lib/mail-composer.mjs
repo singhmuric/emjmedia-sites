@@ -29,34 +29,58 @@
 
 const TEMPLATE_VERSION_DEFAULT = 'kfz_v1.1';
 
-// Mapping Branche → branchen-spezifisches Substantiv für Body
-const BRANCHEN_NOUN = {
-  kfz: 'Werkstatt',
-  handwerk: 'Werkstatt',
-  friseure: 'Salon',
-  aerzte: 'Praxis',
-  restaurants: 'Restaurant',
+// Mapping Branche → branchen-spezifische Grammatik
+// Wir brauchen: Nominativ (Subject), Genitiv (Hook-Phrase),
+// Plural (B-Variant Werkstätten/Salons), Akkusativ-mit-"Ihre/Ihren" (Body),
+// Subject-Possessiv ("ihre werkstatt" / "ihren salon").
+const BRANCHE = {
+  kfz: {
+    noun: 'Werkstatt', plural: 'Werkstätten',
+    body_in: 'in Ihrer Werkstatt', body_auf: 'auf Ihre Werkstatt',
+    hook_genitiv: 'Ihrer Werkstatt', hook_dativ: 'in Ihrer Werkstatt',
+    subject_possessiv: 'ihre werkstatt',
+  },
+  handwerk: {
+    noun: 'Werkstatt', plural: 'Werkstätten',
+    body_in: 'in Ihrer Werkstatt', body_auf: 'auf Ihre Werkstatt',
+    hook_genitiv: 'Ihrer Werkstatt', hook_dativ: 'in Ihrer Werkstatt',
+    subject_possessiv: 'ihre werkstatt',
+  },
+  friseure: {
+    noun: 'Salon', plural: 'Salons',
+    body_in: 'in Ihrem Salon', body_auf: 'auf Ihren Salon',
+    hook_genitiv: 'Ihres Salons', hook_dativ: 'in Ihrem Salon',
+    subject_possessiv: 'ihren salon',
+  },
+  aerzte: {
+    noun: 'Praxis', plural: 'Praxen',
+    body_in: 'in Ihrer Praxis', body_auf: 'auf Ihre Praxis',
+    hook_genitiv: 'Ihrer Praxis', hook_dativ: 'in Ihrer Praxis',
+    subject_possessiv: 'ihre praxis',
+  },
+  restaurants: {
+    noun: 'Restaurant', plural: 'Restaurants',
+    body_in: 'in Ihrem Restaurant', body_auf: 'auf Ihr Restaurant',
+    hook_genitiv: 'Ihres Restaurants', hook_dativ: 'in Ihrem Restaurant',
+    subject_possessiv: 'ihr restaurant',
+  },
 };
 
-const BRANCHEN_NOUN_DATIV = {
-  kfz: 'in Ihrer Werkstatt',
-  handwerk: 'in Ihrer Werkstatt',
-  friseure: 'in Ihrem Salon',
-  aerzte: 'in Ihrer Praxis',
-  restaurants: 'in Ihrem Restaurant',
-};
+function getBranche(brancheKey) {
+  return BRANCHE[brancheKey] ?? BRANCHE.kfz;
+}
 
 const HOOK_PHRASES = {
   ssl:
     'Ihre Seite läuft noch ohne SSL — Google zeigt Besuchern eine Sicherheits-Warnung in der Adressleiste, was viele direkt zur Konkurrenz schickt',
   google_results_desc:
-    'bei Google-Suchergebnissen fehlt eine ansprechende Beschreibung Ihrer {branche_noun} — viele Klicks gehen so verloren',
+    'bei Google-Suchergebnissen fehlt eine ansprechende Beschreibung {hook_genitiv} — viele Klicks gehen so verloren',
   bewertungen_prominenz:
     'Ihre starken Bewertungen sind auf der Seite nicht so prominent wie sie sein könnten — viel Vertrauen geht so verloren',
   mobile_overflow:
     'Auf dem Handy bricht der Inhalt teilweise am Rand ab',
   werkstatt_fotos_fehlen:
-    'Auf der Seite fehlen aktuelle Fotos {branche_dativ}, die das Vertrauen aus den Bewertungen sichtbar machen',
+    'Auf der Seite fehlen aktuelle Fotos {hook_dativ}, die das Vertrauen aus den Bewertungen sichtbar machen',
   slow_loading:
     'Auf dem Handy lädt die Seite etwas zäh',
   jimdo_baukasten:
@@ -110,35 +134,36 @@ function pickHook(lead) {
   return 'werkstatt_fotos_fehlen';
 }
 
-function fillHookPhrase(hookId, branche) {
-  const branche_noun = BRANCHEN_NOUN[branche] ?? 'Werkstatt';
-  const branche_dativ = BRANCHEN_NOUN_DATIV[branche] ?? 'in Ihrer Werkstatt';
+function fillHookPhrase(hookId, brancheKey) {
+  const b = getBranche(brancheKey);
   const tpl = HOOK_PHRASES[hookId] ?? HOOK_PHRASES.werkstatt_fotos_fehlen;
-  return tpl.replace(/\{branche_noun\}/g, branche_noun).replace(/\{branche_dativ\}/g, branche_dativ);
+  return tpl
+    .replace(/\{hook_genitiv\}/g, b.hook_genitiv)
+    .replace(/\{hook_dativ\}/g, b.hook_dativ);
 }
 
+// Liefert komplette Anrede-Zeile inkl. "Hallo " — Template setzt sie 1:1 ein.
+// Das verhindert "Hallo Hallo zusammen,"-Doppelung.
 function pickAnredeAndVariant(lead) {
   const inhaberName = n(lead.inhaber_name);
   const notes = n(lead.notes);
 
   // Inhaber-Name aus explicit field
   if (inhaberName) {
-    return { anrede: `Herr ${inhaberName}`, variant_anrede: 'A_inhaber' };
+    return { anrede_full: `Hallo Herr ${inhaberName}`, variant_anrede: 'A_inhaber' };
   }
 
-  // Inhaber aus notes parsen — Pattern wie "Inhaber: Hans Müller" oder "Inhaber Hans Müller"
+  // Inhaber aus notes parsen
   if (notes) {
     const m = notes.match(/inhaber(?:in)?\s*:?\s*(?:herr |frau )?([A-Z][a-zäöüß-]+(?:\s+[A-Z][a-zäöüß-]+)?)/i);
     if (m && m[1]) {
       const lastName = m[1].split(/\s+/).pop();
-      // Heuristik: Wenn nur ein Wort und das ist Vorname-typisch, nicht nutzen
-      // Pragmatisch: wir nehmen das letzte Wort als Nachname
-      return { anrede: `Herr ${lastName}`, variant_anrede: 'A_inhaber' };
+      return { anrede_full: `Hallo Herr ${lastName}`, variant_anrede: 'A_inhaber' };
     }
   }
 
   // Memory feedback_halluzination_abwehr: NICHT raten.
-  return { anrede: 'Hallo zusammen', variant_anrede: 'A_generic' };
+  return { anrede_full: 'Hallo zusammen', variant_anrede: 'A_generic' };
 }
 
 function pickStadtteilOrCity(lead) {
@@ -173,56 +198,47 @@ function buildMailtoUrl({ to, subject, body }) {
 // ============================================================================
 
 export function composePitchMail(lead, opts = {}) {
-  const branche = n(lead.branche).toLowerCase() || 'kfz';
+  const brancheKey = n(lead.branche).toLowerCase() || 'kfz';
+  const b = getBranche(brancheKey);
   const websiteUrl = n(lead.website_url);
   const hasWebsite = !!websiteUrl;
 
-  // Variant-Bestimmung
-  let variant;
-  let anrede;
-  if (!hasWebsite) {
-    variant = 'B_no_website';
-    const a = pickAnredeAndVariant(lead);
-    anrede = a.anrede;
-  } else {
-    const a = pickAnredeAndVariant(lead);
-    variant = a.variant_anrede;
-    anrede = a.anrede;
-  }
+  // Variant + Anrede-Bestimmung
+  const a = pickAnredeAndVariant(lead);
+  const variant = hasWebsite ? a.variant_anrede : 'B_no_website';
+  const anredeFull = a.anrede_full; // schon inkl. "Hallo "
 
   // Hook nur bei Website-Variants
   let hook = null;
   let hookPhrase = null;
   if (variant !== 'B_no_website') {
     hook = pickHook(lead);
-    hookPhrase = fillHookPhrase(hook, branche);
+    hookPhrase = fillHookPhrase(hook, brancheKey);
   }
 
-  // Subject — Mobile-Cap-Logik
+  // Subject — Mobile-Cap-Logik (>20 Zeichen oder GmbH/Co/KG → branchenspezifisches B-Subject)
   const firmenname = n(lead.business_name);
   const subjectVariantA = `kurze idee für ${firmenname}`;
-  const subjectVariantB = `kurze idee für ihre ${BRANCHEN_NOUN[branche] ?? 'werkstatt'}`.toLowerCase();
-  const subjectB_lc = subjectVariantB; // bewusst lowercase
+  const subjectVariantB = `kurze idee für ${b.subject_possessiv}`;
   const useShortSubject = firmenname.length > 0 && firmenname.length <= 20 && !/[&]|GmbH|Co\.|KG/.test(firmenname);
-  const subject = useShortSubject ? subjectVariantA : subjectB_lc;
+  const subject = useShortSubject ? subjectVariantA : subjectVariantB;
 
-  // Body
+  // Body-Felder
   const stadtteil = pickStadtteilOrCity(lead);
   const rating = fmtRating(lead.google_rating) ?? '4,8';
   const reviewCount = n(lead.review_count) || '–';
   const demoUrl = n(lead.demo_url) || `https://${n(lead.slug) || 'demo'}.emj-media.de`;
   const demoUrlNoProtocol = demoUrl.replace(/^https?:\/\//, '');
-  const brancheNoun = BRANCHEN_NOUN[branche] ?? 'Werkstatt';
 
   let body;
   if (variant === 'B_no_website') {
-    // Möglichkeits-Pitch (kein Hook)
+    // Möglichkeits-Pitch (kein Hook), branchen-grammatik via b.body_auf + b.plural
     body =
-`Hallo ${anrede.startsWith('Herr ') ? anrede : 'zusammen'},
+`${anredeFull},
 
-bin auf Ihre ${brancheNoun} in ${stadtteil} gestoßen — ${rating} Sterne bei ${reviewCount} Bewertungen, ohne Website. Das ist eigentlich Verschwendung.
+bin ${b.body_auf} in ${stadtteil} gestoßen — ${rating} Sterne bei ${reviewCount} Bewertungen, ohne Website. Das ist eigentlich Verschwendung.
 
-${brancheNoun}en ohne Website verlieren heute fast alle jüngeren Kunden, die vor dem ersten Termin kurz googeln und dann ohne Vertrauensanker bei der Konkurrenz landen. Hab Ihnen mal gezeigt wie das für Sie aussehen könnte (öffnet direkt im Browser, kein Login):
+${b.plural} ohne Website verlieren heute fast alle jüngeren Kunden, die vor dem ersten Termin kurz googeln und dann ohne Vertrauensanker bei der Konkurrenz landen. Hab Ihnen mal gezeigt wie das für Sie aussehen könnte (öffnet direkt im Browser, kein Login):
 
 ${demoUrlNoProtocol}
 
@@ -234,11 +250,11 @@ EMJmedia
 
 P.S. Falls Sie sich fragen wer dahintersteht: Singh/Muric GbR aus Kaltenkirchen, mehr unter emj-media.de.`;
   } else {
-    // Standard A_inhaber / A_generic
+    // Standard A_inhaber / A_generic mit Hook
     body =
-`Hallo ${anrede},
+`${anredeFull},
 
-bin auf Ihre ${brancheNoun} in ${stadtteil} gestoßen — ${rating} Sterne bei ${reviewCount} Bewertungen, das ist stark.
+bin ${b.body_auf} in ${stadtteil} gestoßen — ${rating} Sterne bei ${reviewCount} Bewertungen, das ist stark.
 
 Eine Sache ist mir aufgefallen: ${hookPhrase}. Hab Ihnen mal kurz eine Demo gebaut, wie das aussehen könnte (öffnet direkt im Browser, kein Login):
 
@@ -253,7 +269,7 @@ EMJmedia
 P.S. Falls Sie sich fragen wer dahintersteht: Singh/Muric GbR aus Kaltenkirchen, mehr unter emj-media.de.`;
   }
 
-  // mailto-URL für Briefing-Generator
+  // mailto-URL
   const to = n(lead.email);
   const mailtoUrl = to ? buildMailtoUrl({ to, subject, body }) : null;
 
@@ -276,7 +292,7 @@ export function composeFollowupMail(lead, opts = {}) {
 
   const subject = 'nachgefragt';
   const body =
-`Hallo ${a.anrede},
+`${a.anrede_full},
 
 kurz nochmal — die Demo:
 ${demoUrlNoProtocol}
@@ -301,6 +317,7 @@ export const _internals = {
   pickAnredeAndVariant,
   fillHookPhrase,
   isBaukastenHost,
+  getBranche,
   HOOK_PHRASES,
-  BRANCHEN_NOUN,
+  BRANCHE,
 };

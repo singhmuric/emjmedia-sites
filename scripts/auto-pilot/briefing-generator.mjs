@@ -32,6 +32,7 @@ import { parseArgs } from 'node:util';
 
 import { readSheet, requireColumns } from './lib/sheets-client.mjs';
 import { triageLeads } from './lib/triage.mjs';
+import { composePitchMail, composeFollowupMail } from './lib/mail-composer.mjs';
 
 const SYNC_STALE_HOURS = 8;
 const BOUNCE_RATE_ALERT_PCT = 5;
@@ -294,12 +295,23 @@ function buildFollowups({ rows, today }) {
   }
 
   const lines = [`## ⏰ Heute fällig (${due.length} Follow-ups Tag 4)\n`];
+  lines.push(`Pro Lead: **mailto-Link öffnet Gmail mit fertigem Followup**.`);
+  lines.push('');
   for (const r of due) {
     const overdue = tryParseDate(r.followup_due) < today ? ' (überfällig!)' : '';
-    lines.push(`- **${r.business_name}**${overdue} → ${r.email}`);
+    let followup;
+    try {
+      followup = composeFollowupMail(r);
+    } catch (e) {
+      lines.push(`- **${r.business_name}**${overdue} → ${r.email} (Mail-Generation fail: ${e.message})`);
+      continue;
+    }
+    if (followup.mailto_url) {
+      lines.push(`- **${r.business_name}**${overdue} → 📧 [Followup in Gmail öffnen](${followup.mailto_url})`);
+    } else {
+      lines.push(`- **${r.business_name}**${overdue} → ${r.email} (kein mailto-Link generierbar)`);
+    }
   }
-  lines.push('');
-  lines.push('Mail-2-Body wird on-demand von Cowork generiert: schreib `Follow-up-Mails generieren`.');
   return lines.join('\n') + '\n';
 }
 
@@ -349,35 +361,71 @@ function buildKpis({ rows }) {
 // ============================================================================
 
 async function buildPitchList({ rows }) {
-  // pitch-ready Leads die noch keine demo_url haben
-  const ready = rows.filter((r) => {
-    const pq = String(r.pre_qual_status ?? '').trim();
-    const url = String(r.demo_url ?? '').trim();
-    return pq === 'pitch_ready' && !url;
-  });
+  // pitch-ready Leads — bevorzugt mit Demo-URL (zum Pitchen), aber auch ohne (Auto-Pilot baut noch)
+  const allReady = rows.filter((r) => String(r.pre_qual_status ?? '').trim() === 'pitch_ready');
+  const withDemo = allReady.filter((r) => String(r.demo_url ?? '').trim());
+  const withoutDemo = allReady.filter((r) => !String(r.demo_url ?? '').trim());
 
-  if (ready.length === 0) {
-    return '## 🚀 Heute pitchen — vorbereitete Liste\n\nKeine pitch-ready Leads ohne Demo. Auto-Pilot baut beim nächsten Cron-Run.\n';
+  if (allReady.length === 0) {
+    return '## 🚀 Heute pitchen — vorbereitete Liste\n\nKeine pitch-ready Leads. Auto-Pilot baut beim nächsten Cron-Run, oder Triage-Skript klassifiziert neue scored-Leads.\n';
   }
 
   const lines = [
-    `## 🚀 Heute pitchen — vorbereitete Liste (${ready.length} Leads)\n`,
-    'Auto-Pilot-Cron baut die Demos um 06:30. Nach Demo-Build sind sie unter `https://{slug}.emj-media.de` live.',
-    '',
-    '| Lead | Score | Email | Hook-Vorschlag |',
-    '|---|---|---|---|',
+    `## 🚀 Heute pitchen — vorbereitete Liste (${allReady.length} Leads)\n`,
   ];
 
-  for (const r of ready) {
-    const hook =
-      String(r.signal_summary ?? '').includes('kein-ssl') ? 'SSL-Hook' :
-      String(r.signal_summary ?? '').includes('no-meta') ? 'Google-Suchergebnis-Hook' :
-      Number(r.review_count) > 30 ? 'Trust-Hook (viele Bewertungen)' :
-      'A_inhaber-Default';
-    lines.push(`| ${r.business_name} | ${r.score} | ${r.email} | ${hook} |`);
+  if (withDemo.length === 0) {
+    lines.push(`⏳ ${withoutDemo.length} Lead(s) sind klassifiziert, aber Demo-Sites fehlen. Auto-Pilot baut um 06:30 (oder via \`auto-pilot-morning.sh\` manuell).`);
+    lines.push('');
+    return lines.join('\n') + '\n';
   }
+
+  lines.push(`Pro Lead: **mailto-Link öffnet Gmail mit fertiger Mail** zum Versenden. Mail-Body als Vorschau ausklappbar.`);
   lines.push('');
-  lines.push('Mail-Bodies generieren: `Pitch-Mails für heute generieren` an Cowork.');
+
+  for (const r of withDemo) {
+    let mail;
+    try {
+      mail = composePitchMail(r);
+    } catch (e) {
+      lines.push(`### ⚠️ ${r.business_name} (${r.lead_id}) — Mail-Generation fehlgeschlagen: ${e.message}`);
+      lines.push('');
+      continue;
+    }
+
+    lines.push(`### ${r.business_name} · Score ${r.score ?? '–'} · \`${mail.pitch_variant}\``);
+    lines.push('');
+    lines.push(`**To:** ${mail.to ?? '(keine Email)'}`);
+    lines.push(`**Subject:** ${mail.subject}`);
+    lines.push(`**Demo:** [${String(r.demo_url).replace(/^https?:\/\//, '')}](${r.demo_url})`);
+    lines.push('');
+    if (mail.mailto_url) {
+      lines.push(`📧 **[In Gmail öffnen](${mail.mailto_url})** — Klick → Gmail mit fertiger Mail → Send-Button drücken.`);
+    } else {
+      lines.push('⚠️ Keine Email im Sheet — kein mailto-Link generierbar.');
+    }
+    lines.push('');
+    lines.push('<details><summary>Mail-Body anzeigen (zum Copy-Paste-Fallback)</summary>');
+    lines.push('');
+    lines.push('```');
+    lines.push(mail.body);
+    lines.push('```');
+    lines.push('');
+    lines.push('</details>');
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+  }
+
+  if (withoutDemo.length > 0) {
+    lines.push(`### ⏳ ${withoutDemo.length} weitere Lead(s) ohne Demo-Site (Auto-Pilot baut beim nächsten Cron-Run)`);
+    lines.push('');
+    for (const r of withoutDemo) {
+      lines.push(`- ${r.business_name} (${r.lead_id}) — Score ${r.score ?? '–'}`);
+    }
+    lines.push('');
+  }
+
   return lines.join('\n') + '\n';
 }
 
