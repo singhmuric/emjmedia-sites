@@ -31,6 +31,12 @@ echo "[$TS_START] briefing-cron: start date=$DATE"
 
 cd "$REPO_ROOT"
 
+# Pre-Hook: Reply-Classifier für pending Replies (idempotent, schreibt nur wenn was zu tun ist)
+echo "[$(date -u +'%FT%TZ')] briefing-cron: pre-hook classify-pending-replies"
+if ! node scripts/auto-pilot/classify-pending-replies.mjs --apply; then
+  echo "[$(date -u +'%FT%TZ')] briefing-cron: classify-pending-replies failed (kein Hard-Fail, weiter mit Briefing)"
+fi
+
 if node scripts/auto-pilot/briefing-generator.mjs; then
   TS_END="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
   echo "[$TS_END] briefing-cron: done"
