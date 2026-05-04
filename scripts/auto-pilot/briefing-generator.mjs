@@ -326,9 +326,11 @@ function buildKpis({ rows }) {
     return s === 'reply' || tryParseDate(r.reply_date);
   });
   const customers = rows.filter((r) => String(r.status ?? '').trim() === 'customer');
+  // Bounce-Match: nur explizite Marker "BOUNCE TT.MM." oder "BOUNCE YYYY-MM-DD",
+  // NICHT loses Substring (Notes können "Bounce-Risiko-Hypothese widerlegt" enthalten)
   const bounced = rows.filter((r) => {
-    const notes = String(r.notes ?? '').toLowerCase();
-    return notes.includes('bounce');
+    const notes = String(r.notes ?? '');
+    return /BOUNCE\s+(\d{2}\.\d{2}\.|\d{4}-\d{2}-\d{2})/i.test(notes);
   });
 
   const totalEmails = pitched.length + replied.length + customers.length;
@@ -474,7 +476,8 @@ async function main() {
   // KPIs für Alert-Berechnung
   const pitchedCount = rows.filter((r) => String(r.status ?? '').trim() === 'pitched').length +
                         rows.filter((r) => tryParseDate(r.reply_date)).length;
-  const bouncedCount = rows.filter((r) => String(r.notes ?? '').toLowerCase().includes('bounce')).length;
+  // Bounce-Match: nur explizite Marker "BOUNCE TT.MM." oder "BOUNCE YYYY-MM-DD"
+  const bouncedCount = rows.filter((r) => /BOUNCE\s+(\d{2}\.\d{2}\.|\d{4}-\d{2}-\d{2})/i.test(String(r.notes ?? ''))).length;
   const bounceRatePct = pitchedCount > 0 ? (bouncedCount / pitchedCount) * 100 : null;
 
   // Sektionen bauen

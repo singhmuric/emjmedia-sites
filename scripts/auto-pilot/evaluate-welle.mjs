@@ -85,7 +85,8 @@ function aggregateByDimensions(filteredRows) {
 
     const isReply = !!tryParseDate(r.reply_date) || n(r.status).toLowerCase() === 'reply';
     const isCustomer = n(r.status).toLowerCase() === 'customer';
-    const isBounce = n(r.notes).toLowerCase().includes('bounce');
+    // Bounce-Match: nur explizite Marker (Notes können "Bounce-Risiko widerlegt" enthalten)
+    const isBounce = /BOUNCE\s+(\d{2}\.\d{2}\.|\d{4}-\d{2}-\d{2})/i.test(n(r.notes));
     const visits = Number(r.demo_visits) || 0;
 
     const tally = (m, key) => {
@@ -142,7 +143,7 @@ function buildMd({ filtered, agg, fromDate, toDate, branche, today }) {
       acc.pitches++;
       if (tryParseDate(r.reply_date) || n(r.status).toLowerCase() === 'reply') acc.replies++;
       if (n(r.status).toLowerCase() === 'customer') acc.customers++;
-      if (n(r.notes).toLowerCase().includes('bounce')) acc.bounces++;
+      if (/BOUNCE\s+(\d{2}\.\d{2}\.|\d{4}-\d{2}-\d{2})/i.test(n(r.notes))) acc.bounces++;
       acc.visits_total += Number(r.demo_visits) || 0;
       if (n(r.demo_url)) acc.demos++;
       return acc;
