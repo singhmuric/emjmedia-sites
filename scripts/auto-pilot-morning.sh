@@ -123,7 +123,11 @@ fi
 log_md "## 3. Demo-Site-Builds"
 
 # Lead-Liste als bash-iterable Tabelle (lead_id|slug)
-mapfile -t LEAD_ENTRIES < <(node -e '
+# while-read statt mapfile für Mac-Bash-3.2-Kompat (mapfile braucht Bash 4+)
+LEAD_ENTRIES=()
+while IFS= read -r line; do
+  [[ -n "$line" ]] && LEAD_ENTRIES+=("$line")
+done < <(node -e '
   const d = JSON.parse(require("node:fs").readFileSync(process.argv[1]));
   for (const l of d.leads) console.log(l.lead_id + "|" + l.build_meta.slug);
 ' "$LEADS_JSON")
