@@ -175,16 +175,32 @@ async function main() {
       );
     }
 
-    try {
-      const { updatedCells } = await updateCells(
-        sheetId, args['sheet-name'], headerMap, t.lead._rowNumber, updates
-      );
-      writes += updatedCells;
-      expected.push({ rowNumber: t.lead._rowNumber, updates });
-    } catch (e) {
-      console.error(`  ✗ Row ${t.lead._rowNumber} (${t.lead.lead_id}): ${e.message}`);
-      skipped++;
+    // Sheets-Quota: 60 writes/min/user → 1100ms zwischen Writes
+    // Bei Quota-Error: 30s Backoff + 1 Retry
+    let attempt = 0;
+    while (true) {
+      try {
+        const { updatedCells } = await updateCells(
+          sheetId, args['sheet-name'], headerMap, t.lead._rowNumber, updates
+        );
+        writes += updatedCells;
+        expected.push({ rowNumber: t.lead._rowNumber, updates });
+        break;
+      } catch (e) {
+        const isQuota = /quota|rate.?limit|429/i.test(e.message);
+        if (isQuota && attempt === 0) {
+          console.error(`  ⏸ Row ${t.lead._rowNumber}: Quota-Backoff 30s, retry…`);
+          await new Promise((res) => setTimeout(res, 30000));
+          attempt++;
+          continue;
+        }
+        console.error(`  ✗ Row ${t.lead._rowNumber} (${t.lead.lead_id}): ${e.message}`);
+        skipped++;
+        break;
+      }
     }
+    // Throttle zwischen Writes
+    await new Promise((res) => setTimeout(res, 1100));
   }
 
   console.error(`Wrote ${writes} cell(s) across ${expected.length} row(s), skipped ${skipped}.`);
