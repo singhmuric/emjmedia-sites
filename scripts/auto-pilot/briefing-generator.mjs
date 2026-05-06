@@ -364,7 +364,16 @@ function buildKpis({ rows }) {
 
 async function buildPitchList({ rows }) {
   // pitch-ready Leads — bevorzugt mit Demo-URL (zum Pitchen), aber auch ohne (Auto-Pilot baut noch)
-  const allReady = rows.filter((r) => String(r.pre_qual_status ?? '').trim() === 'pitch_ready');
+  // Ausschluss: schon pitched (status=pitched) ODER pitch_date gesetzt → vermeidet Doppel-Pitch
+  const allReady = rows.filter((r) => {
+    const pq = String(r.pre_qual_status ?? '').trim();
+    if (pq !== 'pitch_ready') return false;
+    const status = String(r.status ?? '').trim();
+    if (status === 'pitched' || status === 'replied' || status === 'customer' || status === 'bounce') return false;
+    const pitchDate = String(r.pitch_date ?? '').trim();
+    if (pitchDate) return false;
+    return true;
+  });
   const withDemo = allReady.filter((r) => String(r.demo_url ?? '').trim());
   const withoutDemo = allReady.filter((r) => !String(r.demo_url ?? '').trim());
 
