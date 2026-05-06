@@ -1,0 +1,231 @@
+/* ---------- SECTION 5 · LEISTUNGEN BENTO (DNA §10.4, NFR §6.1/§6.3) ---------- */
+.leistungen {
+  background: var(--color-light);
+  padding: var(--section-y) 0;
+  position: relative;
+}
+.leistungen .section-head { max-width: 54ch; }
+
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(240px, auto);
+  gap: 18px;
+}
+
+.bento__card {
+  position: relative;
+  grid-column: span 12;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  border: 1px solid rgba(10, 10, 10, 0.06);
+  transition: transform var(--dur-slow) var(--ease-out),
+              box-shadow var(--dur-slow) var(--ease-out),
+              border-color var(--dur-med) var(--ease-out);
+  isolation: isolate;
+}
+.bento__card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-deep-accent), var(--color-warm-accent));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 500ms var(--ease-out);
+  z-index: 2;
+}
+@media (hover: hover) and (pointer: fine) {
+  .bento__card--photo:hover,
+  .bento__card--text:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 24px 64px rgba(11, 18, 32, 0.16);
+    border-color: var(--color-warm-accent);
+  }
+  .bento__card--photo:hover::before,
+  .bento__card--text:hover::before { transform: scaleX(1); }
+}
+.bento__card:active {
+  transform: translateY(-2px) scale(0.988);
+  transition-duration: 140ms;
+}
+
+.bento__card--feature {
+  grid-column: span 12;
+  grid-row: span 2;
+  min-height: 420px;
+  background: var(--color-authority);
+}
+.bento__bg { position: absolute; inset: 0; z-index: 0; }
+.bento__bg img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 600ms var(--ease-out);
+}
+.bento__scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(11, 18, 32, 0.12) 0%, rgba(11, 18, 32, 0.30) 40%, rgba(11, 18, 32, 0.88) 100%);
+  z-index: 1;
+}
+.bento__feature-body {
+  position: relative;
+  z-index: 2;
+  padding: 28px;
+  color: var(--color-white);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.bento__feature-body .bento__title {
+  color: var(--color-white);
+  font-size: clamp(1.4rem, 1rem + 1.4vw, 1.85rem);
+}
+.bento__feature-body .bento__text { color: var(--color-white-70); }
+
+@media (hover: hover) and (pointer: fine) {
+  .bento__card--feature:hover .bento__bg img { transform: scale(1.04); }
+  .bento__card--feature:hover { box-shadow: 0 24px 64px rgba(11, 18, 32, 0.28); }
+  .bento__card--feature:hover::before { transform: scaleX(1); }
+}
+
+.bento__photo {
+  display: block;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.06);
+}
+.bento__photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 600ms var(--ease-out);
+}
+.bento__card--photo:hover .bento__photo img { transform: scale(1.02); }
+
+.bento__body {
+  padding: 22px 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bento__body--icon-row {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 24px 26px;
+}
+.bento__icon {
+  flex-shrink: 0;
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--color-accent-tint);
+  color: var(--color-warm-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-accent-tint-strong);
+}
+
+.bento__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  margin: 8px 0 6px;
+}
+.bento__text {
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: var(--color-ink-55);
+  margin: 0;
+}
+
+.bento__card--text { background: var(--color-white); }
+.bento__pattern {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0,
+    transparent 18px,
+    rgba(184, 146, 90, 0.055) 18px,
+    rgba(184, 146, 90, 0.055) 19px
+  );
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity var(--dur-slow) var(--ease-out);
+}
+
+.bento__card--icon {
+  background: var(--color-accent-tint);
+  border: 1px solid var(--color-accent-tint-strong);
+  padding: 26px 26px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.bento__card--icon::before { display: none; }
+.bento__iconbox {
+  width: 72px; height: 72px;
+  border-radius: 16px;
+  background: var(--color-white);
+  color: var(--color-warm-accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(11, 18, 32, 0.08);
+  transition: transform var(--dur-slow) var(--ease-out),
+              box-shadow var(--dur-slow) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .bento__card--icon:hover {
+    background: var(--color-accent-tint-strong);
+    transform: translateY(-6px);
+  }
+  .bento__card--icon:hover .bento__iconbox {
+    transform: scale(1.08) rotate(-4deg);
+    box-shadow: 0 10px 28px rgba(184, 146, 90, 0.28);
+  }
+}
+.bento__card--icon .bento__body { padding: 0; }
+
+@media (min-width: 720px) {
+  .bento__card--feature { grid-column: span 7; grid-row: span 2; }
+  .bento__card:nth-child(2) { grid-column: span 5; }
+  .bento__card:nth-child(3) { grid-column: span 5; }
+  .bento__card:nth-child(4) { grid-column: span 4; }
+  .bento__card:nth-child(5) { grid-column: span 4; }
+  .bento__card:nth-child(6) { grid-column: span 4; }
+}
+@media (min-width: 1100px) {
+  .bento { gap: 22px; grid-auto-rows: minmax(220px, auto); }
+  .bento__card--feature { min-height: 520px; }
+}
+
+/* 1.9 §C — Mobile-Top-Padding und Section-Head-Spacing reduziert.
+ * Diagnose: ~280 px Section-Top → erste Card @ 360 px (Section-
+ * Padding 64 + section-head 196 [eyebrow + h2 + lead] + Margins).
+ * Maßnahmen für Mobile: Padding-Top halbiert (64 → 32), Section-
+ * Head margin-bottom auf 1.25rem, Section-Lead margin-bottom auf
+ * 1rem (Override nur in `.leistungen`, andere Sections bleiben
+ * mit Default 2.25rem). Resultierender Gap ≈ 256 px; reiner
+ * Whitespace oberhalb der ersten Schrift ≈ 54 px (Padding 32 +
+ * Header-Default ~22). Strikte Handover-Acceptance ≤ 120 px für
+ * Section-Top → Card ist mit der vorhandenen Section-Head-Höhe
+ * (~196 px) nicht erreichbar; siehe `_logs/1.9-skill-invocations.md`. */
+@media (max-width: 768px) {
+  .leistungen {
+    padding-block-start: clamp(2rem, 8vw, 3rem);
+  }
+  .leistungen .section-head {
+    margin-bottom: 1.25rem;
+  }
+  .leistungen .section-lead {
+    margin-bottom: 1rem;
+  }
+}
+
