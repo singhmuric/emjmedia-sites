@@ -26,6 +26,15 @@
 
 set -euo pipefail
 
+# --- ENV-Loading aus /etc/auto-pilot.env (analog zu triage/briefing/gmail-sync/sunset-cron.sh) ---
+ENV_FILE="${ENV_FILE:-/etc/auto-pilot.env}"
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  . "$ENV_FILE"
+  set +a
+fi
+
 # --- Config -------------------------------------------------------------------
 REPO_ROOT="${REPO_ROOT:-/opt/emjmedia-sites}"
 VAULT_ROOT="${VAULT_ROOT:-/opt/vault}"
