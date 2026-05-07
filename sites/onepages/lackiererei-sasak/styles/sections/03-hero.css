@@ -1,0 +1,421 @@
+/* ---------- SECTION 3 · HERO (DNA §10.1) ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-authority);
+  color: var(--color-white);
+  padding: clamp(5rem, 9vw, 8rem) 0 clamp(5rem, 9vw, 7rem);
+  isolation: isolate;
+  min-height: 86vh;
+  min-height: 86dvh;
+  display: flex;
+  align-items: center;
+}
+.hero__media { position: absolute; inset: 0; z-index: -2; }
+.hero__media img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 35%;
+  filter: contrast(1.04) saturate(0.9) brightness(0.78);
+}
+/* Hotfix 1.8.2 — Dunkler Top-Scrim gegen Decken-LED-Streifen.
+ * Cowork-Klärung zu 1.8.1 §B: was als „weißlicher Nebel" wahrgenommen
+ * wurde, sind die LED-Beleuchtungen an der Werkstatt-Decke im Foto
+ * selbst (kein Code-Layer). Lösung: dünner dunkler Scrim am oberen
+ * Rand, der die Lichter abdämpft. Spiegelbildlich zum Subline-Scrim
+ * `.hero__scrim` aus 1.8 §2.2 (links-unten dunkel).
+ *
+ * Stacking: .hero__media ist `position: absolute` (positioned), das
+ * reicht als Containing Block für ::before mit `position: absolute`
+ * — funktional äquivalent zu `position: relative` für diesen Zweck.
+ * z-index 1 liegt im Stacking-Context von .hero__media (z-index -2),
+ * über img (in-flow) und über .hero__scrim (positioned ohne z-index).
+ * .hero__inner-Inhalte (Headline, Subline, CTAs) liegen außerhalb
+ * .hero__media → unbeeinflusst, bleiben über dem Top-Scrim sichtbar.
+ *
+ * Constitution §13: rein additive Änderung. .hero__scrim und alle
+ * anderen Hero-Layer unverändert. */
+/* 1.8.5 §A — Rollback aus 1.8.2/1.8.3/1.8.4 §B.
+ * Drei Iterationen wurden am falschen Element gemacht: User hat den
+ * "weißen verschwommenen Effekt" als Decken-LEDs im Foto interpretiert,
+ * aber Cowork-Diagnose (`_logs/1.8.5-header-diagnose.md`) hat ihn als
+ * .nav-Element identifiziert (semi-transparent + backdrop-blur).
+ * Die .hero__media::before-Regel war die ganze Zeit am falschen Element
+ * und wird ersatzlos entfernt. Constitution §13: keine toten CSS-Pfade.
+ * Fix kommt in styles/sections/01-nav.css. */
+/* 1.8 §2.2 — Hero-Scrim Diagnose + Fix.
+ *
+ * ROOT-CAUSE-Befund (Schritt 2 Pflicht-Ablauf, vorher Schritt 1
+ * dokumentiert in _logs/1.8-hero-before.json mit min-Kontrast 3.12:1):
+ * Vorher hatte .hero__scrim z-index:-1 INNERHALB des Containers
+ * .hero__media (selbst z-index:-2). Der lokale Stacking-Context von
+ * .hero__media rendert in-flow Children (das <picture>/<img>) ÜBER
+ * negative-z-index positioned Children. Der Scrim lag also hinter
+ * dem Foto und war seit 1.7 unsichtbar — die optische Aufhellung kam
+ * NUR vom hero__h1/hero__promise text-shadow, nicht vom Scrim.
+ * Beweis: Vorher 0.72->0 und Option A 0.88->0 ergaben identische
+ * Pixelwerte rgb(135,136,138) bei (172, 569) [siehe before.json /
+ * after-a.json bevor dieser Fix].
+ *
+ * FIX (Schritt 2 Pflicht-Ablauf): z-index entfernt. Damit liegt der
+ * Scrim als positioned-Element (auto z-index ≈ stacking-layer 6)
+ * über dem in-flow img (layer 3) im selben Stacking-Context und
+ * erscheint endlich sichtbar.
+ *
+ * SCRIM (Schritt 3 Option A): Verstärkt 0.88 → 0 entlang 105deg, damit
+ * die Subline-Breite voll abgedeckt ist. Kennzahlen-Card rechts vom
+ * 90%-Endpunkt → Foto bleibt als Foto erkennbar.
+ * Mobile: vertikal 0.88 → 0.30, Subline-Y-Bereich voll abgedeckt. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgba(11, 18, 32, 0.88) 0%,
+    rgba(11, 18, 32, 0.78) 30%,
+    rgba(11, 18, 32, 0.45) 55%,
+    rgba(11, 18, 32, 0.12) 75%,
+    rgba(11, 18, 32, 0)    90%
+  );
+  pointer-events: none;
+}
+@media (max-width: 720px) {
+  .hero__scrim {
+    background: linear-gradient(
+      180deg,
+      rgba(11, 18, 32, 0.88) 0%,
+      rgba(11, 18, 32, 0.78) 35%,
+      rgba(11, 18, 32, 0.55) 65%,
+      rgba(11, 18, 32, 0.30) 100%
+    );
+  }
+}
+.hero__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(2rem, 5vw, 3rem);
+  align-items: start;
+}
+
+.hero__copy { max-width: 640px; }
+.hero__eyebrow { color: var(--color-warm-accent); }
+.hero__eyebrow::before { background: var(--color-warm-accent); }
+
+.hero__h1 {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2.75rem, 2rem + 4.5vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  margin: 0 0 1rem;
+  color: var(--color-white);
+  font-feature-settings: "ss01", "ss02";
+  /* 1.7 §2.6 B — subtle text-shadow blur-only (kein harter Offset,
+   * kein -webkit-text-stroke). Weiche Tiefentrennung auf hellem Foto. */
+  text-shadow: 0 2px 12px rgba(11, 18, 32, 0.55);
+}
+/* 1.9 §C — Mobile-Override für Hero-H1.
+ * Diagnose 1.9 §3: clamp() greift @ 360 mit 48.2 px Font und produziert
+ * 3 Zeilen × 49.2 = 147.5 px (44 % der Fold). „Termin anfragen"-CTA
+ * verschwand unter der Falte. Erster Versuch (Clamp-Floor + Slope-Anker
+ * senken) hätte Desktop @ 960–1066 px um 5–8 px geändert → verletzt
+ * „Desktop unverändert". Saubere Lösung: harte Mobile-Override < 480 px,
+ * Clamp und damit Desktop bleiben pixelgleich. */
+@media (max-width: 480px) {
+  .hero__h1 {
+    font-size: 2.25rem;
+    line-height: 1.05;
+  }
+}
+
+.hero__h1-line { display: block; }
+.hero__h1 em { font-style: normal; color: var(--color-warm-accent); }
+
+.hero__promise {
+  max-width: 42ch;
+  font-size: clamp(1rem, 0.94rem + 0.35vw, 1.12rem);
+  line-height: 1.55;
+  /* 1.7 §2.6 — Subline ist Lesbarkeits-kritisch. Opacity von 70% → 88%
+   * damit Kontrast gegen Scrim-Bereich AA erfüllt. */
+  color: rgba(255, 255, 255, 0.88);
+  margin: 0 0 1.8rem;
+  /* §2.6 B Text-Shadow nur Blur — verstärkt Lesbarkeit auf Foto-Mix. */
+  text-shadow: 0 2px 12px rgba(11, 18, 32, 0.55);
+}
+
+.hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 1.6rem;
+}
+/* 1.8 §2.3 — Secondary-CTA solid-check.
+ * Vorher 0.90 Opacity auf hellem Foto immer noch leicht transparent.
+ * Jetzt 0.95 + box-shadow für klare Solid-Erscheinung und Separation
+ * vom Werkstatt-Foto. Hierarchie unverändert: Primär (solid Messing)
+ * schlägt Sekundär (Nachtblau).
+ *
+ * Hotfix 1.8.1 §A — Animierter Messing-Border per SVG-Rect-stroke
+ * (vorher conic-gradient + mask-composite-Variante; die wanderte
+ * kreisförmig durch den Button-Innenraum statt entlang der echten
+ * Rechteck-Kontur). Jetzt: dediziertes <svg.cta-border-loop> mit
+ * <rect>, stroke-dasharray = "Hot-Spot 15% / Gap 85%", animation
+ * via stroke-dashoffset 3.2s linear infinite. Pfadlänge wird in
+ * scripts.js via getTotalLength() berechnet und über --cta-len
+ * Custom-Property an die Keyframes weitergegeben (path-len ist
+ * responsive, ResizeObserver hält das aktuell).
+ * Solider 1px-Messing-Border bleibt als Fallback bei reduced-motion
+ * und wenn JS nicht lädt (Fail-Safe Constitution §12.5). */
+.hero__cta--secondary {
+  position: relative;
+  isolation: isolate;
+  background: rgba(11, 18, 32, 0.95);
+  color: var(--color-white);
+  /* 1.8.5 §B — Border auf transparent gesetzt: der animierte SVG-Hot-
+   * Spot war zusammen mit dem statischen 1px-Messing-Border als
+   * Doppellinie sichtbar (Sub-Pixel-Versatz wirkte als zwei parallele
+   * Linien rechts). Layout-Geometrie bleibt durch border:1px stabil,
+   * aber visuell unsichtbar während der Animation läuft.
+   * reduced-motion-Branch unten setzt Border wieder auf solid Messing
+   * als Fallback. */
+  border: 1px solid transparent;
+  box-shadow: 0 4px 18px rgba(11, 18, 32, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.cta-border-loop {
+  /* 1.8.6 — Geometrie radikal vereinfacht. Vorher (1.8.3-1.8.5) hatte
+   * das SVG inset:-3px (= 6 px breiter als der Button), während
+   * scripts.js die SVG-Attribute width/height = bbox.width/height
+   * setzte. Browser-Renderer hat das viewBox auf die tatsächliche
+   * Element-Größe skaliert → linker Stroke landete außen, rechter
+   * innen → Asymmetrie auf den Vertikalen.
+   *
+   * Jetzt: SVG ist exakt Button-Größe (inset:0), rect deckungsgleich
+   * mit dem viewBox. overflow:visible erlaubt der Stroke-Außenkante
+   * außerhalb der Bounding-Box zu wachsen (Glow + 1.25 px Stroke-Außen).
+   * vector-effect: non-scaling-stroke hält die Stroke-Breite genau
+   * 2.5 device-px, unabhängig von viewBox-Skalierung. */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+  transform: translateZ(0);
+  transition: opacity var(--dur-med) var(--ease-out);
+}
+.cta-border-loop rect {
+  fill: none;
+  stroke: var(--color-warm-accent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter:
+    drop-shadow(0 0 2px var(--color-warm-accent))
+    drop-shadow(0 0 6px rgba(184, 146, 90, 0.55))
+    drop-shadow(0 0 12px rgba(184, 146, 90, 0.32));
+  animation: cta-march 3.2s linear infinite;
+}
+/* Hot-Spot wandert die Rechteck-Kontur einmal pro 3.2s ab.
+ * --cta-len wird von scripts.js auf rect.getTotalLength() gesetzt.
+ * Fallback 200 falls JS nicht greift — dann ist der Cycle nicht
+ * exakt 1 Umlauf, aber der solide 1px-Border-Fallback trägt. */
+@keyframes cta-march {
+  from { stroke-dashoffset: var(--cta-len, 200); }
+  to   { stroke-dashoffset: 0; }
+}
+.hero__cta--secondary:hover {
+  background: var(--color-warm-accent);
+  color: var(--color-authority);
+  border-color: var(--color-warm-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(184, 146, 90, 0.28);
+}
+.hero__cta--secondary:hover .cta-border-loop {
+  /* Hover invertiert den Button auf solid Messing — der animated
+   * Border würde auf gleicher Farbe als doppelter Outline wirken,
+   * also ausblenden während Hover. Nach Hover wieder sichtbar. */
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cta-border-loop rect {
+    animation: none;
+    /* 1.8.3 §A — Glow auch ausblenden bei reduced-motion (gilt als
+     * "Bewegung-naher" visueller Effekt). Solider 1px-Messing-Border-
+     * Fallback auf .hero__cta--secondary kommt jetzt aus dem
+     * border-color-Override unten (1.8.5 §B). */
+    filter: none;
+  }
+  .cta-border-loop { opacity: 0; }
+  /* 1.8.5 §B — bei reduced-motion border-color zurück auf Messing,
+   * damit der Button auch ohne SVG-Hot-Spot eindeutig konturiert ist. */
+  .hero__cta--secondary {
+    border-color: var(--color-warm-accent);
+  }
+}
+
+.hero__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+/* 1.7 Polish §2.1 — solid statt transparent. Transparente Pills waren auf
+ * hellen Werkstatt-Foto-Bereichen schlecht lesbar. Jetzt Nachtblau-88%
+ * mit Messing-Border + weißer Schrift + Messing-Haken-Tint. Kontrast ≥ AA. */
+.hero__pills li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.55rem 1rem;
+  background: rgba(11, 18, 32, 0.88);
+  border: 1px solid rgba(184, 146, 90, 0.25);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-white);
+}
+.hero__pills li span { color: var(--color-warm-accent); font-weight: 700; }
+
+.hero__widget {
+  position: relative;
+  justify-self: start;
+  width: 100%;
+  max-width: 340px;
+  padding: 22px 24px 24px;
+  background: var(--color-white-92);
+  color: var(--color-authority);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  animation: hero-widget-float 4.2s ease-in-out infinite;
+}
+.hero__widget-eyebrow {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  /* Deep-accent statt warm-accent — Messing auf Widget-BG nur 2.4 Ratio (AA fail). */
+  color: var(--color-deep-accent);
+  margin: 0 0 12px;
+}
+.hero__widget-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 0;
+}
+.hero__widget-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  color: var(--color-authority);
+  display: inline-flex;
+  align-items: baseline;
+}
+.hero__widget-unit { color: var(--color-warm-accent); font-size: 20px; margin-left: 2px; }
+.hero__widget-label {
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  /* 0.55 → 4.19 Ratio (knapp AA fail). 0.72 → 5.6 Ratio OK. */
+  color: rgba(10, 10, 10, 0.72);
+  flex: 1;
+}
+.hero__widget-divider {
+  height: 1px;
+  background: linear-gradient(90deg, var(--color-warm-accent) 0%, transparent 100%);
+  opacity: 0.45;
+  margin: 6px 0;
+}
+
+@keyframes hero-widget-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+.hero__decor {
+  position: absolute;
+  right: -2vw; bottom: -2vw;
+  z-index: -1;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(8rem, 22vw, 18rem);
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  color: var(--color-warm-accent);
+  opacity: 0.08;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero__scroll {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--color-white-55);
+  text-decoration: none;
+  padding: 8px;
+}
+.hero__scroll svg { animation: hero-scroll-bounce 2.2s var(--ease-in-out) infinite; }
+@keyframes hero-scroll-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50%      { transform: translateY(4px); opacity: 1; }
+}
+
+@media (min-width: 960px) {
+  .hero__inner {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 3rem;
+  }
+  .hero__widget { justify-self: end; margin-top: 20px; }
+}
+@media (max-width: 600px) {
+  .hero { padding-bottom: 4rem; }
+  .hero__widget { padding: 18px 20px; max-width: none; }
+  .hero__widget-num { font-size: 24px; }
+  .hero__decor { font-size: clamp(6rem, 30vw, 10rem); right: -5vw; bottom: -3vw; }
+  .hero__scroll { display: none; }
+  .hero__ctas .btn { flex: 1; min-width: 0; }
+}
+
+/* 1.9.1 — Hero-CTA „Termin anfragen" Mobile-Visibility (iPhone-Bug).
+ * Diagnose `_logs/1.9.1-acceptance.md` §1 FIX 1: auf iOS Safari verschmilzt
+ * die 95 %-opake Nachtblau-Variante visuell mit dem dunklen Werkstatt-
+ * Foto, so dass der Button als Button nicht mehr erkennbar ist. Headless
+ * Chrome rendert korrekt → kein JS-/Animation-Bug.
+ * Fix für Mobile: ehrliche Glas-Plate (rgba(.55) + backdrop-blur 8 px,
+ * Vendor-Prefix explizit für iOS) + statischer Messing-Border als
+ * Fallback, falls die SVG-Animation auf iOS-Render-Layer ausfällt.
+ *
+ * WICHTIG: Dieser Block MUSS am Ende des Files stehen, sonst greift
+ * das spätere `.hero__cta--secondary { background: rgba(...0.95) }`
+ * (Default-Declaration) cascade-mässig drüber. Erste 1.9.1-Iteration
+ * landete vor dem Default und war damit wirkungslos. */
+@media (max-width: 768px) {
+  .hero__cta--secondary {
+    background: rgba(11, 18, 32, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-color: rgba(184, 146, 90, 0.65);
+    box-shadow: 0 6px 20px rgba(11, 18, 32, 0.45);
+  }
+}
+

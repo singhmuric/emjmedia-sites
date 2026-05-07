@@ -1,0 +1,97 @@
+/* ---------- SECTION 8 · MARKEN-TILES (DNA §10.7) ---------- */
+.marken {
+  background: var(--color-light-2);
+  padding: var(--section-y) 0;
+}
+.tiles {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 12px 4px 28px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-color: var(--color-warm-accent) transparent;
+  scrollbar-width: thin;
+}
+.tiles::-webkit-scrollbar { height: 6px; }
+.tiles::-webkit-scrollbar-thumb { background: var(--color-warm-accent); border-radius: 3px; }
+.tiles:focus-visible { outline: 2px solid var(--color-warm-accent); outline-offset: 4px; border-radius: 10px; }
+
+.tiles__tile {
+  flex: 0 0 280px;
+  min-height: 200px;
+  padding: 24px 24px 26px;
+  background: var(--color-white);
+  border: 1px solid rgba(10, 10, 10, 0.06);
+  border-radius: var(--radius-card);
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform var(--dur-slow) var(--ease-out),
+              box-shadow var(--dur-slow) var(--ease-out),
+              border-color var(--dur-med) var(--ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .tiles__tile:hover {
+    transform: translateY(-6px);
+    border-color: var(--color-warm-accent);
+    box-shadow: 0 14px 36px rgba(11, 18, 32, 0.10);
+  }
+}
+.tiles__brand {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
+  color: var(--color-authority);
+  margin: 0 0 6px;
+  border-bottom: 1px solid rgba(184, 146, 90, 0.22);
+  padding-bottom: 10px;
+}
+.tiles__fact {
+  font-size: 0.88rem;
+  line-height: 1.55;
+  /* 0.55 → 4.41 (knapp AA fail); 0.72 → 5.2 Ratio OK. */
+  color: rgba(10, 10, 10, 0.72);
+  margin: 0;
+}
+.tiles__fact strong { color: var(--color-authority); font-weight: 600; }
+
+.marken__foot {
+  text-align: center;
+  margin: 14px auto 0;
+  font-size: 0.95rem;
+  color: var(--color-ink-55);
+  max-width: 50ch;
+}
+.marken__foot a {
+  color: var(--color-warm-accent);
+  font-weight: 600;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+}
+
+/* 1.9 §A — Inline-CTA „fragen Sie kurz an" war im Diagnose-Audit nur
+ * 133 × 20 px (Constitution §1.8 Hard-Fail). Auf Touch-Geräten Tap-
+ * Padding hochziehen; der Subline-Block ist `text-align: center` und
+ * darf leicht in der Vertikalen wachsen. */
+@media (pointer: coarse) {
+  .marken__foot a {
+    display: inline-block;
+    padding: 12px 6px;
+    min-height: 44px;
+    line-height: 20px;
+  }
+}
+
+/* 1.9 §D 3.4.2 — Tile-Carousel auf engen Mobile-Viewports einrücken.
+ * Diagnose: erste Tile („VW & Audi") wurde am linken Rand ~10 px
+ * abgeschnitten @ 360 px, weil .tiles padding-inline auf 4 px stand. */
+@media (max-width: 480px) {
+  .tiles {
+    padding-inline: 16px;
+    scroll-padding-inline-start: 16px;
+  }
+}
+
