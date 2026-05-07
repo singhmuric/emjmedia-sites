@@ -449,6 +449,34 @@ async function applyUpdates(sheetId, sheetName, headerMap, updates) {
   return { writeCount, expected };
 }
 
+// Datum-Spalten: USER_ENTERED konvertiert "2026-05-04" → Sheet-Date-Serial.
+// Beim re-read als UNFORMATTED_VALUE liefert Sheets eine Zahl (z. B. 46150) zurück.
+// Verify muss beide Repräsentationen als äquivalent akzeptieren.
+const DATE_COLS = new Set(['pitch_date', 'reply_date', 'keep_until']);
+
+// Sheet-Date-Serial: Tage seit 1899-12-30 (Lotus-1-2-3-Quirk inkludiert).
+function serialToIso(serial) {
+  const n = typeof serial === 'number' ? serial : parseFloat(serial);
+  if (!Number.isFinite(n)) return null;
+  const epoch = Date.UTC(1899, 11, 30);
+  const ms = epoch + n * 86400000;
+  const d = new Date(ms);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().slice(0, 10);
+}
+
+function valuesEquivalent(col, expected, actual) {
+  const e = String(expected ?? '');
+  const a = String(actual ?? '');
+  if (e === a) return true;
+  if (DATE_COLS.has(col)) {
+    // expected im YYYY-MM-DD Format → vergleiche mit serial-konvertiertem actual
+    const aIso = serialToIso(a);
+    if (aIso && aIso === e) return true;
+  }
+  return false;
+}
+
 async function verifyWrites(sheetId, sheetName, expected) {
   if (!expected.length) return { ok: true, mismatches: [] };
   const { rows } = await readSheet(sheetId, sheetName);
@@ -461,10 +489,13 @@ async function verifyWrites(sheetId, sheetName, expected) {
       continue;
     }
     for (const [col, val] of Object.entries(e.fields)) {
-      const actualVal = String(actual[col] ?? '');
-      const expectedVal = String(val);
-      if (actualVal !== expectedVal) {
-        mismatches.push({ row: e.rowNumber, col, expected: expectedVal, actual: actualVal });
+      const actualVal = actual[col];
+      if (!valuesEquivalent(col, val, actualVal)) {
+        mismatches.push({
+          row: e.rowNumber, col,
+          expected: String(val),
+          actual: String(actualVal ?? ''),
+        });
       }
     }
   }

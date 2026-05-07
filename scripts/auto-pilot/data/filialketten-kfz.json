@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "branche": "kfz",
+  "stand": "2026-05-06",
+  "purpose": "Pre-Filter Block-Liste für DACH-KFZ-Filialketten. Source-of-Truth für n8n-Workflow leadhunter_kfz_sh Pre-Filter Code-Node. Kanonisch lowercase, ohne Umlaut-Varianten — Code-Node normalisiert deutsche Umlaute selbst (ä→a, ö→o, ü→u, ß→ss) UND matcht parallel die Originalform.",
+  "block_list": {
+    "reifen": [
+      "atu",
+      "a.t.u",
+      "a t u",
+      "pit-stop",
+      "pitstop",
+      "pit stop",
+      "vergölst",
+      "vergoelst",
+      "euromaster",
+      "first stop",
+      "firststop",
+      "1a autoservice",
+      "1a-autoservice",
+      "autocrew",
+      "premio",
+      "reifen helm",
+      "reifen-helm",
+      "reifenhelm",
+      "reifencom",
+      "reifen.com",
+      "reifen blötz",
+      "reifen-blötz",
+      "reifen bloetz",
+      "quick reifendiscount",
+      "quickreifen",
+      "reifen-profi",
+      "reifenprofi",
+      "driver center",
+      "drivercenter",
+      "tyrexpert",
+      "tyre xpert",
+      "tyre-xpert",
+      "ms-reifencenter",
+      "ms reifencenter",
+      "emil frey reifen",
+      "reifenhus",
+      "reifen jorga",
+      "reifen-jorga",
+      "reifen lütjens",
+      "reifen luetjens",
+      "ats reifenservice",
+      "reifen hansen",
+      "reifen thomsen",
+      "ms-motor-service"
+    ],
+    "autoglas": [
+      "carglass",
+      "ks autoglas",
+      "ks-autoglas",
+      "junited autoglas",
+      "junited-autoglas",
+      "wintec autoglas",
+      "wintec-autoglas",
+      "autoglas spezialist",
+      "autoglas-spezialist",
+      "autoglas-partner",
+      "autoglaspartner",
+      "m&c autoglas",
+      "m+c autoglas",
+      "fc autoglas",
+      "autoglas blitz",
+      "autoglas service hamburg",
+      "autoglas zentrum",
+      "autoglas manz",
+      "autoglas laakmann",
+      "autoglas-service hd",
+      "hans jahns auto-glas",
+      "die autoglas engel",
+      "autoglas expert"
+    ],
+    "schnellservice": [
+      "bosch service",
+      "bosch car service",
+      "1a autoservice",
+      "1a-autoservice"
+    ],
+    "lackiererei": [
+      "lackbase",
+      "fellyfix smart repair",
+      "smart repair center",
+      "am smart repair"
+    ],
+    "aufbereitung": [
+      "doski aufbereitung",
+      "leder- u. autopflege",
+      "diamant lackierung",
+      "diamant autowelt",
+      "autoscheibenfolierer"
+    ],
+    "karosserie_konzern": [
+      "schwark karosserie",
+      "birr color",
+      "süverkrüp",
+      "sueverkruep",
+      "emil frey hans carstens"
+    ]
+  },
+  "filiale_patterns": [
+    {
+      "id": "gmbh-stadt-suffix",
+      "regex_source": "\\bGmbH\\s+[A-ZÄÖÜ][a-zäöüß]+(\\s*-\\s*[A-ZÄÖÜ][a-zäöüß]+)+",
+      "flags": "",
+      "match_field": "name",
+      "weight": -10,
+      "comment": "GmbH gefolgt von 'Stadt-Stadtteil', z.B. 'Carglass GmbH Hamburg-Stellingen' — nur Name (Address hat fast immer GmbH+Stadt)"
+    },
+    {
+      "id": "filiale-marker",
+      "regex_source": "\\b(Filiale|Standort|Niederlassung|Service-Point|Service-Center|Servicecenter)\\b",
+      "flags": "i",
+      "match_field": "name",
+      "weight": -10,
+      "comment": "Explizite Filial-Marker im Namen — nur Name (Strassennamen können 'Standort' enthalten)"
+    },
+    {
+      "id": "ehemals-prefix",
+      "regex_source": "\\(\\s*ehemals\\s+",
+      "flags": "i",
+      "match_field": "name",
+      "weight": -10,
+      "comment": "Übernommene Filiale wird als '(ehemals X)' gelistet"
+    },
+    {
+      "id": "plz-stadt-suffix",
+      "regex_source": "\\b\\d{4,5}\\s+(Hamburg|Lübeck|Kiel|Flensburg|Neumünster|Husum|Schleswig|Itzehoe|Pinneberg|Norderstedt)\\b",
+      "flags": "i",
+      "match_field": "name",
+      "weight": -10,
+      "comment": "PLZ + SH-Stadt im Namen → fast immer Filiale-Branding. Nur Name (Address hat IMMER PLZ+Stadt)"
+    }
+  ],
+  "score_rules": {
+    "block_list_match": "hard_dq",
+    "single_pattern_match": -10,
+    "multi_pattern_match": -20,
+    "comment": "block_list_match → Lead komplett verwerfen (NICHT scored, NICHT appendet). Pattern-Matches optional als Soft-Penalty wenn Score-Calc-Stage. Pre-Filter implementiert nur block_list_match."
+  },
+  "negative_examples": [
+    "AutoPro Service Thomas",
+    "Werkstatt Müller GmbH",
+    "KFZ-Meisterbetrieb Hansen",
+    "Autohaus am Bahnhof",
+    "Karosseriebau Petersen"
+  ]
+}
