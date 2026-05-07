@@ -33,10 +33,13 @@ import { parseArgs } from 'node:util';
 import { readSheet, requireColumns } from './lib/sheets-client.mjs';
 import { triageLeads } from './lib/triage.mjs';
 import { composePitchMail, composeFollowupMail } from './lib/mail-composer.mjs';
+import { loadRegistry, loadState, getActiveRegion, nextRegionId, evaluateValidation, evaluateRotation } from './lib/region-rotator.mjs';
 
 const SYNC_STALE_HOURS = 8;
 const BOUNCE_RATE_ALERT_PCT = 5;
 const FOLLOWUP_LOOKBACK_DAYS = 1; // wie weit zurück Follow-ups noch gezeigt werden
+const ROTATION_STATE_PATH = process.env.ROTATION_STATE_PATH || '/opt/auto-pilot/state/leadhunter-state.json';
+const ROTATION_REGISTRY_PATH = process.env.ROTATION_REGISTRY_PATH || join(process.cwd(), 'scripts/auto-pilot/data/regionen-de.json');
 
 function parseCli() {
   const { values } = parseArgs({
@@ -444,6 +447,59 @@ async function buildPitchList({ rows }) {
 // Main
 // ============================================================================
 
+function buildRegionStatus({ stateFilePath, registryFilePath }) {
+  let state, registry;
+  try {
+    state = loadState(stateFilePath);
+    registry = loadRegistry(registryFilePath);
+  } catch (e) {
+    return `## 🌍 Region-Status (KFZ)\n\n_Kein State-File auf diesem Host (${e.message}) — Block übersprungen._\n`;
+  }
+
+  const branch = 'kfz';
+  const b = state.branches?.[branch];
+  if (!b) return '## 🌍 Region-Status (KFZ)\n\n_State-File hat keine kfz-Branch._\n';
+
+  const region = registry.regions.find(r => r.id === b.current_region_id);
+  const regionName = region ? region.name : b.current_region_id;
+  const validation = b.validation || {};
+  const rotation = b.rotation || {};
+  const breaker = b.circuit_breaker || 'closed';
+
+  const validationResult = evaluateValidation(state, branch);
+  const rotationResult = evaluateRotation(state, branch);
+  const nextId = nextRegionId(registry, state, branch);
+  const nextName = nextId ? (registry.regions.find(r => r.id === nextId)?.name || nextId) : '—';
+
+  const lines = [];
+  if (breaker === 'tripped') {
+    lines.push('## 🔴 SYSTEM PAUSIERT — manuelle Intervention nötig');
+    lines.push('');
+    lines.push(`Circuit-Breaker getripped — n8n-Workflow leadhunter_kfz_sh wurde deaktiviert.`);
+    lines.push(`consecutive_failed_validations=${b.consecutive_failed_validations || 0}`);
+    lines.push('');
+  }
+  lines.push('## 🌍 Region-Status (KFZ)');
+  lines.push('');
+  const dayLine = validation.days_active != null ? `(Tag ${validation.days_active})` : '';
+  lines.push(`- **Aktive Region:** ${regionName} ${dayLine}`);
+  const validationIcon = validation.state === 'validated' ? '✅' : validation.state === 'failed' ? '❌' : '🟡';
+  const validationDetails = `${validation.leads_found_in_window || 0} Leads / ${(validation.active_hubs_set || []).length} Hubs`;
+  lines.push(`- **Validation:** ${validationIcon} ${validation.state || 'unknown'} (${validationDetails}) — ${validationResult.reason}`);
+  const dryDays = rotation.consecutive_dry_days || 0;
+  const last5 = (rotation.last_5_run_lead_counts || []).join(',') || '—';
+  const rotationIcon = rotationResult.shouldRotate ? '🟡 ready' : '🟢 hold';
+  lines.push(`- **Rotation:** ${rotationIcon} (consecutive_dry_days=${dryDays}, last 5 runs: ${last5}) — ${rotationResult.reason}`);
+  lines.push(`- **Nächste Region:** ${nextName}${nextId ? ` (id: \`${nextId}\`)` : ' — Registry erschöpft'}`);
+  lines.push(`- **Circuit-Breaker:** ${breaker} (consecutive_failed_validations=${b.consecutive_failed_validations || 0})`);
+  if (b.last_run) {
+    const lr = b.last_run;
+    lines.push(`- **Letzter n8n-Run:** ${lr.ts || '—'} → ${lr.leads_added ?? '?'} Lead(s), matrix=${lr.matrix_size ?? '?'}, places=${lr.places_returned ?? '?'}`);
+  }
+  lines.push('');
+  return lines.join('\n');
+}
+
 async function main() {
   const args = parseCli();
   const today = args.date ?? todayIso();
@@ -490,6 +546,10 @@ async function main() {
   const bounceRatePct = pitchedCount > 0 ? (bouncedCount / pitchedCount) * 100 : null;
 
   // Sektionen bauen
+  const regionStatus = buildRegionStatus({
+    stateFilePath: ROTATION_STATE_PATH,
+    registryFilePath: ROTATION_REGISTRY_PATH,
+  });
   const alerts = buildAlerts({
     syncLastRunIso,
     bounceRatePct,
@@ -508,6 +568,7 @@ async function main() {
     '',
     `*Generiert ${new Date().toISOString()} · Quellen: Sheet \`${args['sheet-name']}\`, Logfile \`gmail-sync-${today}.md\`.*`,
     '',
+    regionStatus,
     alerts,
     replies,
     reviewQueue,
@@ -551,4 +612,5 @@ export {
   buildFollowups,
   buildKpis,
   buildPitchList,
+  buildRegionStatus,
 };
