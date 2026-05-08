@@ -1,0 +1,49 @@
+/* ---------- TOKENS (Handover §4 Farbsystem Variant B: Premium Handwerk) ---------- */
+:root {
+  /* Color system — genau 2 neutrale + 2 warme + Schwarz/Weiß (DNA §1) */
+  --color-authority:    #0B1220;
+  --color-authority-95: rgba(11, 18, 32, 0.95);
+  --color-authority-70: rgba(11, 18, 32, 0.70);
+  --color-authority-12: rgba(11, 18, 32, 0.12);
+  --color-deep-accent:  #1E3A5F;
+  --color-deep-accent-20: rgba(30, 58, 95, 0.20);
+  --color-warm-accent:  #B8925A;
+  --color-warm-strong:  #A17D49;
+  --color-accent-tint:  rgba(184, 146, 90, 0.08);
+  --color-accent-tint-strong: rgba(184, 146, 90, 0.18);
+  --color-light:        #F7F4EE;
+  --color-light-2:      #EDE7DA;
+  --color-ink:          #0A0A0A;
+  --color-ink-70:       rgba(10, 10, 10, 0.70);
+  --color-ink-55:       rgba(10, 10, 10, 0.55);
+  --color-ink-30:       rgba(10, 10, 10, 0.30);
+  --color-white:        #FFFFFF;
+  --color-white-92:     rgba(255, 255, 255, 0.92);
+  --color-white-70:     rgba(255, 255, 255, 0.70);
+  --color-white-55:     rgba(255, 255, 255, 0.55);
+  --color-white-18:     rgba(255, 255, 255, 0.18);
+  --color-white-10:     rgba(255, 255, 255, 0.10);
+  --color-white-06:     rgba(255, 255, 255, 0.06);
+
+  /* Typography */
+  --font-display: 'Fraunces', 'Source Serif Pro', Georgia, serif;
+  --font-body:    'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Motion (emil-design-eng custom curves) */
+  --ease-out:    cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-fast:    160ms;
+  --dur-med:     280ms;
+  --dur-slow:    400ms;
+  --dur-reveal:  900ms;
+
+  /* Layout */
+  --container-max: 1200px;
+  --container-gutter: clamp(1rem, 4vw, 2rem);
+  --section-y:     clamp(4rem, 8vw, 6rem);
+  --section-y-sm:  clamp(2.5rem, 5vw, 3.5rem);
+  --radius-card:   14px;
+  --radius-btn:    10px;
+  --radius-pill:   999px;
+}
+

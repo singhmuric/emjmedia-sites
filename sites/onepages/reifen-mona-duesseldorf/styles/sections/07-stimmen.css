@@ -1,0 +1,201 @@
+/* ---------- SECTION 7 · TESTIMONIALS + STATS (DNA §10.6) ---------- */
+.stimmen {
+  background: var(--color-light);
+  padding: var(--section-y) 0 var(--section-y-sm);
+  position: relative;
+}
+.stimmen__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: start;
+}
+
+/* 1.7 Polish §2.4 — Zwei Feature-Cards vertikal stacken (löst leere Fläche
+ * rechts unter erster Quote). Avatar-Slot links 96px auf Desktop, 64px mobile. */
+.stimmen__feature-stack {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 2vw, 1.75rem);
+}
+.stimmen__feature {
+  position: relative;
+  padding: 32px 32px 36px;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(10, 10, 10, 0.06);
+  box-shadow: 0 12px 40px rgba(11, 18, 32, 0.04);
+  isolation: isolate;
+}
+.stimmen__feature--portrait {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+.stimmen__feature-portrait {
+  margin: 0;
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(11, 18, 32, 0.12);
+  flex-shrink: 0;
+  background: var(--color-light-2);
+}
+.stimmen__feature-portrait picture,
+.stimmen__feature-portrait img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.stimmen__feature-body { min-width: 0; }
+@media (max-width: 720px) {
+  .stimmen__feature--portrait {
+    grid-template-columns: 64px 1fr;
+    gap: 1rem;
+    padding: 26px 24px 28px;
+  }
+  .stimmen__feature-portrait { width: 64px; height: 64px; }
+}
+.stimmen__quote-char {
+  position: absolute;
+  top: 8px; left: 22px;
+  z-index: -1;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(6rem, 14vw, 10rem);
+  line-height: 0.8;
+  color: var(--color-warm-accent);
+  opacity: 0.22;
+  pointer-events: none;
+  user-select: none;
+}
+.stimmen__feature .eyebrow { margin-bottom: 14px; }
+.stimmen__feature-quote {
+  margin: 0 0 20px;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 0.9rem + 0.8vw, 1.35rem);
+  line-height: 1.45;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+  color: var(--color-ink);
+}
+.stimmen__feature-quote p { margin: 0; }
+.stimmen__feature-attr {
+  border-top: 1px solid rgba(10, 10, 10, 0.08);
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.stimmen__stars { color: var(--color-warm-accent); font-size: 14px; letter-spacing: 2px; margin: 0; }
+.stimmen__stars--sm { font-size: 12px; }
+.stimmen__stars .is-dim { color: var(--color-ink-30); }
+.stimmen__name { margin: 4px 0 0; color: var(--color-ink); font-size: 0.9rem; }
+.stimmen__name strong { color: var(--color-authority); }
+.stimmen__date { margin: 0; font-size: 12px; color: var(--color-ink-55); letter-spacing: 0.02em; }
+
+.stimmen__side {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+.stimmen__stack {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(10, 10, 10, 0.08);
+}
+.stimmen__stack li {
+  padding: 18px 2px;
+  border-bottom: 1px solid rgba(10, 10, 10, 0.08);
+}
+.stimmen__stack blockquote {
+  margin: 6px 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--color-ink);
+}
+.stimmen__stack blockquote p { margin: 0; }
+.stimmen__name-sm { margin: 2px 0 0; font-size: 12px; color: var(--color-ink-55); }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 22px;
+  padding: 22px 24px;
+  background: var(--color-white);
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(10, 10, 10, 0.06);
+}
+.stats__cell { position: relative; padding-bottom: 8px; }
+.stats__num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(1.6rem, 1rem + 1.8vw, 2.1rem);
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--color-authority);
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin: 0;
+}
+.stats__suffix {
+  font-size: 0.6em;
+  color: var(--color-warm-accent);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.stats__label {
+  margin: 4px 0 0;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-ink-55);
+}
+.stats__bar {
+  display: block;
+  width: 18px; height: 2px;
+  background: var(--color-warm-accent);
+  margin-top: 10px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 700ms var(--ease-out);
+}
+html.js-reveal-ready .is-revealed .stats__bar,
+.stats__cell.is-revealed .stats__bar { transform: scaleX(1); }
+html:not(.js-reveal-ready) .stats__bar { transform: scaleX(1); }
+
+.review-band {
+  margin-top: clamp(2.5rem, 4vw, 4rem);
+  padding: 20px 0;
+  background: var(--color-white);
+  border-block: 1px solid rgba(10, 10, 10, 0.08);
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, black 5%, black 95%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 5%, black 95%, transparent);
+}
+.review-band__track {
+  display: inline-flex;
+  gap: 18px;
+  white-space: nowrap;
+  animation: marquee-left 80s linear infinite;
+  padding-right: 18px;
+  width: max-content;
+  font-size: 0.92rem;
+  color: var(--color-ink);
+}
+.review-band:hover .review-band__track { animation-play-state: paused; }
+/* Deep-accent auf Weiß = 8.7 Ratio (AAA); warm-accent war nur 2.9 (AA fail). */
+.review-band__item strong { color: var(--color-deep-accent); font-weight: 600; margin-left: 4px; }
+.review-band__sep { color: var(--color-ink-30); }
+
+@media (min-width: 960px) {
+  .stimmen__grid {
+    grid-template-columns: 60% 1fr;
+    gap: clamp(2.5rem, 4vw, 4rem);
+  }
+  .stimmen__feature { padding: 44px 44px 48px; }
+  .stats { padding: 28px 30px; }
+}
+
